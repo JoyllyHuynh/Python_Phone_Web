@@ -1,0 +1,78 @@
+/* Owl Carousel Items */
+.owl-carousel .item {
+  font-size: 24px;
+  text-align: center;
+  margin-top: 20px;
+  transition: transform 0.5s ease;
+}
+
+.owl-carousel .item:hover {
+  transform: scale(1.1);
+}
+
+/* Navigation Arrows */
+.owl-prev,
+.owl-next {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.owl-prev {
+  float: left;
+}
+
+.owl-next {
+  float: right;
+}
+
+.owl-prev span,
+.owl-next span {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Background Sections */
+.buttermilk {
+  background: linear-gradient(#fff7ef, #fff);
+  padding: 50px 40px 20px;
+  border: 1px solid #efe8e1;
+}
+
+.smbg {
+  background: linear-gradient(rgba(110, 69, 143, 0.1), #fff);
+}
+
+.curdbgpro {
+  background: linear-gradient(rgba(10, 77, 123, 0.1), #fff);
+}
+
+/* Image Styling */
+.goodnessseccont img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
+/* Text Block */
+.mlkpro {
+  color: #636362;
+  font-size: 22px;
+  line-height: 1.5;
+  margin: 0 auto 15px;
+  width: 43%;
+  text-align: center;
+}
+
+/* Link Styling */
+.goodnesssec a {
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.3s ease;
+}
+
+.goodnesssec a:hover {
+  color: #6e458f;
+}
+
