@@ -1,53 +1,124 @@
 {% extends 'app/base.html' %}
 {% load static %}
+{%block title%}Giỏ hàng{% endblock title%}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'app/css/cart.css' %}">
+{% endblock extra_css %}
+
 
 {% block cart_content %}
-<div class="row" style="width:100%;">
-	<div class="col-lg-12">
-		<div class="box-element">
+<div class="cart-container">
+    <div class="row cart-wrapper">
+        <div class="col-lg-12">
+            
+            <!-- Cart Summary Header -->
+            <div class="box-element">
+                <a class="btn-continue-shopping" href="{% url 'home' %}">
+                    <span class="arrow-icon">←</span>
+                    <span>Tiếp tục mua sắm</span>
+                </a>
 
-			<a  class="btn btn-outline-dark" href="{% url 'home' %}">&#x2190; Continue Shopping</a>
+                <br><br>
 
-			<br>
-			<br>
-			<table class="table">
-				<tr>
-					<th><h5>Items: <strong>{{order.get_cart_items}}</strong></h5></th>
-					<th><h5>Total: <strong>${{order.get_cart_total}}</strong></h5></th>
-					<th>
-						<a  style="float:right; margin:5px;" class="btn btn-success" href="{% url 'checkout' %}">Checkout</a>
-					</th>
-				</tr>
-			</table>
+                <table class="cart-summary-table">
+                    <tr>
+                        <th>
+                            <h5>
+                                <i class="fas fa-shopping-cart"></i>
+                                Sản phẩm: <strong>{{order.get_cart_items}}</strong>
+                            </h5>
+                        </th>
+                        <th>
+                            <h5>
+                                <i class="fas fa-money-bill-wave"></i>
+                                Tổng tiền: <strong>{{order.get_cart_total|floatformat:0}}₫</strong>
+                            </h5>
+                        </th>
+                        <th>
+                            <a class="btn-checkout" href="{% url 'checkout' %}">
+                                <span>Thanh toán</span>
+                                <span class="btn-checkout-icon">→</span>
+                            </a>
+                        </th>
+                    </tr>
+                </table>
+            </div>
 
-		</div>
+            <!-- Cart Items List -->
+            <div class="box-element">
+                
+                <!-- Table Header -->
+                <div class="cart-table-header">
+                    <div class="col-image">Hình ảnh</div>
+                    <div class="col-product">Sản phẩm</div>
+                    <div class="col-price">Đơn giá</div>
+                    <div class="col-quantity">Số lượng</div>
+                    <div class="col-total">Thành tiền</div>
+                </div>
 
-		<br>
-		<div class="box-element">
-			<div class="cart-row">
-				<div style="flex:2"></div>
-				<div style="flex:2"><strong>Item</strong></div>
-				<div style="flex:1"><strong>Price</strong></div>
-				<div style="flex:1"><strong>Quantity</strong></div>
-				<div style="flex:1"><strong>Total</strong></div>
-			</div>
-			{% for item in items %} 
-			<div class="cart-row">
-				<div style="flex:2"><img class="row-image" src="{{item.product.ImageURL}}"></div>
-				<div style="flex:2"><p>{{item.product.name}}</p></div>
-				<div style="flex:1"><p>${{item.product.price}}</p></div>
-				<div style="flex:1">
-					<p class="quantity">{{item.quantity}}</p>
-					<div class="quantity">
-						<img data-product = {{item.product.id}} data-action = 'add' class="chg-quantity update-cart" src="{% static  'app/images/arrow-up.png' %}">
-				
-						<img data-product = {{item.product.id}} data-action = 'remove' class="chg-quantity update-cart" src="{% static  'app/images/arrow-down.png' %}">
-					</div>
-				</div>
-				<div style="flex:1"><p>${{item.get_total}}</p></div>
-			</div>
-			{% endfor %}
-		</div>
-	</div>
+                <!-- Cart Items -->
+                {% if items %}
+                    {% for item in items %}
+                    <div class="cart-row">
+                        <!-- Product Image -->
+                        <div class="col-image">
+                            <img class="product-image" 
+                                 src="{{item.product.ImageURL}}" 
+                                 alt="{{item.product.name}}">
+                        </div>
+
+                        <!-- Product Name -->
+                        <div class="col-product">
+                            <p class="product-name">{{item.product.name}}</p>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="col-price">
+                            <p class="price-text">{{item.product.price|floatformat:0}}₫</p>
+                        </div>
+
+                        <!-- Quantity -->
+                        <div class="col-quantity">
+                            <div class="quantity-wrapper">
+                                <span class="quantity-value">{{item.quantity}}</span>
+                                <div class="quantity-controls">
+                                    <div class="quantity-btn btn-increase update-cart" 
+                                         data-product="{{item.product.id}}" 
+                                         data-action="add"
+                                         title="Tăng số lượng">
+                                        <img src="{% static 'app/images/arrow-up.png' %}" alt="+">
+                                    </div>
+                                    <div class="quantity-btn btn-decrease update-cart" 
+                                         data-product="{{item.product.id}}" 
+                                         data-action="remove"
+                                         title="Giảm số lượng">
+                                        <img src="{% static 'app/images/arrow-down.png' %}" alt="-">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="col-total">
+                            <p class="total-text">{{item.get_total|floatformat:0}}₫</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Empty Cart -->
+                    <div class="empty-cart">
+                        <div class="empty-cart-icon">🛒</div>
+                        <p class="empty-cart-text">Giỏ hàng của bạn đang trống</p>
+                        <a class="btn-continue-shopping" href="{% url 'home' %}">
+                            <span class="arrow-icon">←</span>
+                            <span>Khám phá sản phẩm</span>
+                        </a>
+                    </div>
+                {% endif %}
+
+            </div>
+
+        </div>
+    </div>
 </div>
 {% endblock cart_content %}

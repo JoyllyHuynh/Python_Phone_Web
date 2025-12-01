@@ -1,0 +1,444 @@
+/* ===========================================
+   CART PAGE STYLES - Phone Store
+   =========================================== */
+
+/* ===== Container & Layout ===== */
+.cart-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 15px;
+}
+
+.cart-wrapper {
+    width: 100%;
+}
+
+/* ===== Box Element - Card Style ===== */
+.box-element {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    padding: 25px;
+    margin-bottom: 20px;
+    border: 1px solid #e8e8e8;
+}
+
+.box-element:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* ===== Cart Header ===== */
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.cart-summary-table {
+    width: 100%;
+    border: none;
+    margin: 0;
+}
+
+.cart-summary-table tr {
+    border: none;
+}
+
+.cart-summary-table th {
+    border: none;
+    padding: 10px 0;
+    vertical-align: middle;
+}
+
+.cart-summary-table h5 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #333;
+    font-weight: 500;
+}
+
+.cart-summary-table strong {
+    color: #e74c3c;
+    font-weight: 700;
+}
+
+/* ===== Buttons ===== */
+.btn-continue-shopping {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: 2px solid #333;
+    border-radius: 8px;
+    background: transparent;
+    color: #333;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-continue-shopping:hover {
+    background: #333;
+    color: #fff;
+    text-decoration: none;
+}
+
+.btn-continue-shopping .arrow-icon {
+    font-size: 1.2rem;
+}
+
+.btn-checkout {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 32px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+.btn-checkout:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+    color: #fff;
+    text-decoration: none;
+}
+
+.btn-checkout-icon {
+    font-size: 1.1rem;
+}
+
+/* ===== Cart Table Header ===== */
+.cart-table-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 10px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #495057;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.cart-table-header .col-image {
+    flex: 1.5;
+    text-align: center;
+}
+
+.cart-table-header .col-product {
+    flex: 2.5;
+}
+
+.cart-table-header .col-price,
+.cart-table-header .col-quantity,
+.cart-table-header .col-total {
+    flex: 1.5;
+    text-align: center;
+}
+
+/* ===== Cart Row - Product Item ===== */
+.cart-row {
+    display: flex;
+    align-items: center;
+    padding: 20px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+
+.cart-row:last-child {
+    border-bottom: none;
+}
+
+.cart-row:hover {
+    background-color: #fafafa;
+}
+
+/* Cart Row Columns */
+.cart-row .col-image {
+    flex: 1.5;
+    text-align: center;
+}
+
+.cart-row .col-product {
+    flex: 2.5;
+}
+
+.cart-row .col-price,
+.cart-row .col-total {
+    flex: 1.5;
+    text-align: center;
+}
+
+.cart-row .col-quantity {
+    flex: 1.5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ===== Product Image ===== */
+.product-image {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: #f8f9fa;
+    padding: 5px;
+    border: 1px solid #e8e8e8;
+    transition: transform 0.3s ease;
+}
+
+.product-image:hover {
+    transform: scale(1.05);
+}
+
+/* ===== Product Info ===== */
+.product-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.product-name:hover {
+    color: #e74c3c;
+}
+
+/* ===== Price Styling ===== */
+.price-text {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #495057;
+    margin: 0;
+}
+
+.total-text {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #e74c3c;
+    margin: 0;
+}
+
+/* ===== Quantity Controls ===== */
+.quantity-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.quantity-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+    background: #f0f0f0;
+    padding: 8px 16px;
+    border-radius: 6px;
+    min-width: 50px;
+    text-align: center;
+}
+
+.quantity-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.quantity-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid #ddd;
+    background: #fff;
+}
+
+.quantity-btn:hover {
+    transform: scale(1.1);
+}
+
+.quantity-btn.btn-increase {
+    background: linear-gradient(135deg, #27ae60, #219a52);
+    border-color: #27ae60;
+}
+
+.quantity-btn.btn-increase:hover {
+    background: linear-gradient(135deg, #219a52, #1e8449);
+    box-shadow: 0 3px 10px rgba(39, 174, 96, 0.3);
+}
+
+.quantity-btn.btn-decrease {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    border-color: #e74c3c;
+}
+
+.quantity-btn.btn-decrease:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226);
+    box-shadow: 0 3px 10px rgba(231, 76, 60, 0.3);
+}
+
+.quantity-btn img {
+    width: 14px;
+    height: 14px;
+    filter: brightness(0) invert(1);
+}
+
+/* ===== Empty Cart ===== */
+.empty-cart {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-cart-icon {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.empty-cart-text {
+    font-size: 1.2rem;
+    color: #888;
+    margin-bottom: 20px;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 992px) {
+    .cart-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .cart-summary-table th {
+        display: block;
+        text-align: center;
+        padding: 8px 0;
+    }
+    
+    .btn-checkout {
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .box-element {
+        padding: 15px;
+    }
+    
+    .cart-table-header {
+        display: none;
+    }
+    
+    .cart-row {
+        flex-wrap: wrap;
+        padding: 15px;
+        gap: 10px;
+        position: relative;
+    }
+    
+    .cart-row .col-image {
+        flex: 0 0 80px;
+    }
+    
+    .cart-row .col-product {
+        flex: 1;
+        min-width: 150px;
+    }
+    
+    .cart-row .col-price,
+    .cart-row .col-quantity,
+    .cart-row .col-total {
+        flex: 1;
+        min-width: 80px;
+    }
+    
+    .product-image {
+        width: 70px;
+        height: 70px;
+    }
+    
+    /* Mobile Labels */
+    .cart-row .col-price::before,
+    .cart-row .col-quantity::before,
+    .cart-row .col-total::before {
+        display: block;
+        font-size: 0.75rem;
+        color: #888;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+    
+    .cart-row .col-price::before {
+        content: "Giá";
+    }
+    
+    .cart-row .col-quantity::before {
+        content: "Số lượng";
+    }
+    
+    .cart-row .col-total::before {
+        content: "Tổng";
+    }
+}
+
+@media (max-width: 480px) {
+    .cart-container {
+        padding: 10px;
+    }
+    
+    .btn-continue-shopping,
+    .btn-checkout {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .product-name {
+        font-size: 0.9rem;
+    }
+    
+    .price-text,
+    .quantity-value {
+        font-size: 0.9rem;
+    }
+}
+
+/* ===== Animation ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cart-row {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+.cart-row:nth-child(1) { animation-delay: 0.1s; }
+.cart-row:nth-child(2) { animation-delay: 0.15s; }
+.cart-row:nth-child(3) { animation-delay: 0.2s; }
+.cart-row:nth-child(4) { animation-delay: 0.25s; }
+.cart-row:nth-child(5) { animation-delay: 0.3s; }
