@@ -1,70 +1,615 @@
 {% extends 'app/base.html' %}
 {% load static %}
 
+{% block title %}Thanh toán{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'app/css/checkout.css' %}">
+{% endblock %}
+
 {% block content_checkout %}
-     <div class="row" style="width:100%;">
-		<div class="col-lg-6">
-			<div class="box-element" id="form-wrapper">
-				<form id="form">
-					<div id="user-info">
-						<div class="form-field">
-							<input required class="form-control" type="text" name="name" placeholder="Name..">
-						</div>
-						<div class="form-field">
-							<input required class="form-control" type="email" name="email" placeholder="Email..">
-						</div>
-					</div>
-					
-					<div id="shipping-info">
-						<hr>
-						<p>Shipping Information:</p>
-						<hr>
-						<div class="form-field">
-							<input class="form-control" type="text" name="address" placeholder="Address..">
-						</div>
-						<div class="form-field">
-							<input class="form-control" type="text" name="city" placeholder="City..">
-						</div>
-						<div class="form-field">
-							<input class="form-control" type="text" name="state" placeholder="State..">
-						</div>
-						<div class="form-field">
-							<input class="form-control" type="text" name="zipcode" placeholder="Zip code..">
-						</div>
-						<div class="form-field">
-							<input class="form-control" type="text" name="country" placeholder="Zip code..">
-						</div>
-					</div>
+<div class="checkout-container">
+    
+    <!-- Checkout Header -->
+    <div class="checkout-header">
+        <div class="checkout-header-content">
+            <a href="{% url 'cart' %}" class="btn-back">
+                <span class="back-icon">←</span>
+                <span>Quay lại giỏ hàng</span>
+            </a>
+            <h1 class="checkout-title">Thanh toán đơn hàng</h1>
+            <p class="checkout-subtitle">Hoàn tất thông tin để đặt hàng</p>
+        </div>
+        
+        <!-- Checkout Steps -->
+        <div class="checkout-steps">
+            <div class="step completed">
+                <div class="step-number">1</div>
+                <div class="step-label">Giỏ hàng</div>
+            </div>
+            <div class="step-line completed"></div>
+            <div class="step active">
+                <div class="step-number">2</div>
+                <div class="step-label">Thanh toán</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-label">Hoàn tất</div>
+            </div>
+        </div>
+    </div>
 
-					<hr>
-					<input id="form-button" class="btn btn-success btn-block" type="submit" value="Continue">
-				</form>
-			</div>
+    <!-- Main Checkout Content -->
+    <div class="checkout-content">
+        <div class="row">
+            
+            <!-- Left Column - Forms -->
+            <div class="col-lg-7">
+                <form id="checkoutForm" method="POST" class="checkout-form">
+                    {% csrf_token %}
+                    
+                    <!-- Customer Information -->
+                    <div class="checkout-section" id="customer-info">
+                        <div class="section-header">
+                            <div class="section-icon">👤</div>
+                            <div class="section-title-wrapper">
+                                <h3 class="section-title">Thông tin khách hàng</h3>
+                                <p class="section-desc">Vui lòng điền đầy đủ thông tin</p>
+                            </div>
+                        </div>
+                        
+                        <div class="section-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Họ và tên <span class="required">*</span>
+                                    </label>
+                                    <input type="text" 
+                                           name="name" 
+                                           class="form-input" 
+                                           placeholder="Nguyễn Văn A"
+                                           required
+                                           {% if user.is_authenticated %}
+                                           value="{{ user.get_full_name }}"
+                                           {% endif %}>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row two-columns">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Email <span class="required">*</span>
+                                    </label>
+                                    <input type="email" 
+                                           name="email" 
+                                           class="form-input" 
+                                           placeholder="email@example.com"
+                                           required
+                                           {% if user.is_authenticated %}
+                                           value="{{ user.email }}"
+                                           {% endif %}>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Số điện thoại <span class="required">*</span>
+                                    </label>
+                                    <input type="tel" 
+                                           name="phone" 
+                                           class="form-input" 
+                                           placeholder="0912 345 678"
+                                           required
+                                           pattern="[0-9]{10,11}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-			<br>
-			<div class="box-element hidden" id="payment-info">
-				<small>Paypal Options</small>
-			</div>
-			
-		</div>
+                    <!-- Shipping Information -->
+                    <div class="checkout-section" id="shipping-info">
+                        <div class="section-header">
+                            <div class="section-icon">📦</div>
+                            <div class="section-title-wrapper">
+                                <h3 class="section-title">Thông tin giao hàng</h3>
+                                <p class="section-desc">Địa chỉ nhận hàng của bạn</p>
+                            </div>
+                        </div>
+                        
+                        <div class="section-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Địa chỉ <span class="required">*</span>
+                                    </label>
+                                    <input type="text" 
+                                           name="address" 
+                                           class="form-input" 
+                                           placeholder="Số nhà, tên đường, phường/xã"
+                                           required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row two-columns">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Tỉnh/Thành phố <span class="required">*</span>
+                                    </label>
+                                    <select name="city" class="form-input form-select" required>
+                                        <option value="">Chọn Tỉnh/Thành phố</option>
+                                        <option value="hanoi">Hà Nội</option>
+                                        <option value="hcm">TP. Hồ Chí Minh</option>
+                                        <option value="danang">Đà Nẵng</option>
+                                        <option value="haiphong">Hải Phòng</option>
+                                        <option value="cantho">Cần Thơ</option>
+                                        <option value="other">Tỉnh/Thành phố khác</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Quận/Huyện <span class="required">*</span>
+                                    </label>
+                                    <select name="district" class="form-input form-select" required>
+                                        <option value="">Chọn Quận/Huyện</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row two-columns">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Phường/Xã <span class="required">*</span>
+                                    </label>
+                                    <select name="ward" class="form-input form-select" required>
+                                        <option value="">Chọn Phường/Xã</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Mã bưu điện</label>
+                                    <input type="text" 
+                                           name="zipcode" 
+                                           class="form-input" 
+                                           placeholder="100000">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Ghi chú đơn hàng</label>
+                                    <textarea name="note" 
+                                              class="form-input form-textarea" 
+                                              rows="3"
+                                              placeholder="Ghi chú về đơn hàng, ví dụ: thời gian hay địa điểm giao hàng chi tiết hơn."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-		<div class="col-lg-6">
-			<div class="box-element">
-				<a  class="btn btn-outline-dark" href="{% url 'cart' %}">&#x2190; Back to Cart</a>
-				<hr>
-				<h3>Order Summary</h3>
-				<hr>
-				{% for item in items %}
-				<div class="cart-row">
-					<div style="flex:2"><img class="row-image" src="{{item.product.ImageURL}}"></div>
-					<div style="flex:2"><p>{{ item.product.name }}</p></div>
-					<div style="flex:1"><p>${{ item.product.price }}</p></div>
-					<div style="flex:1"><p>{{ item.quantity }}</p></div>
-				</div>
-				<h5>Items:  {{order.get_cart_items}}</h5>
-				<h5>Total: ${{order.get_cart_total}}</h5>
-			</div>
-			{% endfor %}
-		</div>
-	</div>
-{% endblock content_checkout %}
+                    <!-- Shipping Method -->
+                    <div class="checkout-section" id="shipping-method">
+                        <div class="section-header">
+                            <div class="section-icon">🚚</div>
+                            <div class="section-title-wrapper">
+                                <h3 class="section-title">Phương thức vận chuyển</h3>
+                                <p class="section-desc">Chọn hình thức giao hàng</p>
+                            </div>
+                        </div>
+                        
+                        <div class="section-body">
+                            <div class="shipping-options">
+                                <label class="shipping-option selected">
+                                    <input type="radio" name="shipping_method" value="standard" checked>
+                                    <div class="option-content">
+                                        <div class="option-icon">📦</div>
+                                        <div class="option-details">
+                                            <span class="option-name">Giao hàng tiêu chuẩn</span>
+                                            <span class="option-time">3-5 ngày làm việc</span>
+                                        </div>
+                                        <div class="option-price">
+                                            <span class="price-value">30.000₫</span>
+                                        </div>
+                                    </div>
+                                </label>
+                                
+                                <label class="shipping-option">
+                                    <input type="radio" name="shipping_method" value="express">
+                                    <div class="option-content">
+                                        <div class="option-icon">⚡</div>
+                                        <div class="option-details">
+                                            <span class="option-name">Giao hàng nhanh</span>
+                                            <span class="option-time">1-2 ngày làm việc</span>
+                                        </div>
+                                        <div class="option-price">
+                                            <span class="price-value">50.000₫</span>
+                                        </div>
+                                    </div>
+                                </label>
+                                
+                                <label class="shipping-option">
+                                    <input type="radio" name="shipping_method" value="same_day">
+                                    <div class="option-content">
+                                        <div class="option-icon">🏃</div>
+                                        <div class="option-details">
+                                            <span class="option-name">Giao hàng trong ngày</span>
+                                            <span class="option-time">Nhận hàng trong 2-4 giờ</span>
+                                            <span class="option-badge">Chỉ HN & HCM</span>
+                                        </div>
+                                        <div class="option-price">
+                                            <span class="price-value">80.000₫</span>
+                                        </div>
+                                    </div>
+                                </label>
+                                
+                                <label class="shipping-option free-shipping {% if order.get_cart_total >= 5000000 %}available{% endif %}">
+                                    <input type="radio" name="shipping_method" value="free" 
+                                           {% if order.get_cart_total < 5000000 %}disabled{% endif %}>
+                                    <div class="option-content">
+                                        <div class="option-icon">🎁</div>
+                                        <div class="option-details">
+                                            <span class="option-name">Miễn phí vận chuyển</span>
+                                            <span class="option-time">3-5 ngày làm việc</span>
+                                            {% if order.get_cart_total < 5000000 %}
+                                            <span class="option-note">Đơn hàng từ 5.000.000₫</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="option-price">
+                                            <span class="price-value free">MIỄN PHÍ</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="checkout-section" id="payment-method">
+                        <div class="section-header">
+                            <div class="section-icon">💳</div>
+                            <div class="section-title-wrapper">
+                                <h3 class="section-title">Phương thức thanh toán</h3>
+                                <p class="section-desc">Chọn cách thanh toán phù hợp</p>
+                            </div>
+                        </div>
+                        
+                        <div class="section-body">
+                            <div class="payment-options">
+                                
+                                <!-- COD -->
+                                <label class="payment-option selected">
+                                    <input type="radio" name="payment_method" value="cod" checked>
+                                    <div class="option-content">
+                                        <div class="option-icon-wrapper cod">
+                                            <img src="{% static 'app/images/cod.png' %}" alt="COD">
+                                        </div>
+                                        <div class="option-details">
+                                            <span class="option-name">Thanh toán khi nhận hàng (COD)</span>
+                                            <span class="option-desc">Thanh toán bằng tiền mặt khi nhận hàng</span>
+                                        </div>
+                                        <div class="option-check">✓</div>
+                                    </div>
+                                </label>
+                                
+                                <!-- Bank Transfer -->
+                                <label class="payment-option">
+                                    <input type="radio" name="payment_method" value="bank_transfer">
+                                    <div class="option-content">
+                                        <div class="option-icon-wrapper bank">
+                                            <img src="{% static 'app/images/bank-transfer.png' %}" alt="Bank">
+                                        </div>
+                                        <div class="option-details">
+                                            <span class="option-name">Chuyển khoản ngân hàng</span>
+                                            <span class="option-desc">Chuyển khoản trước khi giao hàng</span>
+                                        </div>
+                                        <div class="option-check">✓</div>
+                                    </div>
+                                </label>
+                                
+                                <!-- VNPay -->
+                                <label class="payment-option">
+                                    <input type="radio" name="payment_method" value="vnpay">
+                                    <div class="option-content">
+                                        <div class="option-icon-wrapper vnpay">
+                                            <img src="{% static 'app/images/vnpay.png' %}" alt="VNPay">
+                                        </div>
+                                        <div class="option-details">
+                                            <span class="option-name">Ví VNPay</span>
+                                            <span class="option-desc">Thanh toán qua ví điện tử VNPay</span>
+                                        </div>
+                                        <div class="option-check">✓</div>
+                                    </div>
+                                </label>
+                                
+                                <!-- MoMo -->
+                                <label class="payment-option">
+                                    <input type="radio" name="payment_method" value="momo">
+                                    <div class="option-content">
+                                        <div class="option-icon-wrapper momo">
+                                            <img src="{% static 'app/images/momo.png' %}" alt="MoMo">
+                                        </div>
+                                        <div class="option-details">
+                                            <span class="option-name">Ví MoMo</span>
+                                            <span class="option-desc">Thanh toán qua ví điện tử MoMo</span>
+                                        </div>
+                                        <div class="option-check">✓</div>
+                                    </div>
+                                </label>
+                                
+                                <!-- Credit Card -->
+                                <label class="payment-option">
+                                    <input type="radio" name="payment_method" value="credit_card">
+                                    <div class="option-content">
+                                        <div class="option-icon-wrapper card">
+                                            <img src="{% static 'app/images/visa.png' %}" alt="Visa">
+                                            <img src="{% static 'app/images/mastercard.png' %}" alt="Mastercard">
+                                        </div>
+                                        <div class="option-details">
+                                            <span class="option-name">Thẻ tín dụng / Ghi nợ</span>
+                                            <span class="option-desc">Visa, Mastercard, JCB</span>
+                                        </div>
+                                        <div class="option-check">✓</div>
+                                    </div>
+                                </label>
+                                
+                                <!-- Installment -->
+                                <label class="payment-option installment">
+                                    <input type="radio" name="payment_method" value="installment">
+                                    <div class="option-content">
+                                        <div class="option-icon-wrapper">
+                                            <span class="installment-icon">📊</span>
+                                        </div>
+                                        <div class="option-details">
+                                            <span class="option-name">Trả góp 0%</span>
+                                            <span class="option-desc">Trả góp qua thẻ tín dụng hoặc công ty tài chính</span>
+                                            <span class="option-badge hot">HOT</span>
+                                        </div>
+                                        <div class="option-check">✓</div>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <!-- Bank Transfer Info (Hidden by default) -->
+                            <div class="payment-details hidden" id="bank-transfer-info">
+                                <div class="bank-info-card">
+                                    <h4>Thông tin chuyển khoản</h4>
+                                    <div class="bank-details">
+                                        <p><strong>Ngân hàng:</strong> Vietcombank</p>
+                                        <p><strong>Số tài khoản:</strong> 1234567890</p>
+                                        <p><strong>Chủ tài khoản:</strong> CONG TY PHONE STORE</p>
+                                        <p><strong>Nội dung CK:</strong> <span class="order-code">PS-{{ order.id }}</span></p>
+                                    </div>
+                                    <div class="qr-code">
+                                        <img src="{% static 'app/images/qr-bank.png' %}" alt="QR Code">
+                                        <span>Quét mã QR để chuyển khoản</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Credit Card Form (Hidden by default) -->
+                            <div class="payment-details hidden" id="credit-card-form">
+                                <div class="card-form">
+                                    <div class="form-group">
+                                        <label class="form-label">Số thẻ</label>
+                                        <input type="text" 
+                                               class="form-input" 
+                                               placeholder="1234 5678 9012 3456"
+                                               maxlength="19">
+                                    </div>
+                                    <div class="form-row two-columns">
+                                        <div class="form-group">
+                                            <label class="form-label">Ngày hết hạn</label>
+                                            <input type="text" 
+                                                   class="form-input" 
+                                                   placeholder="MM/YY"
+                                                   maxlength="5">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">CVV</label>
+                                            <input type="text" 
+                                                   class="form-input" 
+                                                   placeholder="123"
+                                                   maxlength="4">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Tên trên thẻ</label>
+                                        <input type="text" 
+                                               class="form-input" 
+                                               placeholder="NGUYEN VAN A">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Voucher Code -->
+                    <div class="checkout-section" id="voucher-section">
+                        <div class="section-header">
+                            <div class="section-icon">🎫</div>
+                            <div class="section-title-wrapper">
+                                <h3 class="section-title">Mã giảm giá</h3>
+                                <p class="section-desc">Nhập mã để được giảm giá</p>
+                            </div>
+                        </div>
+                        
+                        <div class="section-body">
+                            <div class="voucher-input-wrapper">
+                                <input type="text" 
+                                       name="voucher_code" 
+                                       class="form-input voucher-input" 
+                                       placeholder="Nhập mã giảm giá">
+                                <button type="button" class="btn-apply-voucher" id="applyVoucher">
+                                    Áp dụng
+                                </button>
+                            </div>
+                            <div class="voucher-message hidden" id="voucherMessage"></div>
+                            
+                            <!-- Available Vouchers -->
+                            <div class="available-vouchers">
+                                <p class="vouchers-title">Mã giảm giá có sẵn:</p>
+                                <div class="voucher-tags">
+                                    <span class="voucher-tag" data-code="NEWUSER">NEWUSER - Giảm 10%</span>
+                                    <span class="voucher-tag" data-code="FREESHIP">FREESHIP - Free ship</span>
+                                    <span class="voucher-tag" data-code="SUMMER50">SUMMER50 - Giảm 50K</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- Right Column - Order Summary -->
+            <div class="col-lg-5">
+                <div class="order-summary-wrapper">
+                    
+                    <!-- Order Summary -->
+                    <div class="order-summary">
+                        <div class="summary-header">
+                            <h3 class="summary-title">Đơn hàng của bạn</h3>
+                            <span class="item-count">{{ order.get_cart_items }} sản phẩm</span>
+                        </div>
+                        
+                        <!-- Order Items -->
+                        <div class="order-items">
+                            {% for item in items %}
+                            <div class="order-item">
+                                <div class="item-image">
+                                    <img src="{{ item.product.ImageURL }}" alt="{{ item.product.name }}">
+                                    <span class="item-quantity">{{ item.quantity }}</span>
+                                </div>
+                                <div class="item-details">
+                                    <h4 class="item-name">{{ item.product.name }}</h4>
+                                    <p class="item-variant">
+                                        {% if item.product.color %}Màu: {{ item.product.color }}{% endif %}
+                                        {% if item.product.storage %} | {{ item.product.storage }}{% endif %}
+                                    </p>
+                                </div>
+                                <div class="item-price">
+                                    <span class="price-current">{{ item.get_total|floatformat:0 }}₫</span>
+                                    {% if item.product.original_price %}
+                                    <span class="price-original">{{ item.product.original_price|floatformat:0 }}₫</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="empty-cart-message">
+                                <p>Giỏ hàng trống</p>
+                                <a href="{% url 'home' %}">Tiếp tục mua sắm</a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Order Totals -->
+                        <div class="order-totals">
+                            <div class="total-row">
+                                <span class="total-label">Tạm tính</span>
+                                <span class="total-value">{{ order.get_cart_total|floatformat:0 }}₫</span>
+                            </div>
+                            <div class="total-row">
+                                <span class="total-label">Phí vận chuyển</span>
+                                <span class="total-value shipping-fee">30.000₫</span>
+                            </div>
+                            <div class="total-row discount hidden" id="discountRow">
+                                <span class="total-label">Giảm giá</span>
+                                <span class="total-value discount-value">-0₫</span>
+                            </div>
+                            <div class="total-row grand-total">
+                                <span class="total-label">Tổng cộng</span>
+                                <span class="total-value grand-total-value">
+                                    {{ order.get_cart_total|floatformat:0 }}₫
+                                </span>
+                            </div>
+                            <p class="vat-note">(Đã bao gồm VAT nếu có)</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Promotions -->
+                    <div class="promotions-box">
+                        <div class="promo-item">
+                            <span class="promo-icon">🎁</span>
+                            <span class="promo-text">Tặng kèm ốp lưng + cường lực trị giá 500.000₫</span>
+                        </div>
+                        <div class="promo-item">
+                            <span class="promo-icon">🔄</span>
+                            <span class="promo-text">Đổi trả miễn phí trong 30 ngày</span>
+                        </div>
+                        <div class="promo-item">
+                            <span class="promo-icon">🛡️</span>
+                            <span class="promo-text">Bảo hành chính hãng 12 tháng</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Place Order Button -->
+                    <button type="submit" form="checkoutForm" class="btn-place-order" id="placeOrderBtn">
+                        <span class="btn-icon">🔒</span>
+                        <span class="btn-text">Đặt hàng</span>
+                        <span class="btn-price">{{ order.get_cart_total|floatformat:0 }}₫</span>
+                    </button>
+                    
+                    <!-- Terms -->
+                    <p class="terms-note">
+                        Bằng việc đặt hàng, bạn đồng ý với 
+                        <a href="#">Điều khoản sử dụng</a> và 
+                        <a href="#">Chính sách bảo mật</a> của Phone Store
+                    </p>
+                    
+                    <!-- Trust Badges -->
+                    <div class="trust-badges">
+                        <div class="badge-item">
+                            <img src="{% static 'app/images/secure-payment.png' %}" alt="Secure">
+                            <span>Thanh toán an toàn</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="{% static 'app/images/genuine.png' %}" alt="Genuine">
+                            <span>100% chính hãng</span>
+                        </div>
+                        <div class="badge-item">
+                            <img src="{% static 'app/images/warranty.png' %}" alt="Warranty">
+                            <span>Bảo hành toàn quốc</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Support -->
+                    <div class="support-box">
+                        <p class="support-title">Cần hỗ trợ?</p>
+                        <div class="support-contacts">
+                            <a href="tel:1900xxxx" class="support-item">
+                                <span class="support-icon">📞</span>
+                                <span>1900 xxxx</span>
+                            </a>
+                            <a href="#" class="support-item">
+                                <span class="support-icon">💬</span>
+                                <span>Chat ngay</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+</div>
+
+<!-- Order Confirmation Modal -->
+<div class="modal-overlay hidden" id="confirmModal">
+    <div class="modal-content">
+        <div class="modal-icon success">✓</div>
+        <h2 class="modal-title">Xác nhận đơn hàng</h2>
+        <p class="modal-message">Bạn có chắc chắn muốn đặt đơn hàng này?</p>
+        <div class="modal-details">
+            <p><strong>Tổng tiền:</strong> <span id="modalTotal">0₫</span></p>
+            <p><strong>Phương thức:</strong> <span id="modalPayment">COD</span></p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" id="cancelOrder">Hủy</button>
+            <button class="btn-modal-confirm" id="confirmOrder">Xác nhận đặt hàng</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'app/js/checkout.js' %}"></script>
+{% endblock %}
