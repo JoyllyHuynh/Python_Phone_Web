@@ -1,5 +1,5 @@
 {% load static %}
-<!DOCTYPE html>
+
 <html>
     <head>
         <meta charset="utf-8">
@@ -11,7 +11,7 @@
         <link href="{% static 'app/css/owl.carousel.min.css' %}" rel="stylesheet" />
         <link href="{% static 'app/css/all.min.css' %}" rel="stylesheet" />
         <link href="{% static 'app/css/checkout.css' %}" rel="stylesheet" />
-{% block extra_css %}{% endblock extra_css %}
+        {% block extra_css %}{% endblock extra_css %}
         <link rel="stylesheet" type="text/css" href="{% static 'app/css/main.css' %}" />
          
 
@@ -49,76 +49,104 @@
         <link rel="stylesheet" href="">
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg bg-light">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="cart_content}">
-      <img src="{% static 'app/images/Neel.png' %}" alt="Logo" width="70" height="70"/>
+       <nav class="navbar navbar-expand-lg navbar-custom">
+  <div class="container-fluid px-4">
+    <!-- Logo -->
+    <a class="navbar-brand" href="{% url 'home' %}">
+      <img src="{% static 'app/images/Neel.png' %}" alt="Phone Store Logo" width="60" height="60" style="border-radius: 50%; border: 3px solid #fff;"/>
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    
+    <!-- Mobile Toggle Button -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <!-- Main Navigation Links -->
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a>
+          <a class="nav-link active" aria-current="page" href="{% url 'home' %}">
+            <i class="fas fa-home me-1"></i> Trang chủ
+          </a>
         </li>
        
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Products
+            <i class="fas fa-mobile-alt me-1"></i> Sản phẩm
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Iphone</a></li>
-            <li><a class="dropdown-item" href="#">Samsung</a></li>
-            <li><a class="dropdown-item" href="#">Xiaomi</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fab fa-apple me-2"></i> iPhone</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-mobile me-2"></i> Samsung</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-mobile-alt me-2"></i> Xiaomi</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-th me-2"></i> Tất cả sản phẩm</a></li>
           </ul>
         </li>
+        
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'cart' %}">Giới thiệu về sản phẩm</a>
+          <a class="nav-link" href="{% url 'cart' %}">
+            <i class="fas fa-info-circle me-1"></i> Giới thiệu
+          </a>
         </li>
+        
         <li class="nav-item">
-          <a class="nav-link" href="#">Liên hệ</a>
+          <a class="nav-link" href="#">
+            <i class="fas fa-phone-alt me-1"></i> Liên hệ
+          </a>
         </li>
       </ul>
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-        <button class="btn btn-outline-success" type="submit">Search</button>
+      
+      <!-- Search Form -->
+      <form class="d-flex search-form me-3" role="search">
+        <input class="form-control me-2" type="search" placeholder="Tìm kiếm điện thoại..." aria-label="Search"/>
+        <button class="btn btn-search" type="submit">
+          <i class="fas fa-search"></i>
+        </button>
       </form>
-    </div>
-     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-       <li class="nav-item dropdown">
+      
+      <!-- User Section -->
+      <ul class="navbar-nav user-section">
+        <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            User
+            <i class="fas fa-user-circle me-1"></i> Tài khoản
           </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Profile</a></li>
-            <li><a class="dropdown-item" href="{% url 'cart' %}">Gio Hang</a></li>
-            <li><a class="dropdown-item" href="#">Exit</a></li>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Hồ sơ</a></li>
+            <li><a class="dropdown-item" href="{% url 'cart' %}"><i class="fas fa-shopping-bag me-2"></i> Đơn hàng</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a></li>
           </ul>
         </li>
-
-         <li class="nav-item">
-          <a class="nav-link" href="#">Dang Nhap</a>
+        
+        <li class="nav-item">
+          <a class="nav-link" href="#">
+            <i class="fas fa-sign-in-alt me-1"></i> Đăng nhập
+          </a>
         </li>
-         <li class="nav-item">
-          <a class="nav-link" href="#">Dang Ky</a>
+        
+        <li class="nav-item">
+          <a class="nav-link" href="#">
+            <i class="fas fa-user-plus me-1"></i> Đăng ký
+          </a>
         </li>
-     </ul>
-     <div class='form-inline my-2 my-lg-0'> 
-
+      </ul>
       
-      <a href="{% url 'cart' %}"><img id="cart-icon" src="{% static 'images/cart.png' %}"></a> 
-      <p id='cart-total' >{{cartItems}}</p>
-     </div>
+      <!-- Cart Icon -->
+      <div class="nav__cart-container">
+        <a href="{% url 'cart' %}" class="cart-link">
+          <img id="cart-icon" src="{% static 'images/cart.png' %}" alt="Giỏ hàng">
+          <span id="cart-total">{{cartItems}}</span>
+        </a>
+      </div>
+    </div>
   </div>
-
 </nav>
   {% block  banner_slider  %}{% endblock banner_slider %}
     <!-- main body-->
   {% block main_content %} {% endblock main_content %}
-  {% block cart_content %} {% endblock cart_content %}
   {% block content_checkout %} {% endblock content_checkout %}
-    <!-- footer -->
+       {% block cart_content %} {% endblock cart_content %}
+       <!-- footer -->
     <footer class="container-fluid bg-success text-center fixed-bottom p-2 mt-5">
         Copyright @ 2024 All right reserved
     </footer>
