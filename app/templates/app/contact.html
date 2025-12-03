@@ -1,0 +1,117 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}Liên hệ - Bảo hành & Tư vấn{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'app/css/contact.css' %}">
+{% endblock extra_css %}
+{% block main_content %}
+
+<div class="contact-header">
+    <div class="container">
+        <h2 class="fw-bold">Liên hệ & Hỗ trợ</h2>
+        <p class="text-muted">Chúng tôi luôn sẵn sàng lắng nghe bạn, dù là tư vấn sản phẩm hay hỗ trợ bảo hành.</p>
+    </div>
+</div>
+
+<div class="container pb-5">
+
+    {% if success %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong vòng 24h.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
+    <div class="row g-5">
+
+        <div class="col-lg-5">
+            <div class="contact-info-box">
+                <h4 class="mb-4">Thông tin liên hệ</h4>
+
+                <div class="d-flex align-items-start mb-4">
+                    <div class="icon-box"><i class="fas fa-map-marker-alt"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Địa chỉ cửa hàng</h6>
+                        <p class="text-muted mb-0">123 Đường ABC, Quận XYZ, TP. Hồ Chí Minh</p>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start mb-4">
+                    <div class="icon-box"><i class="fas fa-phone-alt"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Tư vấn bán hàng</h6>
+                        <p class="text-muted mb-0">09xx.xxx.xxx (8:00 - 21:00)</p>
+                        <small class="text-success">Bấm để gọi ngay</small>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start mb-4">
+                    <div class="icon-box"><i class="fas fa-tools"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Trung tâm bảo hành</h6>
+                        <p class="text-muted mb-0">09xx.xxx.xxx (8:00 - 17:30)</p>
+                        <small class="text-danger">Nghỉ Chủ Nhật</small>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start mb-4">
+                    <div class="icon-box"><i class="fas fa-envelope"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Email hỗ trợ</h6>
+                        <p class="text-muted mb-0">support@neelstore.com</p>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="mt-4">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.424168400497!2d106.69837931480074!3d10.779287992319696!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f36113b6329%3A0x6b49071fdd7c4e0!2zTmjDoCBUaMOuIEjhuq9uLCBLaOG7nWMsIFRow6BuaCBwaOG7kSBI4buTIENow60gTWluaCwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1634547966779!5m2!1svi!2s"
+                            width="100%" height="200" style="border:0; border-radius: 10px;" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="contact-info-box">
+                <h4 class="mb-4">Gửi thắc mắc cho chúng tôi</h4>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Họ và tên</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Nhập họ tên..." required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Nhập email..." required>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="subject" class="form-label">Bạn cần hỗ trợ về?</label>
+                            <select class="form-select" id="subject" name="subject">
+                                <option value="Tư vấn mua hàng">Tư vấn mua hàng</option>
+                                <option value="Bảo hành & Sửa chữa">Bảo hành & Sửa chữa</option>
+                                <option value="Khiếu nại dịch vụ">Khiếu nại dịch vụ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="message" class="form-label">Nội dung chi tiết</label>
+                            <textarea class="form-control" id="message" name="message" rows="5" placeholder="Mô tả vấn đề của bạn..." required></textarea>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-success w-100 py-2 fw-bold">
+                                <i class="fas fa-paper-plane me-2"></i>Gửi tin nhắn ngay
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}
