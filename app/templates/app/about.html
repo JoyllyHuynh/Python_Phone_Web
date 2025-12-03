@@ -1,0 +1,107 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}Về Neel Store - Công nghệ dẫn lối đam mê{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'app/css/about.css' %}">
+{% endblock extra_css %}
+
+{% block main_content %}
+
+<div class="about-hero">
+    <div class="container">
+        <img src="{% static 'app/images/bannerStore.png' %}" alt="bannerStore" class="about-hero-img">
+
+    </div>
+</div>
+
+<div class="container pb-5">
+
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <img src="https://mir-s3-cdn-cf.behance.net/project_modules/fs/ca6cd7150863355.63021c4cc4737.jpg" alt="Neel Store Interior" class="story-img">
+        </div>
+        <div class="col-lg-6 ps-lg-5">
+            <h2 class="mb-4 display-6 fw-bold">Mang đến trải nghiệm công nghệ đỉnh cao</h2>
+            <p class="text-muted">
+                Được thành lập với niềm đam mê cháy bỏng về công nghệ, <strong>Neel Store</strong> không chỉ là nơi bán điện thoại, mà là nơi chúng tôi chia sẻ những kiệt tác công nghệ đến tay người dùng.
+            </p>
+            <p class="text-muted">
+                Tại Neel, chúng tôi hiểu rằng một chiếc điện thoại không chỉ là công cụ liên lạc, mà còn là người bạn đồng hành, là phong cách sống của bạn. Vì vậy, mỗi sản phẩm tại Neel đều trải qua quy trình kiểm tra nghiêm ngặt nhất trước khi đến tay khách hàng.
+            </p>
+
+            <div class="row mt-4 text-center">
+                <div class="col-4">
+                    <div class="stats-number">5+</div>
+                    <small>Năm kinh nghiệm</small>
+                </div>
+                <div class="col-4">
+                    <div class="stats-number">10k+</div>
+                    <small>Khách hàng hài lòng</small>
+                </div>
+                <div class="col-4">
+                    <div class="stats-number">100%</div>
+                    <small>Chính hãng</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mb-5 mt-5">
+        <h6 class="text-success text-uppercase fw-bold">Tại sao chọn Neel?</h6>
+        <h2 class="fw-bold">Cam kết chất lượng vàng</h2>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="feature-box">
+                <div class="icon-wrapper">
+                    <i class="fas fa-medal"></i>
+                </div>
+                <h5>Sản phẩm Chính hãng</h5>
+                <p class="text-muted small">Cam kết 100% sản phẩm chính hãng Apple, Samsung, Xiaomi. Phát hiện hàng giả đền gấp 10 lần.</p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="feature-box">
+                <div class="icon-wrapper">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <h5>Bảo hành Hậu mãi</h5>
+                <p class="text-muted small">Chính sách 1 đổi 1 trong 30 ngày. Bảo hành phần cứng lên đến 12 tháng, hỗ trợ phần mềm trọn đời.</p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="feature-box">
+                <div class="icon-wrapper">
+                    <i class="fas fa-shipping-fast"></i>
+                </div>
+                <h5>Giao hàng Thần tốc</h5>
+                <p class="text-muted small">Giao hàng miễn phí nội thành trong 2h. Đóng gói cẩn thận, an toàn tuyệt đối khi vận chuyển xa.</p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="feature-box">
+                <div class="icon-wrapper">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h5>Hỗ trợ 24/7</h5>
+                <p class="text-muted small">Đội ngũ kỹ thuật viên giàu kinh nghiệm luôn sẵn sàng giải đáp mọi thắc mắc của bạn bất cứ lúc nào.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="box-element mt-5 text-center p-5 bg-light" style="border-radius: 20px;">
+        <h3 class="mb-3">Bạn đã sẵn sàng nâng cấp "dế yêu"?</h3>
+        <p class="mb-4">Khám phá ngay bộ sưu tập mới nhất tại Neel Store với vô vàn ưu đãi hấp dẫn.</p>
+        <a href="{% url 'home' %}" class="btn btn-success btn-lg px-5 rounded-pill shadow">
+            <i class="fas fa-shopping-cart me-2"></i>Mua sắm ngay
+        </a>
+    </div>
+
+</div>
+{% endblock main_content %}

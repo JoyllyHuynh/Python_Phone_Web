@@ -1,0 +1,35 @@
+.profile-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+.profile-header {
+    background: linear-gradient(to right, #198754, #20c997); /* Màu xanh success */
+    padding: 30px;
+    text-align: center;
+    color: white;
+}
+.profile-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+.info-label {
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+.info-value {
+    font-weight: 500;
+    color: #212529;
+    font-size: 1rem;
+    margin-bottom: 15px;
+}
+.empty-text {
+    color: #adb5bd;
+    font-style: italic;
+}
