@@ -76,4 +76,101 @@
   color: #6e458f;
 }
 
+/* ======================================================= */
+/* CSS CHO TRANG CHI TIẾT SẢN PHẨM (product_detail.html) */
+/* ======================================================= */
 
+/* Tiêu đề và Tóm tắt */
+.product-title {
+    font-size: 2.2rem;
+    color: #333;
+}
+
+/* Khu vực Config Selection (Chọn dung lượng, màu sắc) */
+.config-btn {
+    border-radius: 6px !important;
+    border: 2px solid #ddd;
+    padding: 8px 15px;
+    margin-right: 10px;
+    font-weight: 600;
+}
+
+.config-btn:hover {
+    background-color: #f0f0f0;
+}
+
+/* Đánh dấu nút đã chọn */
+.btn-check:checked + .config-btn {
+    border-color: #007bff; /* Màu xanh nổi bật khi chọn */
+    background-color: #e9f5ff; 
+}
+
+/* Chấm chọn màu */
+.color-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px #ccc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.color-dot.active, .color-dot:hover {
+    box-shadow: 0 0 0 3px #007bff; /* Viền xanh khi active/hover */
+}
+
+/* Khu vực Giá và Ưu đãi */
+.price-offer-box {
+    border: 1px solid #ffcccc !important; /* Viền đỏ nhạt để nổi bật */
+    background-color: #fffafa; /* Nền trắng hồng nhẹ */
+}
+
+.price-sale {
+    color: #cb1c22 !important; /* Đỏ rực như CellphoneS/FPT */
+}
+
+.promotion-box ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.promotion-box li {
+    margin-bottom: 5px;
+    line-height: 1.4;
+}
+
+/* Nút Mua Hàng */
+.btn-danger {
+    background-color: #cb1c22;
+    border-color: #cb1c22;
+    font-size: 1.25rem;
+}
+
+.btn-danger:hover {
+    background-color: #a81519;
+    border-color: #a81519;
+}
+
+/* Tabs nội dung */
+.nav-tabs .nav-link {
+    font-weight: bold;
+    color: #666;
+}
+
+.nav-tabs .nav-link.active {
+    color: #007bff;
+    border-color: #dee2e6 #dee2e6 #fff;
+}
+
+/* Thông số kỹ thuật ngắn */
+.tech-specs ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.tech-specs li {
+    padding: 3px 0;
+    border-bottom: 1px dashed #eee;
+    font-size: 0.95rem;
+}
