@@ -6,6 +6,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from .models import *
 @login_required(login_url='login')
+from django.shortcuts import render, get_object_or_404
+from .models import Product
 
 # Create your views here.
 def register(request):
@@ -76,27 +78,37 @@ def updateItem(request):
     if orderItem.quantity <= 0:
         orderItem.delete()
     return JsonResponse('added', safe=False)
-# Đảm bảo bạn đã import login_required ở đầu file
-from django.contrib.auth.decorators import login_required
 
-"@login_required(login_url='login') # Bắt buộc đăng nhập mới xem được trang này"
-def user_info(request):
+def product_detail(request, pk): # Tên hàm phải khớp với tên trong urls.py
+    product = get_object_or_404(Product, pk=pk)
+    # Thêm logic xử lý bình luận, cấu hình, v.v.
+    context = {'product': product}
+    return render(request, 'app/product_detail.html', context)
 
-    try:
-        customer = request.user.customer
-    except:
-        customer = None
+def home(request):
+    # Lấy tất cả các hãng để truyền vào sidebar/menu
+    brands = Brand.objects.all()
+    products = Product.objects.all() # hoặc QuerySet sản phẩm nổi bật
 
-    orders = []
-    if customer:
+    context = {'products': products, 'brands': brands}
+    return render(request, 'app/home.html', context)
 
-        orders = Order.objects.filter(customer=customer, complete=True).order_by('-id')
+def product_list_by_brand(request, brand_slug):
+    # 1. Lấy tất cả các hãng để hiển thị menu bên trên
+    brands = Brand.objects.all()
 
-    context = {'orders': orders}
+    # 2. Lấy đối tượng Brand hiện tại (hoặc trả về 404 nếu không tìm thấy)
+    current_brand = get_object_or_404(Brand, slug=brand_slug)
 
-    return render(request, 'app/user_info.html', context)
+    # 3. Lọc tất cả sản phẩm thuộc Brand đó
+    products = Product.objects.filter(brand=current_brand)
 
-
+    context = {
+        'products': products,
+        'brands': brands,
+        'current_brand': current_brand # Dùng để hiển thị tiêu đề
+    }
+    return render(request, 'app/product_list_by_brand.html', context)
 def about(request):
     if request.user.is_authenticated:
         try:

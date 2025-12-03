@@ -10,12 +10,21 @@ class Customer(models.Model):
 
     def __str__(self):
         return self.name
+
+class Brand(models.Model):
+    name = models.CharField(max_length=200, null=True, unique=True)
+    slug = models.SlugField(max_length=200, unique=True) # Dùng cho URL thân thiện
+    image = models.ImageField(upload_to='brands/', null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
 class Product(models.Model):
     name = models.CharField(max_length=200, null=True)
     price = models.FloatField()
     digital = models.BooleanField(default=False, null=True, blank=False)
     image = models.ImageField(null=True, blank=True)
-
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='products')
 
     def __str__(self):
         return self.name
