@@ -84,7 +84,7 @@
         </li>
         
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'cart' %}">
+          <a class="nav-link" href="{% url 'about' %}">
             <i class="fas fa-info-circle me-1"></i> Giới thiệu
           </a>
         </li>
@@ -111,7 +111,7 @@
             <i class="fas fa-user-circle me-1"></i> Tài khoản
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Hồ sơ</a></li>
+            <li><a class="dropdown-item" href="{% url 'user_info' %}"><i class="fas fa-user me-2"></i> Hồ sơ</a></li>
             <li><a class="dropdown-item" href="{% url 'cart' %}"><i class="fas fa-shopping-bag me-2"></i> Đơn hàng</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a></li>

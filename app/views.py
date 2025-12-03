@@ -3,6 +3,9 @@ from django.http import HttpResponse, JsonResponse
 from .models import *
 import json
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
+from .models import *
+@login_required(login_url='login')
 
 # Create your views here.
 def register(request):
@@ -73,3 +76,37 @@ def updateItem(request):
     if orderItem.quantity <= 0:
         orderItem.delete()
     return JsonResponse('added', safe=False)
+# Đảm bảo bạn đã import login_required ở đầu file
+from django.contrib.auth.decorators import login_required
+
+"@login_required(login_url='login') # Bắt buộc đăng nhập mới xem được trang này"
+def user_info(request):
+
+    try:
+        customer = request.user.customer
+    except:
+        customer = None
+
+    orders = []
+    if customer:
+
+        orders = Order.objects.filter(customer=customer, complete=True).order_by('-id')
+
+    context = {'orders': orders}
+
+    return render(request, 'app/user_info.html', context)
+
+
+def about(request):
+    if request.user.is_authenticated:
+        try:
+            customer = request.user.customer
+            order, created = Order.objects.get_or_create(customer=customer, complete=False)
+            cartItems = order.get_cart_items
+        except:
+             cartItems = 0
+    else:
+        cartItems = 0
+
+    context = {'cartItems': cartItems}
+    return render(request, 'app/about.html', context)
