@@ -3,11 +3,10 @@ from django.http import HttpResponse, JsonResponse
 from .models import *
 import json
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.decorators import login_required
-from .models import *
-@login_required(login_url='login')
 from django.shortcuts import render, get_object_or_404
 from .models import Product
+from django.contrib.auth.decorators import login_required
+@login_required(login_url='login')
 
 # Create your views here.
 def register(request):
@@ -109,6 +108,20 @@ def product_list_by_brand(request, brand_slug):
         'current_brand': current_brand # Dùng để hiển thị tiêu đề
     }
     return render(request, 'app/product_list_by_brand.html', context)
+
+def user_info(request):
+    if request.user.is_authenticated:
+        try:
+            customer = request.user.customer
+            order, created = Order.objects.get_or_create(customer=customer, complete=False)
+            cartItems = order.get_cart_items
+        except:
+             cartItems = 0
+    else:
+        cartItems = 0
+
+    context = {'cartItems': cartItems}
+    return render(request, 'app/user_info.html', context)
 def about(request):
     if request.user.is_authenticated:
         try:
