@@ -1,77 +1,103 @@
 {% extends 'app/base.html' %} 
 {% load static %}
-{% load humanize %} 
+{% load humanize %}
 
 {% block extra_css %}
 <style>
-    /* CSS cho card sản phẩm */
+    /* --- 1. CSS chung cho Product Card --- */
     .product-card {
-        transition: transform 0.3s, box-shadow 0.3s;
         border-radius: 12px;
         overflow: hidden;
-    }
-    .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-    .product-card img {
-        height: 200px; /* Chiều cao cố định cho ảnh sản phẩm */
-        object-fit: contain;
-        padding: 15px;
-        background-color: #f7f7f7;
-    }
-    .product-card .card-body {
-        padding: 15px;
-    }
-    .product-card .product-name {
-        min-height: 40px; /* Giữ cho tên sản phẩm không bị xô lệch */
-    }
-    .product-price {
-        font-size: 1.25rem;
-        color: #dc3545;
-        font-weight: bold;
+        transition: all 0.3s ease-in-out;
+        background: #fff;
     }
 
-    /* CSS cho Brand List (Hãng sản xuất) */
-    .brand-list-container {
-        padding: 20px 0;
-        background-color: #f8f9fa;
-        border-radius: 12px;
-        margin-bottom: 40px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important; /* Force shadow khi hover */
     }
+
+    .product-card img.card-img-top {
+        height: 200px;
+        object-fit: contain; /* Giữ tỷ lệ ảnh */
+        padding: 20px;       /* Tăng padding để ảnh không sát viền */
+        background-color: #fff;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .product-card .card-body {
+        padding: 1.25rem;
+    }
+
+    .product-name {
+        font-size: 1rem;
+        line-height: 1.4;
+        min-height: 44px; /* Đủ cho 2 dòng chữ */
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* Cắt bớt nếu tên quá dài quá 2 dòng */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .product-price {
+        font-size: 1.25rem;
+        color: #dc3545; /* Màu đỏ đặc trưng cho giá */
+        font-weight: 700;
+    }
+
+    /* --- 2. CSS cho Brand List (Hãng sản xuất) --- */
+    .brand-section {
+        background-color: #f8f9fa; /* Nền nhẹ cho cả vùng brand */
+        border-radius: 16px;
+    }
+
     .brand-card {
-        display: block;
-        transition: all 0.2s;
-        max-width: 100px;
+        width: 100px;
+        text-decoration: none;
+        transition: all 0.3s ease;
     }
+
     .brand-image-wrapper {
-        width: 70px;
-        height: 70px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        width: 80px;
+        height: 80px;
         margin: 0 auto;
+        border: 2px solid #e9ecef; /* Viền xám nhạt mặc định */
         background-color: #ffffff;
-        border: 2px solid transparent !important;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        padding: 10px; /* Padding để logo không dính sát viền tròn */
     }
+
     .brand-logo {
         width: 100%;
         height: 100%;
         object-fit: contain;
+        transition: transform 0.3s ease;
     }
-    .brand-card:hover {
-        transform: scale(1.05);
-    }
+
+    /* Hiệu ứng Hover Brand */
     .brand-card:hover .brand-image-wrapper {
-        border-color: #007bff !important;
-        box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+        border-color: #0d6efd; /* Viền xanh khi hover */
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
     }
-    .brand-card p {
-        font-size: 0.85rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+
+    .brand-card:hover .brand-logo {
+        transform: scale(1.1);
+    }
+
+    .brand-card:hover .brand-name {
+        color: #0d6efd !important;
+    }
+
+    .brand-name {
+        transition: color 0.3s;
+    }
+
+    /* Utility */
+    .grayscale {
+        filter: grayscale(100%);
+        opacity: 0.6;
     }
 </style>
 {% endblock extra_css %}
@@ -117,74 +143,68 @@
 </div>
 {% endblock banner_slider %}
 
-{% block main_content %} 
+{% block main_content %}
 <div class="container my-5">
-    
-    <!-- --------------------------------------- -->
-    <!-- PHẦN 1: Danh sách Hãng Điện Thoại (MỚI) -->
-    <!-- --------------------------------------- -->
-    <h3 class="fw-bold text-center mb-4">Khám phá theo Hãng Sản Xuất</h3>
-    
-    <div class="brand-list-container d-flex flex-wrap justify-content-center p-3 mb-5">
-{% for brand in brands %}
-    <a href="{% url 'product_list_by_brand' brand.slug %}" class="brand-card text-center text-decoration-none mx-2 my-2">
-        <div class="brand-image-wrapper rounded-circle shadow-sm">
-            <!-- Sửa: Thêm kiểm tra điều kiện brand.image -->
-            {% if brand.image %}
-                <!-- Sử dụng brand.image.url nếu có ảnh -->
-                <img src="{{ brand.image.url }}" alt="{{ brand.name }}" class="brand-logo rounded-circle">
-            {% else %}
-                <!-- Hiển thị placeholder hoặc icon nếu không có ảnh -->
-                <div class="p-3 text-center text-muted">No Image</div>
-            {% endif %}
+
+    <section class="brand-section p-4 mb-5 shadow-sm"> <h3 class="fw-bold text-center mb-4 text-uppercase">Khám phá theo Hãng</h3>
+
+        <div class="brand-list-container d-flex flex-wrap justify-content-center gap-4"> {% for brand in brands %}
+            <a href="{% url 'product_list_by_brand' brand.slug %}" class="brand-card text-center">
+                <div class="brand-image-wrapper rounded-circle d-flex align-items-center justify-content-center">
+                    {% if brand.image %}
+                    <img src="{{ brand.image.url }}" alt="{{ brand.name }}" class="brand-logo" loading="lazy">
+                    {% else %}
+                    <img src="{% static 'images/default-brand.png' %}" alt="Default" class="brand-logo grayscale">
+                    {% endif %}
+                </div>
+
+                <p class="brand-name mt-2 text-dark" title="{{ brand.name }}">
+                    {{ brand.name }}
+                </p>
+            </a>
+            {% empty %}
+            <div class="alert alert-info w-100 text-center" role="alert">
+                Hiện chưa có danh mục hãng sản xuất nào.
+            </div>
+            {% endfor %}
         </div>
-        <p class="small fw-bold mt-2 text-dark">{{ brand.name }}</p>
-    </a>
-{% empty %}
-        <p class="text-muted">Không có hãng sản xuất nào được tìm thấy.</p>
-        {% endfor %}
-    </div>
+    </section>
 
-    <hr class="my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold m-0">Sản Phẩm Nổi Bật</h3>
+        <a href="#" class="btn btn-sm btn-outline-primary">Xem tất cả</a> </div>
 
-    <!-- --------------------------------------- -->
-    <!-- PHẦN 2: Danh sách Sản Phẩm Nổi Bật -->
-    <!-- --------------------------------------- -->
-    <h3 class="fw-bold mb-4">Sản Phẩm Nổi Bật</h3>
-    
-    <div class="row"> 
+    <div class="row g-4">
         {% for product in products %}
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-            <div class="card product-card h-100 shadow-sm border-0">
-                
-                <!-- Hình ảnh sản phẩm -->
-                <img class="card-img-top" src="{{ product.ImageURL }}" alt="{{ product.name }}"/>
-                
-                <div class="card-body d-flex flex-column">
-                    <!-- Tên sản phẩm -->
-                    <h6 class="card-title product-name fw-bold mb-3">
-                        {{ product.name }}
-                    </h6>
+        <div class="col-lg-3 col-md-4 col-sm-6"> <div class="card product-card h-100 shadow-sm border-0">
 
-                    <!-- Giá sản phẩm -->
-                    <h3 class="product-price mt-auto mb-3">
-                        {{ product.price | floatformat:0 | intcomma }}₫
-                    </h3>
-                    
-                    <div class="d-grid gap-2">
-                        <!-- Nút Thêm giỏ hàng (AJAX) -->
-                        <button data-product="{{product.id}}" 
-                                data-action="add" 
-                                class="btn btn-danger update-cart">
-                                Thêm vào giỏ hàng
-                        </button>
-                        <!-- Nút Xem chi tiết -->
-                        <a class="btn btn-outline-secondary" href="{% url 'product_detail' product.id %}">
-                            Xem chi tiết
-                        </a> 
-                    </div>
+            <a href="{% url 'product_detail' product.id %}">
+                <img class="card-img-top"
+                     src="{{ product.ImageURL }}"
+                     alt="{{ product.name }}"
+                     loading="lazy"/>
+            </a>
+
+            <div class="card-body d-flex flex-column">
+                <h6 class="card-title product-name fw-bold mb-2">
+                    <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark">
+                        {{ product.name }}
+                    </a>
+                </h6>
+
+                <h3 class="product-price mt-auto mb-3">
+                    {{ product.price | floatformat:0 | intcomma }}₫
+                </h3>
+
+                <div class="d-grid gap-2">
+                    <button data-product="{{product.id}}"
+                            data-action="add"
+                            class="btn btn-danger update-cart fw-bold">
+                        <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                    </button>
                 </div>
             </div>
+        </div>
         </div>
         {% endfor %}
     </div>
