@@ -1,0 +1,249 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Arial', sans-serif;
+}
+
+.container, .container-fluid {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.carousel-item {
+    transition: transform 0.6s ease-in-out;
+}
+
+.carousel-inner img {
+    height: 400px;
+    object-fit: cover;
+}
+
+.carousel-caption {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    padding: 15px;
+    bottom: 20px;
+}
+
+.card {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    border: 1px solid #e9ecef;
+}
+
+.hover-zoom:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.hover-zoom img {
+    opacity: 0.8;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.hover-zoom:hover img {
+    opacity: 1;
+}
+
+.thumbnail {
+    width: 100%;
+    height: 200px;
+    object-fit: contain;
+    padding: 10px;
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+}
+
+.box-element.product {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-top: -5px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+}
+
+.box-element.product h6 {
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.box-element.product hr {
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.box-element.product h3 {
+    color: #dc3545;
+    font-size: 1.3rem;
+}
+
+.box-element.product > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+@media (max-width: 768px) {
+    .carousel-inner img {
+        height: 250px;
+    }
+
+    .carousel-caption h5 {
+        font-size: 1rem;
+    }
+
+    .carousel-caption p {
+        font-size: 0.8rem;
+        display: none;
+    }
+}
+
+/* ======================================================= */
+/* CẬP NHẬT FIX LỖI CĂN CHỈNH THANH TÌM KIẾM */
+/* ======================================================= */
+
+/* **QUAN TRỌNG 1:** Căn giữa tất cả các khối (links, search, user) trong Navbar */
+.collapse.navbar-collapse {
+    align-items: center; /* Đảm bảo căn giữa theo chiều dọc */
+}
+
+/* 1. Mở rộng Form Tìm Kiếm */
+.search-form {
+    flex-grow: 1; 
+    max-width: 650px; 
+    margin-left: 20px !important; 
+    margin-right: 20px !important; 
+    
+    /* **QUAN TRỌNG 2:** Căn giữa Input và Button trong Form */
+    display: flex;
+    align-items: center; 
+}
+
+/* 2. Đảm bảo ô Input chiếm toàn bộ chiều rộng của Form VÀ CÓ CHIỀU CAO CHUẨN */
+.search-form .form-control {
+    width: 100%;
+    /* **QUAN TRỌNG 3:** Cố định chiều cao input để khớp với button Bootstrap */
+    height: 38px; 
+}
+
+/* 3. Đảm bảo các khối chính (Main Links và User Section) không bị chiếm không gian */
+#navbarContent .me-auto {
+    flex-shrink: 0;
+}
+
+/* **QUAN TRỌNG 4:** Căn giữa khối người dùng và giỏ hàng */
+.user-section, .nav__cart-container {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center; 
+}
+
+.navbar-nav .nav-item {
+    margin-right: 5px; 
+}
+
+/* ======================================================= */
+/* CSS CHO TRANG CHI TIẾT SẢN PHẨM (product_detail.html) */
+/* ======================================================= */
+
+/* Tiêu đề và Tóm tắt */
+.product-title {
+    font-size: 2.2rem;
+    color: #333;
+}
+
+/* Khu vực Config Selection (Chọn dung lượng, màu sắc) */
+.config-btn {
+    border-radius: 6px !important;
+    border: 2px solid #ddd;
+    padding: 8px 15px;
+    margin-right: 10px;
+    font-weight: 600;
+}
+
+.config-btn:hover {
+    background-color: #f0f0f0;
+}
+
+/* Đánh dấu nút đã chọn */
+.btn-check:checked + .config-btn {
+    border-color: #007bff; /* Màu xanh nổi bật khi chọn */
+    background-color: #e9f5ff; 
+}
+
+/* Chấm chọn màu */
+.color-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px #ccc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.color-dot.active, .color-dot:hover {
+    box-shadow: 0 0 0 3px #007bff; /* Viền xanh khi active/hover */
+}
+
+/* Khu vực Giá và Ưu đãi */
+.price-offer-box {
+    border: 1px solid #ffcccc !important; /* Viền đỏ nhạt để nổi bật */
+    background-color: #fffafa; /* Nền trắng hồng nhẹ */
+}
+
+.price-sale {
+    color: #cb1c22 !important; /* Đỏ rực như CellphoneS/FPT */
+}
+
+.promotion-box ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.promotion-box li {
+    margin-bottom: 5px;
+    line-height: 1.4;
+}
+
+/* Nút Mua Hàng */
+.btn-danger {
+    background-color: #cb1c22;
+    border-color: #cb1c22;
+    font-size: 1.25rem;
+}
+
+.btn-danger:hover {
+    background-color: #a81519;
+    border-color: #a81519;
+}
+
+/* Tabs nội dung */
+.nav-tabs .nav-link {
+    font-weight: bold;
+    color: #666;
+}
+
+.nav-tabs .nav-link.active {
+    color: #007bff;
+    border-color: #dee2e6 #dee2e6 #fff;
+}
+
+/* Thông số kỹ thuật ngắn */
+.tech-specs ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.tech-specs li {
+    padding: 3px 0;
+    border-bottom: 1px dashed #eee;
+    font-size: 0.95rem;
+}
+

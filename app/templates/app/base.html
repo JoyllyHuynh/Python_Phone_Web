@@ -5,43 +5,44 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <!-- CSS -->
-         
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+          
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <link href="{% static 'app/css/home.css' %}" rel="stylesheet" />
         <link href="{% static 'app/css/style.css' %}" rel="stylesheet" />
         <link href="{% static 'app/css/owl.carousel.min.css' %}" rel="stylesheet" />
         <link href="{% static 'app/css/all.min.css' %}" rel="stylesheet" />
         <link href="{% static 'app/css/checkout.css' %}" rel="stylesheet" />
+
         {% block extra_css %}{% endblock extra_css %}
         <link rel="stylesheet" type="text/css" href="{% static 'app/css/main.css' %}" />
-         
+          
 
         <!-- JS -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" xintegrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" xintegrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" xintegrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
         <script src="{% static 'app/js/owl.carousel.min.js' %}" > </script>
         <script src="{% static 'app/js/all.min.js' %}" > </script>
         <script src="{% static 'app/js/myscript.js' %}" > </script>
 
         <script type="text/javascript">
-          var user = '{{request.user}}' 
-          function getCookie(name) {
-              let cookieValue = null;
-              if (document.cookie && document.cookie !== '') {
-                  const cookies = document.cookie.split(';');
-                  for (let i = 0; i < cookies.length; i++) {
-                      const cookie = cookies[i].trim();
-                      // Does this cookie string begin with the name we want?
-                      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                          break;
-                      }
-                  }
-              }
-              return cookieValue;
-          }
-          const csrftoken = getCookie('csrftoken');
-          </script>
+    var user = '{{request.user}}' 
+    
+    // Lấy CSRF token từ cookie
+    function getCookie(name) {
+        var cookieArr = document.cookie.split(";");
+        for(var i = 0; i < cookieArr.length; i++) {
+            var cookiePair = cookieArr[i].split("=");
+            if(name == cookiePair[0].trim()) {
+                return decodeURIComponent(cookiePair[1]);
+            }
+        }
+        return null;
+    }
+    var csrftoken = getCookie('csrftoken');
+</script>
+
+<script src="{% static 'app/js/cart.js' %}"></script>
 
         <title>Web Ban Hang Online</title>
         <meta name="description" content="">
@@ -69,7 +70,7 @@
             <i class="fas fa-home me-1"></i> Trang chủ
           </a>
         </li>
-       
+        
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="fas fa-mobile-alt me-1"></i> Sản phẩm
@@ -123,32 +124,30 @@
             <i class="fas fa-sign-in-alt me-1"></i> Đăng nhập
           </a>
         </li>
-        
-        <li class="nav-item">
-          <a class="nav-link" href="#">
-            <i class="fas fa-user-plus me-1"></i> Đăng ký
-          </a>
-        </li>
+      
       </ul>
       
       <!-- Cart Icon -->
       <div class="nav__cart-container">
         <a href="{% url 'cart' %}" class="cart-link">
           <img id="cart-icon" src="{% static 'images/cart.png' %}" alt="Giỏ hàng">
+          <!-- BIẾN GỐC -->
           <span id="cart-total">{{cartItems}}</span>
         </a>
       </div>
     </div>
   </div>
 </nav>
-  {% block  banner_slider  %}{% endblock banner_slider %}
+  {% block  banner_slider  %}{% endblock banner_slider %}
     <!-- main body-->
   {% block main_content %} {% endblock main_content %}
   {% block content_checkout %} {% endblock content_checkout %}
-       {% block cart_content %} {% endblock cart_content %}
-       <!-- footer -->
-    <footer class="container-fluid bg-success text-center fixed-bottom p-2 mt-5">
-        Copyright @ 2024 All right reserved
+        {% block cart_content %} {% endblock cart_content %}
+        <!-- footer -->
+    <footer class="container-fluid bg-success text-center p-4 mt-5">
+    <p class="mb-0">
+        Copyright @ 2024 All right reserved | Điện thoại chính hãng từ PhoneStore
+    </p>
     </footer>
     <script src="{% static 'app/js/cart.js' %}" > </script>
   </body>
