@@ -135,3 +135,38 @@ def about(request):
 
     context = {'cartItems': cartItems}
     return render(request, 'app/about.html', context)
+
+# app/views.py
+
+def contact(request):
+    # Logic giỏ hàng (giữ nguyên để header không bị lỗi số lượng)
+    if request.user.is_authenticated:
+        try:
+            customer = request.user.customer
+            order, created = Order.objects.get_or_create(customer=customer, complete=False)
+            cartItems = order.get_cart_items
+        except:
+            cartItems = 0
+    else:
+        cartItems = 0
+
+    message_success = False
+
+    # Xử lý khi người dùng ấn nút Gửi
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+
+        # Lưu vào database
+        Contact.objects.create(
+            name=name,
+            email=email,
+            subject=subject,
+            message=message
+        )
+        message_success = True # Cờ báo thành công để hiển thị popup
+
+    context = {'cartItems': cartItems, 'success': message_success}
+    return render(request, 'app/contact.html', context)

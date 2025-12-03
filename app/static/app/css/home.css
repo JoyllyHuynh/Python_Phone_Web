@@ -104,32 +104,65 @@ body {
     }
 }
 
-/* ======================================================= */
-/* CẬP NHẬT FIX LỖI CĂN CHỈNH THANH TÌM KIẾM */
-/* ======================================================= */
 
 /* **QUAN TRỌNG 1:** Căn giữa tất cả các khối (links, search, user) trong Navbar */
 .collapse.navbar-collapse {
     align-items: center; /* Đảm bảo căn giữa theo chiều dọc */
-}
-
-/* 1. Mở rộng Form Tìm Kiếm */
-.search-form {
-    flex-grow: 1; 
-    max-width: 650px; 
-    margin-left: 20px !important; 
-    margin-right: 20px !important; 
-    
-    /* **QUAN TRỌNG 2:** Căn giữa Input và Button trong Form */
     display: flex;
-    align-items: center; 
+    justify-content: space-around;
 }
 
-/* 2. Đảm bảo ô Input chiếm toàn bộ chiều rộng của Form VÀ CÓ CHIỀU CAO CHUẨN */
-.search-form .form-control {
+/* 1. Định hình khung form */
+.search-form {
+    position: relative;
+    max-width: 500px; /* Giới hạn chiều rộng để không bị quá dài */
     width: 100%;
-    /* **QUAN TRỌNG 3:** Cố định chiều cao input để khớp với button Bootstrap */
-    height: 38px; 
+    margin: 0 auto;
+}
+
+/* 2. Tùy chỉnh ô nhập liệu (Input) */
+.search-form .form-control {
+    border-radius: 50px;
+    border: 2px solid #e9ecef;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+    box-shadow: none;
+}
+
+.search-form .form-control:focus {
+    background-color: #fff;
+    border-color: #198754;
+    box-shadow: 0 4px 15px rgba(25, 135, 84, 0.15);
+}
+
+.search-form .btn-search {
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #198754;
+    border: none;
+    color: white;
+    margin-left: -50px;
+    z-index: 10;
+    transition: transform 0.2s ease, background-color 0.2s;
+    cursor: pointer;
+}
+
+/* Hiệu ứng khi di chuột vào nút */
+.search-form .btn-search:hover {
+    background-color: #146c43; /* Màu xanh đậm hơn */
+    transform: scale(1.1); /* Phóng to nhẹ */
+}
+
+/* Xử lý class me-2 của bootstrap trong HTML cũ để không bị lệch */
+.search-form .form-control.me-2 {
+    margin-right: 0 !important; /* Ghi đè margin của bootstrap */
+    padding-right: 50px; /* Chừa chỗ cho nút tìm kiếm nằm bên trong */
 }
 
 /* 3. Đảm bảo các khối chính (Main Links và User Section) không bị chiếm không gian */
@@ -144,9 +177,9 @@ body {
     align-items: center; 
 }
 
-.navbar-nav .nav-item {
-    margin-right: 5px; 
-}
+/*.navbar-nav .nav-item {*/
+/*    margin-right: 5px; */
+/*}*/
 
 /* ======================================================= */
 /* CSS CHO TRANG CHI TIẾT SẢN PHẨM (product_detail.html) */

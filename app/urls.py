@@ -13,4 +13,5 @@ urlpatterns = [
     path('brand/<slug:brand_slug>/', views.product_list_by_brand, name='product_list_by_brand'),
     path('user_info/', views.user_info, name='user_info'),
     path('about/', views.about, name='about'),
+    path('contact/', views.contact, name='contact'),
 ]
