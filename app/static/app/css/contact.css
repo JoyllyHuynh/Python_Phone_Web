@@ -1,0 +1,30 @@
+.contact-header {
+    background-color: #f8f9fa;
+    padding: 50px 0;
+    text-align: center;
+    margin-bottom: 40px;
+    border-radius: 0 0 20px 20px;
+}
+.contact-info-box {
+    padding: 30px;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    height: 100%;
+}
+.icon-box {
+    width: 50px;
+    height: 50px;
+    background: #e8f5e9; /* Màu xanh nhạt */
+    color: #198754; /* Màu xanh chính */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-right: 15px;
+}
+.form-control:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+}
