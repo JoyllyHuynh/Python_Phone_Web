@@ -5,20 +5,95 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'app/css/cart.css' %}">
 <style>
-    /* CSS tạm thời để kiểm soát layout col-md-8/col-md-4, sẽ được chuyển vào cart.css */
+    /* CSS Tùy chỉnh cho Trang Giỏ hàng */
+    .cart-summary-sidebar {
+        order: 1; /* Giữ bên phải trên desktop */
+    }
     @media (max-width: 991.98px) {
         .cart-summary-sidebar {
             order: -1; /* Đẩy thanh toán lên trên cùng trên mobile */
             margin-bottom: 20px;
         }
     }
+    
     .total-price-text {
         color: #dc3545; /* Màu đỏ nổi bật */
         font-size: 1.8rem;
         font-weight: bold;
     }
+
+    /* Phong cách hóa Bảng Giỏ hàng */
+    .cart-list-container {
+        border: none !important; /* Loại bỏ border mặc định nếu đã có */
+        border-radius: 8px;
+        overflow: hidden; /* Cần thiết cho shadow và border-radius */
+    }
+
+    .cart-table-header {
+        background-color: #f7f7f7 !important; /* Nền đầu bảng sáng hơn */
+        border-bottom: 1px solid #eee !important;
+        color: #6c757d !important; /* Màu chữ xám */
+        font-weight: 600 !important;
+        padding-top: 15px !important;
+        padding-bottom: 15px !important;
+    }
+
+    .cart-row {
+        transition: background-color 0.2s;
+        padding: 15px 10px !important;
+    }
+    .cart-row:hover {
+        background-color: #fcfcfc;
+    }
+
+    .product-image {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        border: 1px solid #eee;
+    }
+    
+    /* Điều chỉnh nhóm Số lượng */
+    .quantity-group {
+        width: 110px; /* Chiều rộng cố định */
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .quantity-group .btn {
+        width: 30px;
+        height: 30px;
+        line-height: 1;
+        padding: 0;
+        border: none;
+        background: transparent;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .quantity-group .btn:hover {
+        background-color: #e9ecef;
+    }
+    .quantity-value {
+        flex-grow: 1;
+        text-align: center;
+        font-weight: bold;
+        color: #333;
+    }
+
+    /* Style cho Tổng kết đơn hàng */
+    .checkout-btn {
+        background-color: #dc3545; /* Màu đỏ nổi bật */
+        border-color: #dc3545;
+    }
+    .checkout-btn:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
 </style>
 {% endblock extra_css %}
+
 
 
 {% block cart_content %}
@@ -26,65 +101,67 @@
     <div class="row">
         
         <div class="col-lg-8">
-            <h3 class="mb-4 fw-bold">🛒 Giỏ hàng của bạn ({{order.get_cart_items}} sản phẩm)</h3>
+            <h3 class="mb-4 fw-bold text-dark">🛒 Giỏ hàng của bạn (<span id="cart-total-product-count">{{order.get_cart_items}}</span> sản phẩm)</h3>
             
-            <a class="btn btn-outline-dark btn-sm mb-3" href="{% url 'home' %}">
+            <a class="btn btn-outline-secondary btn-sm mb-3" href="{% url 'home' %}">
                 <i class="fas fa-arrow-left me-2"></i> Tiếp tục mua sắm
             </a>
             
-            <div class="box-element cart-list-container p-0 border rounded shadow-sm">
+            <div class="box-element cart-list-container bg-white border rounded shadow-sm">
                 
                 {% if items %}
-                <div class="cart-table-header p-3 bg-light d-flex fw-bold text-uppercase small text-muted border-bottom">
-                    <div class="col-5">Sản phẩm</div>
+                <div class="cart-table-header d-flex text-uppercase small border-bottom">
+                    <div class="col-5 ps-4">Sản phẩm</div>
                     <div class="col-2 text-center">Đơn giá</div>
                     <div class="col-3 text-center">Số lượng</div>
                     <div class="col-2 text-center">Thành tiền</div>
                 </div>
 
-                {% for item in items %}
-                <div class="cart-row p-3 d-flex align-items-center border-bottom">
-                    
-                    <div class="col-5 d-flex align-items-center">
-                        <img class="product-image rounded me-3" 
-                             src="{{item.product.ImageURL}}" 
-                             alt="{{item.product.name}}">
-                        <div>
-                            <p class="product-name fw-bold mb-0">{{item.product.name}}</p>
+                <div id="cart-items-list">
+                    {% for item in items %}
+                    <div class="cart-row d-flex align-items-center border-bottom">
+                        
+                        <div class="col-5 d-flex align-items-center ps-4">
+                            <img class="product-image rounded me-3" 
+                                    src="{{item.product.ImageURL}}" 
+                                    alt="{{item.product.name}}">
+                            <div>
+                                <p class="product-name fw-bold mb-0 text-dark">{{item.product.name}}</p>
+                            </div>
+                        </div>
+
+                        <div class="col-2 text-center">
+                            <p class="price-text mb-0 text-muted">{{item.product.price|floatformat:0|intcomma}}₫</p>
+                        </div>
+
+                        <div class="col-3 text-center">
+                            <div class="d-flex justify-content-center align-items-center quantity-group mx-auto">
+                                <button class="btn update-cart" 
+                                        data-product="{{item.product.id}}" 
+                                        data-action="remove">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <span class="quantity-value" id="quantity-{{item.product.id}}">{{item.quantity}}</span>
+                                <button class="btn update-cart" 
+                                        data-product="{{item.product.id}}" 
+                                        data-action="add">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-2 text-center">
+                            <p class="total-text mb-0 fw-bold text-danger">{{item.get_total|floatformat:0|intcomma}}₫</p>
                         </div>
                     </div>
-
-                    <div class="col-2 text-center">
-                        <p class="price-text mb-0 text-muted">{{item.product.price|floatformat:0|intcomma}}₫</p>
-                    </div>
-
-                    <div class="col-3 text-center">
-                        <div class="d-flex justify-content-center align-items-center quantity-group">
-                            <button class="btn btn-sm btn-outline-secondary p-1 update-cart" 
-                                    data-product="{{item.product.id}}" 
-                                    data-action="remove">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <span class="quantity-value mx-2">{{item.quantity}}</span>
-                            <button class="btn btn-sm btn-outline-secondary p-1 update-cart" 
-                                    data-product="{{item.product.id}}" 
-                                    data-action="add">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="col-2 text-center">
-                        <p class="total-text mb-0 fw-bold text-danger">{{item.get_total|floatformat:0|intcomma}}₫</p>
-                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
                 
                 {% else %}
                 <div class="empty-cart text-center p-5">
                     <div class="display-1 text-muted">🛒</div>
-                    <p class="h4 mt-3 mb-4 empty-cart-text">Giỏ hàng của bạn đang trống</p>
-                    <a class="btn btn-primary btn-lg" href="{% url 'home' %}">
+                    <p class="h4 mt-3 mb-4 empty-cart-text text-muted">Giỏ hàng của bạn đang trống</p>
+                    <a class="btn btn-danger btn-lg" href="{% url 'home' %}">
                         <i class="fas fa-search me-2"></i> Khám phá sản phẩm ngay
                     </a>
                 </div>
@@ -94,33 +171,34 @@
         </div>
         
         <div class="col-lg-4 cart-summary-sidebar">
-            <div class="box-element p-4 rounded shadow-sm border">
-                <h4 class="fw-bold mb-4">📝 Tổng kết đơn hàng</h4>
+            <div class="box-element p-4 rounded shadow-sm bg-white border">
+                <h4 class="fw-bold mb-4 border-bottom pb-3">📝 Tổng kết đơn hàng</h4>
                 
-                <div class="d-flex justify-content-between mb-3">
+                <div class="d-flex justify-content-between mb-3 small text-muted">
                     <span>Tổng số lượng:</span>
-                    <span class="fw-bold">{{order.get_cart_items}} sản phẩm</span>
+                    <span class="fw-bold text-dark">{{order.get_cart_items}} sản phẩm</span>
                 </div>
                 
-                <div class="d-flex justify-content-between mb-3">
-                    <span>Tạm tính:</span>
-                    <span class="fw-bold">{{order.get_cart_total|floatformat:0|intcomma}}₫</span>
+                <div class="d-flex justify-content-between mb-3 small text-muted">
+                    <span>Tạm tính (chưa VAT):</span>
+                    <span class="fw-bold text-dark">{{order.get_cart_total|floatformat:0|intcomma}}₫</span>
                 </div>
                 
                 <hr>
                 
                 <div class="d-flex justify-content-between mb-4">
-                    <span class="h5 fw-bold text-uppercase">Tổng tiền:</span>
+                    <span class="h5 fw-bold text-uppercase">TỔNG TIỀN:</span>
                     <span class="total-price-text">{{order.get_cart_total|floatformat:0|intcomma}}₫</span>
                 </div>
                 
-                <a class="btn btn-danger btn-lg w-100 checkout-btn" href="{% url 'checkout' %}">
+                <a class="btn checkout-btn btn-lg w-100" href="{% url 'checkout' %}">
                     <i class="fas fa-money-check-alt me-2"></i> TIẾN HÀNH THANH TOÁN
                 </a>
             </div>
             
-            <div class="mt-3 text-center small text-muted">
-                <p>Hotline hỗ trợ: <strong class="text-dark">1900 1234</strong></p>
+            <div class="mt-4 p-3 rounded shadow-sm bg-light text-center">
+                <p class="mb-0 small text-dark fw-bold">Hotline hỗ trợ:</p>
+                <p class="mb-0 h5 text-danger fw-bold">1900 1234</p>
             </div>
         </div>
     </div>

@@ -68,6 +68,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 # THÊM DÒNG NÀY ĐỂ ĐĂNG KÝ CART CONTEXT PROCESSOR:
                 'app.context_processors.cart_context',
+                'app.context_processors.brands_in_navbar',
             ],
         },
     },
