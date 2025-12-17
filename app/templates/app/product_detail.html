@@ -2,6 +2,10 @@
 {% load static %}
 {% load humanize %}  
 
+{% block extra_css %}
+<link href="{% static 'app/css/product_detail.css' %}" rel="stylesheet" />
+{% endblock extra_css %}
+
 {% block main_content %}
 <div class="container my-5">
     <h1 class="product-title fw-bold mb-3">{{ product.name }}</h1>
@@ -74,7 +78,8 @@
 
             <div class="d-grid gap-2 mt-4">
                 <button data-product-id="{{ product.id }}" data-action="add" class="btn btn-danger btn-lg update-cart fw-bold">
-                    <i class="fas fa-shopping-cart me-2"></i> MUA NGAY
+                    <i class="fas fa-shopping-cart me-2" href="{% url 'cart' %}"></i> MUA NGAY
+                    
                 </button>
                 <div class="row">
                     <div class="col">

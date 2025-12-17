@@ -1,0 +1,119 @@
+/* Product detail page styles */
+:root{
+  --accent: #dc3545; /* red/danger */
+  --muted: #6c757d;
+  --surface: #fff;
+  --shadow: 0 10px 30px rgba(16,24,40,0.06);
+  --radius: 12px;
+}
+
+.container .product-title{
+  font-size: 1.6rem;
+  letter-spacing: -0.2px;
+}
+
+.product-header-info .product-rating{
+  font-size: 0.95rem;
+  color: #ffb703;
+}
+
+.product-gallery{
+  background: linear-gradient(180deg, rgba(250,250,250,1), rgba(255,255,255,1));
+  border-radius: 12px;
+}
+
+.main-product-img{
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.tech-specs{
+  margin-top: 14px;
+}
+
+.config-selection .config-btn{
+  border-radius: 8px;
+}
+
+/* Make configuration labels have black text and keep default background.
+   Selected radio (btn-check:checked + label) shows a thicker black border. */
+.config-selection .config-btn{
+  color: #000; /* text black */
+}
+
+.config-selection .btn-check:checked + .config-btn{
+  border: 4px solid #000; /* bold black border when selected */
+  color: #000; /* ensure text stays black */
+  background-color: transparent !important; /* don't change background */
+  box-shadow: none !important;
+}
+
+.color-options .color-dot{
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.06);
+  cursor: pointer;
+}
+
+.color-options .color-dot.active{
+  box-shadow: 0 0 0 4px rgba(0,0,0,0.04) inset;
+  transform: scale(1.05);
+}
+
+.price-offer-box{
+  background: var(--surface);
+}
+
+.price-sale{
+  font-size: 2rem;
+}
+
+.promotion-box{
+  border-left: 4px solid rgba(0,0,0,0.03);
+}
+
+.update-cart{
+  background: var(--accent);
+  border-color: var(--accent);
+  height: 56px;
+  font-size: 1.05rem;
+}
+
+.update-cart:hover{opacity:0.95}
+
+.hotline-contact{
+  border: 1px dashed rgba(0,0,0,0.04);
+}
+
+/* Tabs area */
+.product-tabs-section .nav-tabs .nav-link{
+  color: #343a40;
+  font-weight: 600;
+}
+
+.product-tabs-section .tab-content{
+  border-radius: 8px;
+}
+
+/* Reviews column */
+#reviews .display-3{
+  font-size: 3.2rem;
+}
+
+/* Small screens adjustments */
+@media (max-width: 767.98px){
+  .product-header-info{flex-direction:column;align-items:flex-start}
+  .product-title{font-size:1.35rem}
+  .price-sale{font-size:1.6rem}
+  .update-cart{height:48px}
+  .color-options .color-dot{width:28px;height:28px}
+}
+
+/* Utilities */
+.card.border-0{background:transparent}
+
+/* Accessibility focus styles */
+.color-dot:focus, .config-btn:focus, .btn:focus{outline:3px solid rgba(13,110,253,0.12); outline-offset:2px}

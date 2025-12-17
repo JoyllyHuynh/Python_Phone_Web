@@ -2,9 +2,10 @@
 {% load static %}
 {% load humanize %}
 
+
 {% block extra_css %}
 <style>
-    /* --- 1. CSS chung cho Product Card --- */
+    /* --- 1. CSS chung cho Product Card (Giữ nguyên) --- */
     .product-card {
         border-radius: 12px;
         overflow: hidden;
@@ -14,13 +15,13 @@
 
     .product-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important; /* Force shadow khi hover */
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
     }
 
     .product-card img.card-img-top {
         height: 200px;
-        object-fit: contain; /* Giữ tỷ lệ ảnh */
-        padding: 20px;       /* Tăng padding để ảnh không sát viền */
+        object-fit: contain;
+        padding: 20px;
         background-color: #fff;
         border-bottom: 1px solid #f0f0f0;
     }
@@ -32,22 +33,29 @@
     .product-name {
         font-size: 1rem;
         line-height: 1.4;
-        min-height: 44px; /* Đủ cho 2 dòng chữ */
+        min-height: 44px;
         display: -webkit-box;
-        -webkit-line-clamp: 2; /* Cắt bớt nếu tên quá dài quá 2 dòng */
+        -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
 
     .product-price {
         font-size: 1.25rem;
-        color: #dc3545; /* Màu đỏ đặc trưng cho giá */
+        color: #dc3545;
         font-weight: 700;
     }
 
-    /* --- 2. CSS cho Brand List (Hãng sản xuất) --- */
+    /* --- CHỈNH SỬA: Nút "Thêm vào giỏ hàng" bo tròn hơn (Giữ nguyên) --- */
+    .update-cart {
+        border-radius: 20px !important;
+        padding: 8px 15px;
+        font-size: 0.9rem;
+    }
+
+    /* --- 2. CSS cho Brand List (Hãng sản xuất) (Giữ nguyên) --- */
     .brand-section {
-        background-color: #f8f9fa; /* Nền nhẹ cho cả vùng brand */
+        background-color: #f8f9fa;
         border-radius: 16px;
     }
 
@@ -61,11 +69,11 @@
         width: 80px;
         height: 80px;
         margin: 0 auto;
-        border: 2px solid #e9ecef; /* Viền xám nhạt mặc định */
+        border: 2px solid #e9ecef;
         background-color: #ffffff;
         overflow: hidden;
         transition: all 0.3s ease;
-        padding: 10px; /* Padding để logo không dính sát viền tròn */
+        padding: 10px;
     }
 
     .brand-logo {
@@ -75,9 +83,9 @@
         transition: transform 0.3s ease;
     }
 
-    /* Hiệu ứng Hover Brand */
+    /* Hiệu ứng Hover Brand (Giữ nguyên) */
     .brand-card:hover .brand-image-wrapper {
-        border-color: #0d6efd; /* Viền xanh khi hover */
+        border-color: #0d6efd;
         transform: translateY(-5px);
         box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
     }
@@ -94,11 +102,59 @@
         transition: color 0.3s;
     }
 
-    /* Utility */
+    /* Utility (Giữ nguyên) */
     .grayscale {
         filter: grayscale(100%);
         opacity: 0.6;
     }
+    
+    /* --- BỔ SUNG & CHỈNH SỬA: CSS cho Banner Slider 🚀 --- */
+    .carousel-inner {
+        border-radius: 12px; /* Bo tròn khung ngoài của slider */
+        overflow: hidden; /* Cắt bỏ phần dư thừa */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Thêm bóng đổ nhẹ cho nổi bật */
+    }
+
+    .carousel-image,
+    .carousel-item img {
+        width: 100%;
+        height: 450px; 
+        object-fit: contain; /* Ảnh sẽ co giãn để nằm trọn trong khung */
+        background-color: #f0f0f0; /* Thêm màu nền cho khoảng trống (tùy chọn) */
+    }
+
+    /* Chỉnh sửa vị trí và style cho Indicators (Dấu chấm điều hướng) */
+    .carousel-indicators button {
+        width: 10px !important;
+        height: 10px !important;
+        border-radius: 50%;
+        margin: 0 5px;
+        background-color: #fff; /* Chuyển màu trắng để dễ thấy trên mọi nền ảnh */
+        opacity: 0.5;
+        transition: opacity 0.3s, background-color 0.3s;
+    }
+
+    .carousel-indicators .active {
+        opacity: 1;
+        background-color: #fff; /* Highlight màu trắng */
+    }
+    
+    /* Chỉnh sửa style cho Carousel Captions */
+    .carousel-caption {
+        bottom: 20px; /* Đẩy lên trên một chút */
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.6) !important; /* Dùng nền đen mờ để chữ luôn rõ */
+        border-radius: 8px;
+        color: #fff;
+    }
+
+    /* Chỉnh sửa style cho Controls (Mũi tên điều hướng) */
+    .carousel-control-prev, 
+    .carousel-control-next {
+        width: 5%; /* Giảm kích thước vùng click */
+    }
+
+
 </style>
 {% endblock extra_css %}
 
@@ -111,25 +167,13 @@
   </div>
   <div class="carousel-inner">
     <div class="carousel-item active" data-bs-interval="10000">
-      <img src="{% static 'app/images/banner/b1.jpg' %}" class="d-block w-100" alt="Banner 1" style="height: 400px; object-fit: cover;">
-      <div class="carousel-caption d-none d-md-block bg-success text-white opacity-75 rounded p-2">
-        <h5>First slide label</h5>
-        <p>Some representative placeholder content for the first slide.</p>
-      </div>
+      <img src="{% static 'app/images/banner/2-15.jpg' %}" class="d-block w-100" alt="Banner 1" **style="height: 400px; object-fit: contain;"**>
     </div>
     <div class="carousel-item" data-bs-interval="2000">
-      <img src="{% static 'app/images/banner/b2.jpg' %}" class="d-block w-100" alt="Banner 2" style="height: 400px; object-fit: cover;">
-      <div class="carousel-caption d-none d-md-block bg-success text-white opacity-75 rounded p-2">
-        <h5>Second slide label</h5>
-        <p>Some representative placeholder content for the second slide.</p>
-      </div>
+      <img src="{% static 'app/images/banner/2-15.jpg' %}" class="d-block w-100" alt="Banner 2" **style="height: 400px; object-fit: contain;"**>
     </div>
     <div class="carousel-item">
-      <img src="{% static 'app/images/banner/b3.jpg' %}" class="d-block w-100" alt="Banner 3" style="height: 400px; object-fit: cover;">
-      <div class="carousel-caption d-none d-md-block bg-success text-white opacity-75 rounded p-2">
-        <h5>Third slide label</h5>
-        <p>Some representative placeholder content for the third slide.</p>
-      </div>
+      <img src="{% static 'app/images/banner/2-15.jpg' %}" class="d-block w-100" alt="Banner 3" **style="height: 400px; object-fit: contain;"**>
     </div>
   </div>
   <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="prev">
