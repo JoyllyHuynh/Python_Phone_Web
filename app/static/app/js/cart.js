@@ -1,50 +1,49 @@
+// app/js/cart.js - PHIÊN BẢN RELOAD ĐƠN GIẢN VÀ ĐÁNG TIN CẬY
+
+// Giả định các biến csrftoken và user đã được định nghĩa ở đây
+
 var updateBtns = document.getElementsByClassName('update-cart')
 
-// 1. Dùng var cho biến i (Tốt hơn)
 for (var i = 0; i < updateBtns.length; i++) {
-    updateBtns[i].addEventListener('click', function () {   
-        // 2. Chú ý: Dùng 'product' nếu HTML là data-product="..."
+    // Truyền đối tượng event vào hàm xử lý
+    updateBtns[i].addEventListener('click', function (e) { 
         var productId = this.dataset.product
         var action = this.dataset.action
         
-        console.log('productId:', productId, 'action:', action)
-        console.log('user:', user)
-
-        if (user == 'AnonymousUser') {
-            console.log('User not logged in, show login prompt or use cookie session')
+        if (user === 'AnonymousUser') {
+            alert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.');
         } else {
-            updateUserOrder(productId, action)
+            // TRUYỀN ĐỐI TƯỢNG EVENT (e) VÀO HÀM updateUserOrder
+            updateUserOrder(productId, action, e) 
         }
     })
 }
 
-function updateUserOrder(productId, action) {
-    console.log('User is logged in, sending data...')   
-    var url = '/update_item/'
+function updateUserOrder(productId, action, event) { 
+    var url = '/update_item/' 
     
-    // Gửi yêu cầu AJAX
     fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken, // Rất quan trọng cho POST request
+            'X-CSRFToken': csrftoken,
         },
         body: JSON.stringify({'productId': productId, 'action': action})
     })
     .then((response) => {
-        // Kiểm tra xem request có thành công không trước khi parse JSON
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         return response.json()
     })
     .then((data) => {
-        console.log('data:', data)
-        // Tải lại trang để hiển thị kết quả mới
-        location.reload()
+        // TẢI LẠI TRANG: Đảm bảo tất cả mọi thứ (header, số lượng, tổng tiền)
+        // đều được render lại chính xác bởi Django.
+        location.reload() 
     })
     .catch((error) => {
         console.error('Fetch error:', error);
         alert('Có lỗi xảy ra khi cập nhật giỏ hàng. Vui lòng thử lại.');
+        location.reload() 
     });
 }
