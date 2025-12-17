@@ -1,0 +1,80 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'app/css/promotion_list.css' %}">
+{% endblock %}
+
+{% block content_promotions %}
+<div class="promotions-container">
+    <h2 class="promotions-title">🎉 Kho Voucher & Ưu đãi 🎉</h2>
+
+    <div class="row">
+        {% for promo in promotions %}
+        <div class="col-md-4 mb-4">
+            <div class="promo-card">
+                <div class="promo-header {% if promo.is_percentage %}promo-header-percentage{% else %}promo-header-fixed{% endif %}">
+                    <h3 class="promo-discount">
+                        {% if promo.is_percentage %}
+                        -{{ promo.discount_value|floatformat:0 }}%
+                        {% else %}
+                        -{{ promo.discount_value|floatformat:0 }}đ
+                        {% endif %}
+                    </h3>
+                    <small class="promo-event-name">{{ promo.event_name }}</small>
+                </div>
+
+                <div class="promo-body">
+                    <h5 class="promo-code">{{ promo.code }}</h5>
+                    <p class="promo-description">{{ promo.description }}</p>
+
+                    <ul class="promo-details">
+                        {% if promo.target_products.exists %}
+                        <li class="promo-detail-item">
+                            <span class="promo-icon">🛒</span> Chỉ áp dụng cho một số sản phẩm
+                        </li>
+                        {% else %}
+                        <li class="promo-detail-item">
+                            <span class="promo-icon">🛒</span> Áp dụng toàn sàn
+                        </li>
+                        {% endif %}
+
+                        {% if promo.target_users.exists %}
+                        <li class="promo-detail-item promo-exclusive">
+                            <span class="promo-icon">👑</span> Dành riêng cho bạn!
+                        </li>
+                        {% endif %}
+
+                        <li class="promo-detail-item">
+                            <span class="promo-icon">⏳</span> HSD: {{ promo.end_date|date:"d/m/Y" }}
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="promo-footer">
+                    <button onclick="copyPromoCode('{{ promo.code }}')" class="btn-copy-code">
+                        Sao chép mã
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="promo-empty-state">
+                <p>Hiện tại chưa có khuyến mãi nào cho bạn. Quay lại sau nhé!</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function copyPromoCode(code) {
+        navigator.clipboard.writeText(code).then(function() {
+            alert("Đã sao chép mã: " + code + ". Hãy nhập tại bước thanh toán!");
+        }).catch(function(err) {
+            console.error('Không thể sao chép mã: ', err);
+        });
+    }
+</script>
+{% endblock %}
