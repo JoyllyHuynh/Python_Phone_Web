@@ -1,0 +1,183 @@
+
+.promotions-container {
+    padding: 50px 0;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Title */
+.promotions-title {
+    text-align: center;
+    margin-bottom: 3rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+}
+
+/* Promo Card */
+.promo-card {
+    height: 100%;
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.promo-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Promo Header */
+.promo-header {
+    padding: 20px;
+    text-align: center;
+    color: #fff;
+}
+
+.promo-header-percentage {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+}
+
+.promo-header-fixed {
+    background: linear-gradient(135deg, #4ecdc4 0%, #44a8a0 100%);
+}
+
+.promo-discount {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.promo-event-name {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.9rem;
+    opacity: 0.95;
+}
+
+/* Promo Body */
+.promo-body {
+    padding: 1.5rem;
+    flex: 1;
+}
+
+.promo-code {
+    color: #007bff;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.promo-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+/* Promo Details List */
+.promo-details {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+.promo-detail-item {
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: flex-start;
+    line-height: 1.4;
+}
+
+.promo-icon {
+    margin-right: 0.5rem;
+    display: inline-block;
+    min-width: 20px;
+}
+
+.promo-exclusive {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+/* Promo Footer */
+.promo-footer {
+    padding: 0 1.5rem 1.5rem 1.5rem;
+    background: #fff;
+    border-top: none;
+}
+
+.btn-copy-code {
+    width: 100%;
+    padding: 0.75rem;
+    background: #fff;
+    color: #333;
+    border: 2px solid #333;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-copy-code:hover {
+    background: #333;
+    color: #fff;
+    transform: scale(1.02);
+}
+
+.btn-copy-code:active {
+    transform: scale(0.98);
+}
+
+/* Empty State */
+.promo-empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .promotions-container {
+        padding: 30px 15px;
+    }
+
+    .promotions-title {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .promo-discount {
+        font-size: 1.75rem;
+    }
+
+    .promo-code {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .promo-card {
+        margin-bottom: 1.5rem;
+    }
+
+    .promo-header {
+        padding: 15px;
+    }
+
+    .promo-body {
+        padding: 1.25rem;
+    }
+
+    .promo-footer {
+        padding: 0 1.25rem 1.25rem 1.25rem;
+    }
+}
