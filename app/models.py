@@ -42,19 +42,31 @@ class Order(models.Model):
     complete = models.BooleanField(default=False, null=True, blank=False)
     transaction_id = models.CharField(max_length=100, null=True)
 
+    coupon_code = models.CharField(max_length=50, blank=True, null=True)
+    discount_amount = models.FloatField(default=0, blank=True, null=True)
+
     def __str__(self):
         return str(self.id)
-    
+
     @property
     def get_cart_items(self):
         orderitems = self.orderitem_set.all()
         total = sum([item.quantity for item in orderitems])
         return total
+
     @property
     def get_cart_total(self):
         orderitems = self.orderitem_set.all()
         total = sum([item.get_total for item in orderitems])
         return total
+
+    @property
+    def get_final_total(self):
+        # Lấy tổng tiền hàng
+        total = self.get_cart_total
+        if self.discount_amount:
+            total -= self.discount_amount
+        return max(total, 0)
     
 class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, blank=True, null=True)
@@ -78,3 +90,20 @@ class ShippingAddress(models.Model):
 
     def __str__(self):
         return self.address
+
+class Promotion(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    description = models.TextField(blank=True)
+    discount_value = models.FloatField()
+    is_percentage = models.BooleanField(default=False)
+
+    event_name = models.CharField(max_length=100, default="Sự kiện")
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    active = models.BooleanField(default=True)
+
+    target_users = models.ManyToManyField(User, blank=True, related_name='private_promotions')
+    target_products = models.ManyToManyField('Product', blank=True, related_name='product_promotions')
+
+    def __str__(self):
+        return self.code
