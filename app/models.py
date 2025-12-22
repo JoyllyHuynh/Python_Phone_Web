@@ -19,6 +19,24 @@ class Brand(models.Model):
     def __str__(self):
         return self.name
 
+
+class Category(models.Model):
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Option(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='options')
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
     name = models.CharField(max_length=200, null=True)
     price = models.FloatField()
@@ -110,16 +128,4 @@ class Promotion(models.Model):
         return self.code
 
 
-class Category(models.Model):
-    name = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
-    def __str__(self):
-        return self.name
 
-
-class Option(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='options')
-    name = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
-    def __str__(self):
-        return self.name
