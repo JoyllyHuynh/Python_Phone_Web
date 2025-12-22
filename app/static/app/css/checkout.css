@@ -323,7 +323,7 @@
     background: var(--primary-light);
 }
 
-.shipping-option.selected .option-content,
+
 .shipping-option input:checked + .option-content {
     border-color: var(--primary-color);
     background: var(--primary-light);
@@ -427,7 +427,6 @@
     border-color: var(--primary-color);
 }
 
-.payment-option.selected .option-content,
 .payment-option input:checked + .option-content {
     border-color: var(--primary-color);
     background: var(--primary-light);
@@ -1110,7 +1109,7 @@
     .checkout-content .col-lg-5 {
         width: 100%;
     }
-    
+
     .order-summary-wrapper {
         position: static;
     }
@@ -1120,50 +1119,50 @@
     .checkout-header {
         padding: 20px 0 30px;
     }
-    
+
     .checkout-title {
         font-size: 1.5rem;
     }
-    
+
     .checkout-steps {
         max-width: 100%;
     }
-    
+
     .step-label {
         font-size: 0.75rem;
     }
-    
+
     .step-number {
         width: 32px;
         height: 32px;
         font-size: 0.9rem;
     }
-    
+
     .checkout-content .row {
         gap: 20px;
     }
-    
+
     .section-header {
         padding: 15px 20px;
     }
-    
+
     .section-body {
         padding: 20px;
     }
-    
+
     .form-row.two-columns {
         grid-template-columns: 1fr;
     }
-    
+
     .shipping-option .option-content,
     .payment-option .option-content {
         padding: 14px 15px;
     }
-    
+
     .trust-badges {
         flex-wrap: wrap;
     }
-    
+
     .badge-item {
         flex: 0 0 30%;
     }
@@ -1173,50 +1172,50 @@
     .checkout-container {
         padding-bottom: 40px;
     }
-    
+
     .checkout-content {
         padding: 0 15px;
     }
-    
+
     .section-icon {
         width: 38px;
         height: 38px;
         font-size: 1.1rem;
     }
-    
+
     .section-title {
         font-size: 1rem;
     }
-    
+
     .voucher-input-wrapper {
         flex-direction: column;
     }
-    
+
     .btn-apply-voucher {
         width: 100%;
     }
-    
+
     .order-items {
         max-height: 200px;
     }
-    
+
     .item-image {
         width: 50px;
         height: 50px;
     }
-    
+
     .item-name {
         font-size: 0.85rem;
     }
-    
+
     .modal-content {
         padding: 30px 20px;
     }
-    
+
     .modal-actions {
         flex-direction: column;
     }
-    
+
     .support-contacts {
         flex-direction: column;
         gap: 10px;

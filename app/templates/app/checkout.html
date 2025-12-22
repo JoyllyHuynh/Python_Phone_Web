@@ -9,7 +9,7 @@
 
 {% block content_checkout %}
 <div class="checkout-container">
-    
+
     <!-- Checkout Header -->
     <div class="checkout-header">
         <div class="checkout-header-content">
@@ -20,7 +20,7 @@
             <h1 class="checkout-title">Thanh toán đơn hàng</h1>
             <p class="checkout-subtitle">Hoàn tất thông tin để đặt hàng</p>
         </div>
-        
+
         <!-- Checkout Steps -->
         <div class="checkout-steps">
             <div class="step completed">
@@ -43,12 +43,12 @@
     <!-- Main Checkout Content -->
     <div class="checkout-content">
         <div class="row">
-            
+
             <!-- Left Column - Forms -->
             <div class="col-lg-7">
                 <form id="checkoutForm" method="POST" class="checkout-form">
                     {% csrf_token %}
-                    
+
                     <!-- Customer Information -->
                     <div class="checkout-section" id="customer-info">
                         <div class="section-header">
@@ -58,16 +58,16 @@
                                 <p class="section-desc">Vui lòng điền đầy đủ thông tin</p>
                             </div>
                         </div>
-                        
+
                         <div class="section-body">
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">
                                         Họ và tên <span class="required">*</span>
                                     </label>
-                                    <input type="text" 
-                                           name="name" 
-                                           class="form-input" 
+                                    <input type="text"
+                                           name="name"
+                                           class="form-input"
                                            placeholder="Nguyễn Văn A"
                                            required
                                            {% if user.is_authenticated %}
@@ -75,15 +75,15 @@
                                            {% endif %}>
                                 </div>
                             </div>
-                            
+
                             <div class="form-row two-columns">
                                 <div class="form-group">
                                     <label class="form-label">
                                         Email <span class="required">*</span>
                                     </label>
-                                    <input type="email" 
-                                           name="email" 
-                                           class="form-input" 
+                                    <input type="email"
+                                           name="email"
+                                           class="form-input"
                                            placeholder="email@example.com"
                                            required
                                            {% if user.is_authenticated %}
@@ -94,9 +94,9 @@
                                     <label class="form-label">
                                         Số điện thoại <span class="required">*</span>
                                     </label>
-                                    <input type="tel" 
-                                           name="phone" 
-                                           class="form-input" 
+                                    <input type="tel"
+                                           name="phone"
+                                           class="form-input"
                                            placeholder="0912 345 678"
                                            required
                                            pattern="[0-9]{10,11}">
@@ -114,21 +114,21 @@
                                 <p class="section-desc">Địa chỉ nhận hàng của bạn</p>
                             </div>
                         </div>
-                        
+
                         <div class="section-body">
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">
                                         Địa chỉ <span class="required">*</span>
                                     </label>
-                                    <input type="text" 
-                                           name="address" 
-                                           class="form-input" 
+                                    <input type="text"
+                                           name="address"
+                                           class="form-input"
                                            placeholder="Số nhà, tên đường, phường/xã"
                                            required>
                                 </div>
                             </div>
-                            
+
                             <div class="form-row two-columns">
                                 <div class="form-group">
                                     <label class="form-label">
@@ -153,7 +153,7 @@
                                     </select>
                                 </div>
                             </div>
-                            
+
                             <div class="form-row two-columns">
                                 <div class="form-group">
                                     <label class="form-label">
@@ -165,18 +165,18 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Mã bưu điện</label>
-                                    <input type="text" 
-                                           name="zipcode" 
-                                           class="form-input" 
+                                    <input type="text"
+                                           name="zipcode"
+                                           class="form-input"
                                            placeholder="100000">
                                 </div>
                             </div>
-                            
+
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">Ghi chú đơn hàng</label>
-                                    <textarea name="note" 
-                                              class="form-input form-textarea" 
+                                    <textarea name="note"
+                                              class="form-input form-textarea"
                                               rows="3"
                                               placeholder="Ghi chú về đơn hàng, ví dụ: thời gian hay địa điểm giao hàng chi tiết hơn."></textarea>
                                 </div>
@@ -193,7 +193,7 @@
                                 <p class="section-desc">Chọn hình thức giao hàng</p>
                             </div>
                         </div>
-                        
+
                         <div class="section-body">
                             <div class="shipping-options">
                                 <label class="shipping-option selected">
@@ -209,7 +209,7 @@
                                         </div>
                                     </div>
                                 </label>
-                                
+
                                 <label class="shipping-option">
                                     <input type="radio" name="shipping_method" value="express">
                                     <div class="option-content">
@@ -223,7 +223,7 @@
                                         </div>
                                     </div>
                                 </label>
-                                
+
                                 <label class="shipping-option">
                                     <input type="radio" name="shipping_method" value="same_day">
                                     <div class="option-content">
@@ -238,10 +238,9 @@
                                         </div>
                                     </div>
                                 </label>
-                                
+
                                 <label class="shipping-option free-shipping {% if order.get_cart_total >= 5000000 %}available{% endif %}">
-                                    <input type="radio" name="shipping_method" value="free" 
-                                           {% if order.get_cart_total < 5000000 %}disabled{% endif %}>
+                                    <input type="radio" name="shipping_method" value="free">
                                     <div class="option-content">
                                         <div class="option-icon">🎁</div>
                                         <div class="option-details">
@@ -269,16 +268,16 @@
                                 <p class="section-desc">Chọn cách thanh toán phù hợp</p>
                             </div>
                         </div>
-                        
+
                         <div class="section-body">
                             <div class="payment-options">
-                                
+
                                 <!-- COD -->
                                 <label class="payment-option selected">
                                     <input type="radio" name="payment_method" value="cod" checked>
                                     <div class="option-content">
                                         <div class="option-icon-wrapper cod">
-                                            <img src="{% static 'app/images/cod.png' %}" alt="COD">
+                                            <img src="{% static 'images/cod.png' %}" alt="COD">
                                         </div>
                                         <div class="option-details">
                                             <span class="option-name">Thanh toán khi nhận hàng (COD)</span>
@@ -287,13 +286,13 @@
                                         <div class="option-check">✓</div>
                                     </div>
                                 </label>
-                                
+
                                 <!-- Bank Transfer -->
                                 <label class="payment-option">
                                     <input type="radio" name="payment_method" value="bank_transfer">
                                     <div class="option-content">
                                         <div class="option-icon-wrapper bank">
-                                            <img src="{% static 'app/images/bank-transfer.png' %}" alt="Bank">
+                                            <img src="{% static 'images/chuyenkhoan.webp' %}" alt="Bank">
                                         </div>
                                         <div class="option-details">
                                             <span class="option-name">Chuyển khoản ngân hàng</span>
@@ -302,13 +301,13 @@
                                         <div class="option-check">✓</div>
                                     </div>
                                 </label>
-                                
+
                                 <!-- VNPay -->
                                 <label class="payment-option">
                                     <input type="radio" name="payment_method" value="vnpay">
                                     <div class="option-content">
                                         <div class="option-icon-wrapper vnpay">
-                                            <img src="{% static 'app/images/vnpay.png' %}" alt="VNPay">
+                                            <img src="https://vinadesign.vn/uploads/images/2023/05/vnpay-logo-vinadesign-25-12-57-55.jpg" alt="VNPay">
                                         </div>
                                         <div class="option-details">
                                             <span class="option-name">Ví VNPay</span>
@@ -317,13 +316,13 @@
                                         <div class="option-check">✓</div>
                                     </div>
                                 </label>
-                                
+
                                 <!-- MoMo -->
                                 <label class="payment-option">
                                     <input type="radio" name="payment_method" value="momo">
                                     <div class="option-content">
                                         <div class="option-icon-wrapper momo">
-                                            <img src="{% static 'app/images/momo.png' %}" alt="MoMo">
+                                            <img src="{% static 'images/Logo-MoMo.webp' %}" alt="MoMo">
                                         </div>
                                         <div class="option-details">
                                             <span class="option-name">Ví MoMo</span>
@@ -332,14 +331,13 @@
                                         <div class="option-check">✓</div>
                                     </div>
                                 </label>
-                                
+
                                 <!-- Credit Card -->
                                 <label class="payment-option">
                                     <input type="radio" name="payment_method" value="credit_card">
                                     <div class="option-content">
                                         <div class="option-icon-wrapper card">
-                                            <img src="{% static 'app/images/visa.png' %}" alt="Visa">
-                                            <img src="{% static 'app/images/mastercard.png' %}" alt="Mastercard">
+                                            <img src="{% static 'images/thetindung.jpg' %}" alt="Mastercard">
                                         </div>
                                         <div class="option-details">
                                             <span class="option-name">Thẻ tín dụng / Ghi nợ</span>
@@ -348,7 +346,7 @@
                                         <div class="option-check">✓</div>
                                     </div>
                                 </label>
-                                
+
                                 <!-- Installment -->
                                 <label class="payment-option installment">
                                     <input type="radio" name="payment_method" value="installment">
@@ -365,7 +363,7 @@
                                     </div>
                                 </label>
                             </div>
-                            
+
                             <!-- Bank Transfer Info (Hidden by default) -->
                             <div class="payment-details hidden" id="bank-transfer-info">
                                 <div class="bank-info-card">
@@ -382,37 +380,37 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Credit Card Form (Hidden by default) -->
                             <div class="payment-details hidden" id="credit-card-form">
                                 <div class="card-form">
                                     <div class="form-group">
                                         <label class="form-label">Số thẻ</label>
-                                        <input type="text" 
-                                               class="form-input" 
+                                        <input type="text"
+                                               class="form-input"
                                                placeholder="1234 5678 9012 3456"
                                                maxlength="19">
                                     </div>
                                     <div class="form-row two-columns">
                                         <div class="form-group">
                                             <label class="form-label">Ngày hết hạn</label>
-                                            <input type="text" 
-                                                   class="form-input" 
+                                            <input type="text"
+                                                   class="form-input"
                                                    placeholder="MM/YY"
                                                    maxlength="5">
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">CVV</label>
-                                            <input type="text" 
-                                                   class="form-input" 
+                                            <input type="text"
+                                                   class="form-input"
                                                    placeholder="123"
                                                    maxlength="4">
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Tên trên thẻ</label>
-                                        <input type="text" 
-                                               class="form-input" 
+                                        <input type="text"
+                                               class="form-input"
                                                placeholder="NGUYEN VAN A">
                                     </div>
                                 </div>
@@ -429,19 +427,19 @@
                                 <p class="section-desc">Nhập mã để được giảm giá</p>
                             </div>
                         </div>
-                        
+
                         <div class="section-body">
                             <div class="voucher-input-wrapper">
-                                <input type="text" 
-                                       name="voucher_code" 
-                                       class="form-input voucher-input" 
+                                <input type="text"
+                                       name="voucher_code"
+                                       class="form-input voucher-input"
                                        placeholder="Nhập mã giảm giá">
                                 <button type="button" class="btn-apply-voucher" id="applyVoucher">
                                     Áp dụng
                                 </button>
                             </div>
                             <div class="voucher-message hidden" id="voucherMessage"></div>
-                            
+
                             <!-- Available Vouchers -->
                             <div class="available-vouchers">
                                 <p class="vouchers-title">Mã giảm giá có sẵn:</p>
@@ -460,14 +458,14 @@
             <!-- Right Column - Order Summary -->
             <div class="col-lg-5">
                 <div class="order-summary-wrapper">
-                    
+
                     <!-- Order Summary -->
                     <div class="order-summary">
                         <div class="summary-header">
                             <h3 class="summary-title">Đơn hàng của bạn</h3>
                             <span class="item-count">{{ order.get_cart_items }} sản phẩm</span>
                         </div>
-                        
+
                         <!-- Order Items -->
                         <div class="order-items">
                             {% for item in items %}
@@ -497,7 +495,7 @@
                             </div>
                             {% endfor %}
                         </div>
-                        
+
                         <!-- Order Totals -->
                         <div class="order-totals">
                             <div class="total-row">
@@ -521,7 +519,7 @@
                             <p class="vat-note">(Đã bao gồm VAT nếu có)</p>
                         </div>
                     </div>
-                    
+
                     <!-- Promotions -->
                     <div class="promotions-box">
                         <div class="promo-item">
@@ -537,58 +535,30 @@
                             <span class="promo-text">Bảo hành chính hãng 12 tháng</span>
                         </div>
                     </div>
-                    
+
                     <!-- Place Order Button -->
                     <button type="submit" form="checkoutForm" class="btn-place-order" id="placeOrderBtn">
                         <span class="btn-icon">🔒</span>
                         <span class="btn-text">Đặt hàng</span>
                         <span class="btn-price">{{ order.get_cart_total|floatformat:0 }}₫</span>
                     </button>
-                    
+
                     <!-- Terms -->
                     <p class="terms-note">
-                        Bằng việc đặt hàng, bạn đồng ý với 
-                        <a href="#">Điều khoản sử dụng</a> và 
-                        <a href="#">Chính sách bảo mật</a> của Phone Store
+                        Bằng việc đặt hàng, bạn đồng ý với
+                        <a href="#">Điều khoản sử dụng</a> và
+                        <a href="#">Chính sách bảo mật</a> của Neel
                     </p>
-                    
-                    <!-- Trust Badges -->
-                    <div class="trust-badges">
-                        <div class="badge-item">
-                            <img src="{% static 'app/images/secure-payment.png' %}" alt="Secure">
-                            <span>Thanh toán an toàn</span>
-                        </div>
-                        <div class="badge-item">
-                            <img src="{% static 'app/images/genuine.png' %}" alt="Genuine">
-                            <span>100% chính hãng</span>
-                        </div>
-                        <div class="badge-item">
-                            <img src="{% static 'app/images/warranty.png' %}" alt="Warranty">
-                            <span>Bảo hành toàn quốc</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Support -->
-                    <div class="support-box">
-                        <p class="support-title">Cần hỗ trợ?</p>
-                        <div class="support-contacts">
-                            <a href="tel:1900xxxx" class="support-item">
-                                <span class="support-icon">📞</span>
-                                <span>1900 xxxx</span>
-                            </a>
-                            <a href="#" class="support-item">
-                                <span class="support-icon">💬</span>
-                                <span>Chat ngay</span>
-                            </a>
-                        </div>
-                    </div>
-                    
+
+
+
+
                 </div>
             </div>
-            
+
         </div>
     </div>
-    
+
 </div>
 
 <!-- Order Confirmation Modal -->
