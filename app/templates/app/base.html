@@ -1,6 +1,6 @@
 {% load static %}
 
-<html>
+<html xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -50,6 +50,26 @@
 
         var csrftoken = getCookie('csrftoken');
     </script>
+    <script>
+        #search-suggestions {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+#search-suggestions .list-group-item {
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#search-suggestions .list-group-item:hover {
+    background-color: #f1f1f1;
+}
+        </script>
 
     <script src="{% static 'app/js/cart.js' %}"></script>
 
@@ -117,13 +137,24 @@
             </ul>
 
             <!-- Search Form -->
-            <form class="d-flex search-form me-3" role="search">
-                <input class="form-control me-2" type="search" placeholder="Tìm kiếm điện thoại..."
-                       aria-label="Search"/>
-                <button class="btn btn-search" type="submit">
-                    <i class="fas fa-search"></i>
-                </button>
-            </form>
+           <form class="d-flex search-form me-3 position-relative" role="search" method="get" action="{% url 'product_search' %}">
+    <input
+        class="form-control me-2"
+        type="search"
+        id="search-input"
+        name="q"
+        placeholder="Tìm kiếm điện thoại..."
+        aria-label="Search"
+        autocomplete="off"
+    />
+    <button class="btn btn-search" type="submit">
+        <i class="fas fa-search"></i>
+    </button>
+    <!-- Gợi ý tìm kiếm -->
+    <div id="search-suggestions" class="list-group position-absolute w-100 mt-1" style="z-index: 1000; display: none;">
+        <!-- Các gợi ý sẽ được thêm vào đây thông qua JavaScript -->
+    </div>
+</form>
 
             <!-- User Section -->
             <ul class="navbar-nav user-section">
@@ -242,6 +273,35 @@
 
     </div>
 </footer>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.getElementById("search-input");
+    const suggestionsBox = document.getElementById("search-suggestions");
+
+    searchInput.addEventListener("input", async function () {
+        const query = searchInput.value.trim();
+
+        if (query.length > 0) {
+            const response = await fetch(`/api/search_suggestions/?q=${query}`);
+            const suggestions = await response.json();
+
+            suggestionsBox.innerHTML = suggestions.map(s => `
+                <a href="/product/${s.id}/" class="list-group-item">${s.name}</a>
+            `).join("");
+
+            suggestionsBox.style.display = "block";
+        } else {
+            suggestionsBox.style.display = "none";
+        }
+    });
+
+    document.addEventListener("click", (e) => {
+        if (e.target !== searchInput && e.target.parentNode !== suggestionsBox) {
+            suggestionsBox.style.display = "none";
+        }
+    });
+});
+</script>
 
 <script src="{% static 'app/js/cart.js' %}"></script>
 </body>
