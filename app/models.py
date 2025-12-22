@@ -26,6 +26,8 @@ class Product(models.Model):
     image = models.ImageField(null=True, blank=True)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='products')
 
+    description = models.TextField(null=True, blank=True, help_text="Nhập thông số cách nhau bằng dấu gạch đầu dòng")
+
     def __str__(self):
         return self.name
     @property

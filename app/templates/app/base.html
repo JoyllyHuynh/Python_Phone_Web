@@ -13,13 +13,12 @@
         
         {% block extra_css %}
 <style>
-/* Custom CSS cho Footer (Thay thế CSS cũ) */
+/* 1. Thiết lập chung cho Footer */
 .footer-cps {
-    background-color: #f8f8f8=; /* Nền xám nhạt */
+    background-color: #f8f8f8; 
     padding: 30px 0;
     font-size: 14px;
     color: #333;
-    /* Đảm bảo footer luôn ở dưới cùng */
     width: 100%; 
 }
 
@@ -31,32 +30,25 @@
     text-transform: uppercase;
 }
 
-.footer-cps ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.footer-cps ul li a {
-    color: #666;
-    text-decoration: none;
+/* 2. ĐỔI MÀU TẤT CẢ LINK SANG ĐEN */
+/* Ép tất cả các thẻ <a> bên trong .footer-cps phải có màu đen */
+.footer-cps a, 
+.footer-cps ul li a, 
+.footer-brands a {
+    color: #000 !important; 
+    text-decoration: none !important;
     line-height: 2.2;
     transition: color 0.2s;
 }
 
-.footer-cps ul li a:hover {
-    color: #dc3545; /* Màu đỏ nổi bật khi hover */
+/* 3. HIỆU ỨNG HOVER (KHI RÊ CHUỘT VÀO) */
+.footer-cps a:hover, 
+.footer-cps ul li a:hover, 
+.footer-brands a:hover {
+    color: #dc3545 !important; /* Chuyển sang đỏ khi hover để người dùng biết là link */
 }
 
-/* Style riêng cho Brand List ở cuối */
-.footer-brands a {
-    font-size: 12px;
-    color: #999;
-    text-decoration: none;
-    margin-right: 10px;
-}
-
-/* Style cho khu vực Đăng ký nhận KM */
+/* 4. Các Style bổ trợ khác */
 .register-box {
     padding: 15px;
     background: #fff;
@@ -65,7 +57,6 @@
     margin-bottom: 20px;
 }
 
-/* Style cho các biểu tượng Thanh toán và Mạng xã hội */
 .payment-icons img, .social-icons img {
     height: 24px;
     margin-right: 5px;
@@ -75,7 +66,7 @@
 .app-store-badge {
     height: 40px;
     margin: 5px 0;
-    width: 120px; /* Đảm bảo kích thước badge hợp lý */
+    width: 120px;
     object-fit: contain;
 }
 
@@ -92,23 +83,13 @@
     vertical-align: middle;
 }
 
+/* Style cho các link không thuộc footer (giữ nguyên) */
 .login-link {
     text-decoration: none;
     color: var(--bs-navbar-color); 
     display: block;
     padding: var(--bs-nav-link-padding-y) var(--bs-nav-link-padding-x);
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
 }
-.login-link:hover {
-    color: var(--bs-navbar-hover-color);
-}
-
-.col-lg-3.col-md-6 ul li a{
-    color: #000;
-
-}
-
-
 </style>
         {% endblock extra_css %}
         <link rel="stylesheet" type="text/css" href="{% static 'app/css/main.css' %}" />

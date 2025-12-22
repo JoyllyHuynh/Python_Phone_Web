@@ -65,22 +65,33 @@
         transition: all 0.3s ease;
     }
 
+ /* 1. Bo tròn khung chứa bên ngoài */
     .brand-image-wrapper {
-        width: 80px;
-        height: 80px;
+        width: 50px;
+        height: 50px;
         margin: 0 auto;
         border: 2px solid #e9ecef;
         background-color: #ffffff;
-        overflow: hidden;
+        
+        /* Cực kỳ quan trọng: */
+        border-radius: 50% !important; 
+        overflow: hidden; /* Cắt bỏ bất cứ thứ gì tràn ra ngoài vòng tròn */
+        
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0; /* Xóa padding để ảnh có thể phủ kín nếu muốn */
         transition: all 0.3s ease;
-        padding: 10px;
     }
 
+    /* 2. Bo tròn chính tấm ảnh bên trong */
     .brand-logo {
         width: 100%;
         height: 100%;
-        object-fit: contain;
-        transition: transform 0.3s ease;
+        object-fit: cover; /* Hoặc 'contain' nếu bạn muốn thấy toàn bộ logo */
+        
+        /* Ép tấm ảnh cũng phải tròn theo */
+        border-radius: 50%; 
     }
 
     /* Hiệu ứng Hover Brand (Giữ nguyên) */
@@ -220,6 +231,7 @@
 
     <div class="row g-4">
         {% for product in products %}
+
         <div class="col-lg-3 col-md-4 col-sm-6"> <div class="card product-card h-100 shadow-sm border-0">
 
             <a href="{% url 'product_detail' product.id %}">
