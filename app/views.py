@@ -7,6 +7,7 @@ from django.shortcuts import render, get_object_or_404
 from .models import Product
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.contrib.auth import logout
 from django.db.models import Q
 from django.db.models import Sum # Thêm import Sum nếu cần dùng tính tổng
 
@@ -24,6 +25,9 @@ def register(request):
 def login(request):
     context= {}
     return render(request, 'app/login.html',context)
+def logout_views(request):
+    logout(request)
+    return redirect('home')
 
 def home(request):
     if request.user.is_authenticated:
