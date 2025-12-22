@@ -1,4 +1,4 @@
-body {
+python manage.py runserverbody {
     background-color: #f8f9fa;
     font-family: 'Arial', sans-serif;
 }

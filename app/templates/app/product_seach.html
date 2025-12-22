@@ -6,28 +6,10 @@ python manage.py runserver{% extends 'app/base.html' %}
 
 {% block main_content %}
 <div class="container my-5">
-    
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="fw-bold">📱 Sản phẩm từ hãng {{ current_brand.name }}</h2>
-            <p class="text-muted">Đang hiển thị {{ products|length }} sản phẩm.</p>
-        </div>
-    </div>
-    
-    <div class="row">
-        <div class="col-lg-3">
-            <h5 class="fw-bold mb-3">🏷️ Lọc theo Thương hiệu</h5>
-            <div class="list-group">
-                {% for brand in brands %}
-                <a href="{% url 'product_list_by_brand' brand_slug=brand.slug %}" 
-                   class="list-group-item list-group-item-action {% if brand == current_brand %}active{% endif %}">
-                    {{ brand.name }}
-                </a>
-                {% endfor %}
-            </div>
-            <a href="{% url 'home' %}" class="btn btn-sm btn-outline-secondary mt-3">Xem tất cả sản phẩm</a>
-        </div>
-        
+
+
+
+
         <div class="col-lg-9">
             <div class="row">
                 {% for product in products %}
