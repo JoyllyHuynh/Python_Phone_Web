@@ -1,4 +1,7 @@
 /* Hero Section */
+root{
+    --primary-red: #dc3545;
+}
 .container{
     width: 100%;
     display: block;
@@ -26,14 +29,14 @@
 
 .feature-box:hover {
     transform: translateY(-10px);
-    border-bottom: 4px solid #198754; /* Màu xanh success */
+    border-bottom: 4px solid var(--primary-red);
 }
 
 .icon-wrapper {
     width: 80px;
     height: 80px;
     background: #e8f5e9;
-    color: #198754;
+    color: var(--primary-red);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -52,5 +55,8 @@
 .stats-number {
     font-size: 2.5rem;
     font-weight: bold;
-    color: #198754;
+    color:var(--primary-red);
+}
+.btn_buy_now{
+    background-color: var( --primary-red);
 }

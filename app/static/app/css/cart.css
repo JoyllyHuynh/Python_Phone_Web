@@ -96,21 +96,106 @@
     font-weight: bold;
     padding: 10px 0;
 }
+.cart-summary-sidebar {
+    order: 1; /* Giữ bên phải trên desktop */
+}
+@media (max-width: 991.98px) {
+    .cart-summary-sidebar {
+        order: -1; /* Đẩy thanh toán lên trên cùng trên mobile */
+        margin-bottom: 20px;
+    }
+}
+
+.total-price-text {
+    color: #dc3545; /* Màu đỏ nổi bật */
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+/* Phong cách hóa Bảng Giỏ hàng */
+.cart-list-container {
+    border: none !important; /* Loại bỏ border mặc định nếu đã có */
+    border-radius: 8px;
+    overflow: hidden; /* Cần thiết cho shadow và border-radius */
+}
+
+.cart-table-header {
+    background-color: #f7f7f7 !important; /* Nền đầu bảng sáng hơn */
+    border-bottom: 1px solid #eee !important;
+    color: #6c757d !important; /* Màu chữ xám */
+    font-weight: 600 !important;
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+}
+
+.cart-row {
+    transition: background-color 0.2s;
+    padding: 15px 10px !important;
+}
+.cart-row:hover {
+    background-color: #fcfcfc;
+}
+
+.product-image {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border: 1px solid #eee;
+}
+
+/* Điều chỉnh nhóm Số lượng */
+.quantity-group {
+    width: 110px; /* Chiều rộng cố định */
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.quantity-group .btn {
+    width: 30px;
+    height: 30px;
+    line-height: 1;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.quantity-group .btn:hover {
+    background-color: #e9ecef;
+}
+.quantity-value {
+    flex-grow: 1;
+    text-align: center;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Style cho Tổng kết đơn hàng */
+.checkout-btn {
+    background-color: #dc3545; /* Màu đỏ nổi bật */
+    border-color: #dc3545;
+}
+.checkout-btn:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
 
 /* Responsive - Đảm bảo hiển thị tốt trên Mobile */
 @media (max-width: 767.98px) {
     /* Ẩn tiêu đề cột trên mobile */
     .cart-table-header {
-        display: none !important; 
+        display: none !important;
     }
-    
+
     .cart-row {
         flex-wrap: wrap; /* Cho phép các cột xuống hàng */
         border-top: 1px solid #eee;
         padding-top: 15px !important;
         padding-bottom: 15px !important;
     }
-    
+
     .cart-row .col-5 {
         width: 100% !important; /* Sản phẩm chiếm toàn bộ chiều ngang */
         margin-bottom: 10px;
@@ -121,7 +206,7 @@
         width: 33.33%;
         text-align: center;
     }
-    
+
     .cart-summary-sidebar {
         order: -1; /* Đẩy thanh toán lên trên cùng */
         margin-bottom: 20px;
