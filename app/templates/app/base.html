@@ -14,6 +14,8 @@
     <link href="{% static 'app/css/all.min.css' %}" rel="stylesheet"/>
     <link href="{% static 'app/css/checkout.css' %}" rel="stylesheet"/>
     <link href="{% static 'app/css/footer.css' %}" rel="stylesheet"/>
+    <link href="{% static 'app/css/nav.css' %}" rel="stylesheet"/>
+    <script src="{% static 'app/js/nav.js' %}"></script>
 
     {% block extra_css %}{% endblock extra_css %}
     <link rel="stylesheet" type="text/css" href="{% static 'app/css/main.css' %}"/>
@@ -59,111 +61,519 @@
     <link rel="stylesheet" href="">
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-custom">
+{% load static %}
+
+
+<!-- Main Navigation -->
+<nav class="main-navbar" id="mainNavbar">
     <div class="container-fluid px-4">
-        <!-- Logo -->
-        <a class="navbar-brand" href="{% url 'home' %}">
-            <img src="{% static 'app/images/Neel.png' %}" alt="Phone Store Logo" width="60" height="60"
-                 style="border-radius: 50%; border: 3px solid #fff;"/>
-        </a>
+        <div class="navbar-content">
+            <!-- Logo -->
+            <a class="navbar-logo" href="{% url 'home' %}">
+                <img src="{% static 'app/images/Neel.png' %}" alt="Phone Store Logo">
+                <div class="logo-text">
+                    <span class="logo-name">Neel</span>
+                    <span class="logo-tagline">Điện thoại chính hãng</span>
+                </div>
+            </a>
 
-        <!-- Mobile Toggle Button -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
-                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+            <!-- Search Bar - Desktop -->
+            <div class="navbar-search">
+                <form class="search-form" action="" method="GET">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text"
+                               name="q"
+                               class="search-input"
+                               placeholder="Bạn cần tìm gì hôm nay?"
+                               autocomplete="off"
+                               id="searchInput">
+                        <button type="button" class="search-clear" id="searchClear">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <button type="submit" class="search-btn">
+                        <span>Tìm kiếm</span>
+                    </button>
+                </form>
 
-        <div class="collapse navbar-collapse" id="navbarContent">
-            <!-- Main Navigation Links -->
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{% url 'home' %}">
-                        <i class="fas fa-home me-1"></i> Trang chủ
+                <!-- Search Suggestions Dropdown -->
+                <div class="search-suggestions" id="searchSuggestions">
+                    <div class="suggestions-section">
+                        <h4 class="suggestions-title">
+                            <i class="fas fa-fire"></i> Tìm kiếm phổ biến
+                        </h4>
+                        <div class="suggestions-tags">
+                            <a href="#" class="suggestion-tag">iPhone 15 Pro Max</a>
+                            <a href="#" class="suggestion-tag">Samsung Galaxy S24</a>
+                            <a href="#" class="suggestion-tag">Xiaomi 14</a>
+                            <a href="#" class="suggestion-tag">OPPO Find X7</a>
+                        </div>
+                    </div>
+                    <div class="suggestions-section">
+                        <h4 class="suggestions-title">
+                            <i class="fas fa-history"></i> Lịch sử tìm kiếm
+                        </h4>
+                        <ul class="suggestions-list">
+                            <li><a href="#">iPhone 14 Pro</a></li>
+                            <li><a href="#">Samsung A54</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="navbar-actions">
+                <!-- Hotline -->
+                <a href="tel:1900123456" class="action-item hotline-btn">
+                    <div class="action-icon">
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                    <div class="action-text">
+                        <span class="action-label">Gọi mua hàng</span>
+                        <span class="action-value">1900.123.456</span>
+                    </div>
+                </a>
+
+                <!-- Store Locator -->
+                <a href="#" class="action-item store-btn">
+                    <div class="action-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="action-text">
+                        <span class="action-label">Cửa hàng</span>
+                        <span class="action-value">gần bạn</span>
+                    </div>
+                </a>
+
+                <!-- Order Tracking -->
+                <a href="#" class="action-item order-btn">
+                    <div class="action-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="action-text">
+                        <span class="action-label">Tra cứu</span>
+                        <span class="action-value">đơn hàng</span>
+                    </div>
+                </a>
+
+                <!-- User Account -->
+                <div class="action-item user-dropdown" id="userDropdown">
+                    {% if user.is_authenticated %}
+                    <a href="#" class="user-trigger">
+                        <div class="action-icon user-avatar">
+                            {% if user.profile.avatar %}
+                            <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}">
+                            {% else %}
+                            <i class="fas fa-user"></i>
+                            {% endif %}
+                        </div>
+                        <div class="action-text">
+                            <span class="action-label">Xin chào</span>
+                            <span class="action-value">{{ user.first_name|default:user.username }}</span>
+                        </div>
+                        <i class="fas fa-chevron-down dropdown-arrow"></i>
                     </a>
-                </li>
-
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                       aria-expanded="false">
-                        <i class="fas fa-mobile-alt me-1"></i> Sản phẩm
+                    <div class="user-menu">
+                        <div class="user-menu-header">
+                            <div class="user-info">
+                                <div class="user-avatar-lg">
+                                    {% if user.profile.avatar %}
+                                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}">
+                                    {% else %}
+                                    <i class="fas fa-user"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="user-details">
+                                    <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+                                    <span class="user-email">{{ user.email }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <ul class="user-menu-list">
+                            <li>
+                                <a href="{% url 'user_info' %}">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span>Thông tin tài khoản</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <i class="fas fa-box"></i>
+                                    <span>Đơn hàng của tôi</span>
+                                    <span class="menu-badge">2</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <i class="fas fa-heart"></i>
+                                    <span>Sản phẩm yêu thích</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Sổ địa chỉ</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <i class="fas fa-bell"></i>
+                                    <span>Thông báo</span>
+                                    <span class="menu-badge">5</span>
+                                </a>
+                            </li>
+                            <li class="menu-divider"></li>
+                            <li>
+                                <a href="{% url 'logout'%}" class="logout-link">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Đăng xuất</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="user-trigger login-trigger">
+                        <div class="action-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="action-text">
+                            <span class="action-label">Đăng nhập</span>
+                            <span class="action-value">Tài khoản</span>
+                        </div>
                     </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#"><i class="fab fa-apple me-2"></i> iPhone</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-mobile me-2"></i> Samsung</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-mobile-alt me-2"></i> Xiaomi</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-th me-2"></i> Tất cả sản phẩm</a></li>
-                    </ul>
-                </li>
+                    {% endif %}
+                </div>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'about' %}">
-                        <i class="fas fa-info-circle me-1"></i> Giới thiệu
-                    </a>
-                </li>
+                <!-- Cart -->
+                <a href="{% url 'cart' %}" class="action-item cart-btn" id="cartBtn">
+                    <div class="action-icon cart-icon-wrapper">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-badge" id="cart-total">{{ cartItems }}</span>
+                    </div>
+                    <div class="action-text">
+                        <span class="action-label">Giỏ hàng</span>
+                        <span class="action-value cart-total-price">{{ cartTotal|default:"0" }}₫</span>
+                    </div>
+                </a>
+            </div>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'contact' %}">
-                        <i class="fas fa-phone-alt me-1"></i> Liên hệ
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'promotion_list' %}">
-                        <i class=" fas fa-solid fa-ticket"></i> Khuyến mãi
-                    </a>
-                </li>
-            </ul>
+            <!-- Mobile Toggle -->
+            <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+                <span class="toggle-line"></span>
+                <span class="toggle-line"></span>
+                <span class="toggle-line"></span>
+            </button>
+        </div>
+    </div>
+</nav>
 
-            <!-- Search Form -->
-            <form class="d-flex search-form me-3" role="search">
-                <input class="form-control me-2" type="search" placeholder="Tìm kiếm điện thoại..."
-                       aria-label="Search"/>
-                <button class="btn btn-search" type="submit">
-                    <i class="fas fa-search"></i>
+<!-- Category Navigation Bar -->
+<nav class="category-navbar" id="categoryNavbar">
+    <div class="container-fluid px-4">
+        <div class="category-content">
+            <!-- All Categories Button -->
+            <div class="all-categories-dropdown" id="allCategoriesDropdown">
+                <button class="all-categories-btn">
+                    <i class="fas fa-bars"></i>
+                    <span>Danh mục sản phẩm</span>
+                    <i class="fas fa-chevron-down"></i>
                 </button>
-            </form>
+                <div class="mega-menu">
+                    <div class="mega-menu-container">
+                        <div class="mega-menu-sidebar">
+                            <ul class="category-list">
+                                <li class="category-item active" data-category="iphone">
+                                    <i class="fab fa-apple"></i>
+                                    <span>iPhone</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </li>
+                                <li class="category-item" data-category="samsung">
+                                    <i class="fas fa-mobile-alt"></i>
+                                    <span>Samsung</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </li>
+                                <li class="category-item" data-category="xiaomi">
+                                    <i class="fas fa-mobile"></i>
+                                    <span>Xiaomi</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </li>
+                                <li class="category-item" data-category="oppo">
+                                    <i class="fas fa-mobile-alt"></i>
+                                    <span>OPPO</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </li>
+                                <li class="category-item" data-category="vivo">
+                                    <i class="fas fa-mobile"></i>
+                                    <span>Vivo</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </li>
+                                <li class="category-item" data-category="realme">
+                                    <i class="fas fa-mobile-alt"></i>
+                                    <span>Realme</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </li>
+                                <li class="category-divider"></li>
+                                <li class="category-item" data-category="accessories">
+                                    <i class="fas fa-headphones"></i>
+                                    <span>Phụ kiện</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="mega-menu-content">
+                            <!-- iPhone Content -->
+                            <div class="category-content-panel active" data-panel="iphone">
+                                <div class="panel-header">
+                                    <h3>iPhone</h3>
+                                    <a href="#" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+                                </div>
+                                <div class="panel-grid">
+                                    <div class="panel-column">
+                                        <h4>Dòng sản phẩm</h4>
+                                        <ul>
+                                            <li><a href="#">iPhone 15 Series</a></li>
+                                            <li><a href="#">iPhone 14 Series</a></li>
+                                            <li><a href="#">iPhone 13 Series</a></li>
+                                            <li><a href="#">iPhone SE</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="panel-column">
+                                        <h4>Mức giá</h4>
+                                        <ul>
+                                            <li><a href="#">Dưới 20 triệu</a></li>
+                                            <li><a href="#">20 - 30 triệu</a></li>
+                                            <li><a href="#">Trên 30 triệu</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="panel-column">
+                                        <h4>Nổi bật</h4>
+                                        <ul>
+                                            <li><a href="#" class="hot">iPhone 15 Pro Max 🔥</a></li>
+                                            <li><a href="#">iPhone 15 Pro</a></li>
+                                            <li><a href="#">iPhone 15 Plus</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="panel-banner">
+                                    <img src="{% static 'app/images/banners/iphone-banner.jpg' %}" alt="iPhone Banner">
+                                </div>
+                            </div>
+                            <!-- Samsung Content -->
+                            <div class="category-content-panel" data-panel="samsung">
+                                <div class="panel-header">
+                                    <h3>Samsung</h3>
+                                    <a href="#" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+                                </div>
+                                <div class="panel-grid">
+                                    <div class="panel-column">
+                                        <h4>Dòng sản phẩm</h4>
+                                        <ul>
+                                            <li><a href="#">Galaxy S Series</a></li>
+                                            <li><a href="#">Galaxy Z Series</a></li>
+                                            <li><a href="#">Galaxy A Series</a></li>
+                                            <li><a href="#">Galaxy M Series</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="panel-column">
+                                        <h4>Mức giá</h4>
+                                        <ul>
+                                            <li><a href="#">Dưới 10 triệu</a></li>
+                                            <li><a href="#">10 - 20 triệu</a></li>
+                                            <li><a href="#">Trên 20 triệu</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="panel-column">
+                                        <h4>Nổi bật</h4>
+                                        <ul>
+                                            <li><a href="#" class="hot">Galaxy S24 Ultra 🔥</a></li>
+                                            <li><a href="#">Galaxy Z Fold 5</a></li>
+                                            <li><a href="#">Galaxy Z Flip 5</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Add more panels for other categories -->
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            <!-- User Section -->
-            <ul class="navbar-nav user-section">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                       aria-expanded="false">
-                        <i class="fas fa-user-circle me-1"></i> Tài khoản
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{% url 'user_info' %}"><i class="fas fa-user me-2"></i> Hồ sơ</a>
-                        </li>
-                        <li><a class="dropdown-item" href="{% url 'cart' %}"><i class="fas fa-shopping-bag me-2"></i>
-                            Đơn hàng</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a>
-                        </li>
-                    </ul>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-sign-in-alt me-1"></i> Đăng nhập
+            <!-- Quick Category Links -->
+            <ul class="quick-categories">
+                <li>
+                    <a href="#" class="quick-category-link">
+                        <i class="fab fa-apple"></i>
+                        <span>iPhone</span>
                     </a>
                 </li>
+                <li>
+                    <a href="#" class="quick-category-link">
+                        <span>Samsung</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="quick-category-link">
+                        <span>Xiaomi</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="quick-category-link">
+                        <span>OPPO</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="quick-category-link">
+                        <span>Vivo</span>
+                    </a>
 
             </ul>
 
-            <!-- Cart Icon -->
-            <div class="nav__cart-container">
-                <a href="{% url 'cart' %}" class="cart-link">
-                    <img id="cart-icon" src="{% static 'images/cart.png' %}" alt="Giỏ hàng">
-                    <!-- BIẾN GỐC -->
-                    <span id="cart-total">{{cartItems}}</span>
+            <!-- Right Side Links -->
+            <div class="category-right-links">
+                <a href="{% url 'about' %}" class="right-link">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Giới thiệu</span>
+                </a>
+                <a href="{% url 'contact' %}" class="right-link">
+                    <i class="fas fa-envelope"></i>
+                    <span>Liên hệ</span>
+                </a>
+                <a href="#" class="right-link highlight">
+                    <i class="fas fa-newspaper"></i>
+                    <span>Tin công nghệ</span>
                 </a>
             </div>
         </div>
     </div>
 </nav>
+
+<!-- Mobile Navigation Overlay -->
+<div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+
+<!-- Mobile Navigation Drawer -->
+<div class="mobile-nav-drawer" id="mobileNavDrawer">
+    <div class="mobile-nav-header">
+        <a href="{% url 'home' %}" class="mobile-logo">
+            <img src="{% static 'app/images/Neel.png' %}" alt="Phone Store">
+            <span>PhoneStore</span>
+        </a>
+        <button class="mobile-nav-close" id="mobileNavClose">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="mobile-user-section">
+        <div class="mobile-user-info">
+            <div class="mobile-user-avatar">
+                {% if user.profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}">
+                {% else %}
+                <i class="fas fa-user"></i>
+                {% endif %}
+            </div>
+            <div class="mobile-user-details">
+                <span class="mobile-user-name">{{ user.get_full_name|default:user.username }}</span>
+                <a href="{% url 'user_info' %}" class="mobile-user-link">Xem tài khoản</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="mobile-auth-section">
+        <a href="{% url 'login' %}" class="mobile-auth-btn login">Đăng nhập</a>
+        <a href="{% url 'register' %}" class="mobile-auth-btn register">Đăng ký</a>
+    </div>
+    {% endif %}
+
+    <!-- Mobile Search -->
+    <div class="mobile-search">
+        <form action="" method="GET">
+            <i class="fas fa-search"></i>
+            <input type="text" name="q" placeholder="Tìm kiếm sản phẩm...">
+        </form>
+    </div>
+
+    <!-- Mobile Menu -->
+    <nav class="mobile-menu">
+        <ul class="mobile-menu-list">
+            <li class="mobile-menu-item">
+                <a href="{% url 'home' %}">
+                    <i class="fas fa-home"></i>
+                    <span>Trang chủ</span>
+                </a>
+            </li>
+            <li class="mobile-menu-item has-submenu">
+                <a href="#" class="submenu-trigger">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>Điện thoại</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </a>
+                <ul class="mobile-submenu">
+                    <li><a href="#">iPhone</a></li>
+                    <li><a href="#">Samsung</a></li>
+                    <li><a href="#">Xiaomi</a></li>
+                    <li><a href="#">OPPO</a></li>
+                    <li><a href="#">Vivo</a></li>
+                    <li><a href="#">Realme</a></li>
+                    <li><a href="#" class="view-all-link">Xem tất cả điện thoại</a></li>
+                </ul>
+            </li>
+            <li class="mobile-menu-item">
+                <a href="#">
+                    <i class="fas fa-headphones"></i>
+                    <span>Phụ kiện</span>
+                </a>
+            </li>
+            <li class="mobile-menu-item">
+                <a href="{% url 'promotion_list' %}">
+                    <i class="fas fa-gift"></i>
+                    <span>Khuyến mãi</span>
+                    <span class="mobile-badge">Hot</span>
+                </a>
+            </li>
+            <li class="mobile-menu-item">
+                <a href="#">
+                    <i class="fas fa-newspaper"></i>
+                    <span>Tin công nghệ</span>
+                </a>
+            </li>
+            <li class="mobile-menu-divider"></li>
+            <li class="mobile-menu-item">
+                <a href="{% url 'about' %}">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Giới thiệu</span>
+                </a>
+            </li>
+            <li class="mobile-menu-item">
+                <a href="{% url 'contact' %}">
+                    <i class="fas fa-phone-alt"></i>
+                    <span>Liên hệ</span>
+                </a>
+            </li>
+            <li class="mobile-menu-item">
+                <a href="#">
+                    <i class="fas fa-store"></i>
+                    <span>Hệ thống cửa hàng</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Mobile Footer -->
+    <div class="mobile-nav-footer">
+        <a href="tel:1900123456" class="mobile-hotline">
+            <i class="fas fa-phone-alt"></i>
+            <span>Hotline: 1900 123 456</span>
+        </a>
+        <div class="mobile-social">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+            <a href="#"><i class="fab fa-tiktok"></i></a>
+        </div>
+    </div>
+</div>
 {% block  banner_slider  %}{% endblock banner_slider %}
 <!-- main body-->
 {% block main_content %} {% endblock main_content %}
@@ -190,7 +600,7 @@
                         <img src="https://vinadesign.vn/uploads/images/2023/05/vnpay-logo-vinadesign-25-12-57-55.jpg"
                              alt="VNPay" title="VNPay">
 
-                        <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="Momo" title="Momo">
+                        <img src="{% static 'images/Logo-MoMo.webp' %}" alt="Momo" title="Momo">
 
                         <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-ZaloPay-Square-1024x1024.png"
                              alt="Zalo Pay" title="ZaloPay">
