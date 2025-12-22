@@ -13,7 +13,7 @@ body {
 }
 
 .carousel-inner img {
-    height: 400px;
+    height: 550px;
     object-fit: cover;
 }
 
@@ -104,78 +104,6 @@ body {
     }
 }
 
-
-/* **QUAN TRỌNG 1:** Căn giữa tất cả các khối (links, search, user) trong Navbar */
-.collapse.navbar-collapse {
-    align-items: center; /* Đảm bảo căn giữa theo chiều dọc */
-    display: flex;
-    justify-content: space-around;
-}
-
-/* 1. Định hình khung form */
-.search-form {
-    position: relative;
-    max-width: 500px; /* Giới hạn chiều rộng để không bị quá dài */
-    width: 100%;
-    margin: 0 auto;
-}
-
-/* 2. Tùy chỉnh ô nhập liệu (Input) */
-.search-form .form-control {
-    border-radius: 50px;
-    border: 2px solid #e9ecef;
-    padding: 10px 20px;
-    font-size: 0.95rem;
-    background-color: #f8f9fa;
-    transition: all 0.3s ease;
-    box-shadow: none;
-}
-
-.search-form .form-control:focus {
-    background-color: #fff;
-    border-color: #198754;
-    box-shadow: 0 4px 15px rgba(25, 135, 84, 0.15);
-}
-
-.search-form .btn-search {
-    border-radius: 50%;
-    width: 42px;
-    height: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #198754;
-    border: none;
-    color: white;
-    margin-left: -50px;
-    z-index: 10;
-    transition: transform 0.2s ease, background-color 0.2s;
-    cursor: pointer;
-}
-
-/* Hiệu ứng khi di chuột vào nút */
-.search-form .btn-search:hover {
-    background-color: #146c43; /* Màu xanh đậm hơn */
-    transform: scale(1.1); /* Phóng to nhẹ */
-}
-
-/* Xử lý class me-2 của bootstrap trong HTML cũ để không bị lệch */
-.search-form .form-control.me-2 {
-    margin-right: 0 !important; /* Ghi đè margin của bootstrap */
-    padding-right: 50px; /* Chừa chỗ cho nút tìm kiếm nằm bên trong */
-}
-
-/* 3. Đảm bảo các khối chính (Main Links và User Section) không bị chiếm không gian */
-#navbarContent .me-auto {
-    flex-shrink: 0;
-}
-
-/* **QUAN TRỌNG 4:** Căn giữa khối người dùng và giỏ hàng */
-.user-section, .nav__cart-container {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center; 
-}
 
 /*.navbar-nav .nav-item {*/
 /*    margin-right: 5px; */
@@ -278,5 +206,145 @@ body {
     padding: 3px 0;
     border-bottom: 1px dashed #eee;
     font-size: 0.95rem;
+}
+.product-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+    background: #fff;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.product-card img.card-img-top {
+    height: 200px;
+    object-fit: contain;
+    padding: 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.product-card .card-body {
+    padding: 1.25rem;
+}
+
+.product-name {
+    font-size: 1rem;
+    line-height: 1.4;
+    min-height: 44px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.product-price {
+    font-size: 1.25rem;
+    color: #dc3545;
+    font-weight: 700;
+}
+
+/* --- CHỈNH SỬA: Nút "Thêm vào giỏ hàng" bo tròn hơn (Giữ nguyên) --- */
+.update-cart {
+    border-radius: 20px !important;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+}
+
+/* --- 2. CSS cho Brand List (Hãng sản xuất) (Giữ nguyên) --- */
+.brand-section {
+    background-color: #f8f9fa;
+    border-radius: 16px;
+}
+
+.brand-card {
+    width: 100px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.brand-image-wrapper {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    border: 2px solid #e9ecef;
+    background-color: #ffffff;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    padding: 10px;
+}
+
+.brand-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+/* Hiệu ứng Hover Brand (Giữ nguyên) */
+.brand-card:hover .brand-image-wrapper {
+    border-color: #0d6efd;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
+}
+
+.brand-card:hover .brand-logo {
+    transform: scale(1.1);
+}
+
+.brand-card:hover .brand-name {
+    color: #0d6efd !important;
+}
+
+.brand-name {
+    transition: color 0.3s;
+}
+
+/* Utility (Giữ nguyên) */
+.grayscale {
+    filter: grayscale(100%);
+    opacity: 0.6;
+}
+
+/* --- BỔ SUNG & CHỈNH SỬA: CSS cho Banner Slider 🚀 --- */
+.carousel-inner {
+    border-radius: 12px; /* Bo tròn khung ngoài của slider */
+    overflow: hidden; /* Cắt bỏ phần dư thừa */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Thêm bóng đổ nhẹ cho nổi bật */
+}
+
+
+/* Chỉnh sửa vị trí và style cho Indicators (Dấu chấm điều hướng) */
+.carousel-indicators button {
+    width: 10px !important;
+    height: 10px !important;
+    border-radius: 50%;
+    margin: 0 5px;
+    background-color: #fff; /* Chuyển màu trắng để dễ thấy trên mọi nền ảnh */
+    opacity: 0.5;
+    transition: opacity 0.3s, background-color 0.3s;
+}
+
+.carousel-indicators .active {
+    opacity: 1;
+    background-color: #fff; /* Highlight màu trắng */
+}
+
+/* Chỉnh sửa style cho Carousel Captions */
+.carousel-caption {
+    bottom: 20px; /* Đẩy lên trên một chút */
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.6) !important; /* Dùng nền đen mờ để chữ luôn rõ */
+    border-radius: 8px;
+    color: #fff;
+}
+
+/* Chỉnh sửa style cho Controls (Mũi tên điều hướng) */
+.carousel-control-prev,
+.carousel-control-next {
+    width: 5%; /* Giảm kích thước vùng click */
 }
 
