@@ -2,46 +2,52 @@
 {% load static %}
 
 {% block extra_css %}
-<link href="{% static 'app/css/login.css' %}" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="{% static 'app/css/auth.css' %}" rel="stylesheet" />
 {% endblock extra_css %}
 
 {% block main_content %}
-<div class="login-page container py-5">
-  <div class="login-card mx-auto">
-    <div class="login-card__header text-center">
-      <h2>Đăng nhập</h2>
-      <p class="muted">Đăng nhập để tiếp tục mua sắm</p>
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2 class="auth-title">Đăng nhập</h2>
+            <p class="auth-subtitle">Chào mừng bạn quay trở lại</p>
+        </div>
+
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+
+            {% if messages %}
+            {% for message in messages %}
+            <div style="background: #ffe5e5; color: #d32f2f; padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 20px;">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <div class="form-group">
+                <label class="form-label">Tên đăng nhập</label>
+                <div class="input-group">
+                    <i class="fas fa-user input-icon"></i>
+                    <input type="text" name="username" class="form-control" placeholder="Nhập tên đăng nhập" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Mật khẩu</label>
+                <div class="input-group">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu" required>
+                </div>
+                <a href="#" class="forgot-pass">Quên mật khẩu?</a>
+            </div>
+
+            <button type="submit" class="btn-primary">Đăng nhập ngay</button>
+        </form>
+
+        <div class="auth-footer">
+            Chưa có tài khoản? <a href="{% url 'register' %}" class="auth-link">Đăng ký mới</a>
+        </div>
     </div>
-
-    <form method="post" action="{% url 'login' %}" class="login-form">
-      {% csrf_token %}
-      {% if form.errors %}
-        <div class="alert alert-danger">Vui lòng kiểm tra thông tin đăng nhập.</div>
-      {% endif %}
-
-      <div class="mb-3">
-        <label for="id_username" class="form-label">Email hoặc tên đăng nhập</label>
-        <input type="text" name="username" id="id_username" class="form-control" required value="{{ request.POST.username|default:'' }}" />
-      </div>
-
-      <div class="mb-3">
-        <label for="id_password" class="form-label">Mật khẩu</label>
-        <input type="password" name="password" id="id_password" class="form-control" required />
-      </div>
-
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-          <input type="checkbox" name="remember" id="id_remember" /> <label for="id_remember">Ghi nhớ</label>
-        </div>
-        </div>
-        <div class="d-grid">
-        <button type="submit" class="btn btn-primary btn-login">Đăng nhập</button>
-      </div>
-
-      <div class="text-center mt-3">
-        <span>Chưa có tài khoản? <a href="{% url 'register' %}">Đăng ký</a></span>
-      </div>
-    </form>
-  </div>
 </div>
 {% endblock main_content %}
