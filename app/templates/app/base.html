@@ -1,6 +1,6 @@
 {% load static %}
 
-<html xmlns="http://www.w3.org/1999/html">
+<html>
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -362,12 +362,9 @@
                         <span>Samsung</span>
                     </a>
                 </li>
-
                 <li>
                     <a href="#" class="quick-category-link">
                         <span>Xiaomi</span>
-
-
                     </a>
                 </li>
                 <li>
@@ -605,7 +602,6 @@
 
     </div>
 </footer>
-
 <!-- JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
         xintegrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
@@ -659,14 +655,10 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             suggestionsBox.style.display = "none";
         }
-    });
+        return null;
+    }
 
-    document.addEventListener("click", (e) => {
-        if (e.target !== searchInput && e.target.parentNode !== suggestionsBox) {
-            suggestionsBox.style.display = "none";
-        }
-    });
-});
+    var csrftoken = getCookie('csrftoken');
 </script>
 
 
