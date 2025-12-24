@@ -1,6 +1,6 @@
 {% load static %}
 
-<html>
+<html xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -362,9 +362,12 @@
                         <span>Samsung</span>
                     </a>
                 </li>
+
                 <li>
                     <a href="#" class="quick-category-link">
                         <span>Xiaomi</span>
+
+
                     </a>
                 </li>
                 <li>
@@ -602,6 +605,7 @@
 
     </div>
 </footer>
+
 <!-- JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
         xintegrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
@@ -632,6 +636,37 @@
     }
 
     var csrftoken = getCookie('csrftoken');
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.getElementById("search-input");
+    const suggestionsBox = document.getElementById("search-suggestions");
+
+    searchInput.addEventListener("input", async function () {
+        const query = searchInput.value.trim();
+
+        if (query.length > 0) {
+            const response = await fetch(`/api/search_suggestions/?q=${query}`);
+            const suggestions = await response.json();
+
+            suggestionsBox.innerHTML = suggestions.map(s => `
+                <a href="/product/${s.id}/" class="list-group-item">${s.name}</a>
+            `).join("");
+
+            suggestionsBox.style.display = "block";
+        } else {
+            suggestionsBox.style.display = "none";
+        }
+    });
+
+    document.addEventListener("click", (e) => {
+        if (e.target !== searchInput && e.target.parentNode !== suggestionsBox) {
+            suggestionsBox.style.display = "none";
+        }
+    });
+});
 </script>
 
 

@@ -270,6 +270,29 @@ def contact(request):
     context = {'cartItems': cartItems, 'success': message_success}
     return render(request, 'app/contact.html', context)
 def product_list_by_brand(request, brand_slug):
+    # Lấy thông tin thương hiệu hiện tại
+    current_brand = Brand.objects.get(slug=brand_slug)
+
+    # Lấy tất cả danh mục và các lựa chọn liên quan để hiển thị bộ lọc
+    categories = Category.objects.all()
+
+    # Lấy query parameters từ URL (nếu người dùng chọn bộ lọc)
+    selected_categories = request.GET.getlist('category')  # Danh mục chọn
+    selected_options = request.GET.getlist('option')  # Tùy chọn chọn
+
+    # Truy vấn sản phẩm theo thương hiệu hiện tại
+    products = Product.objects.filter(brand=current_brand)
+
+    # Lọc theo các danh mục đã chọn (nếu có)
+    if selected_categories:
+        products = products.filter(category__slug__in=selected_categories)
+
+    # Lọc theo các tùy chọn đã chọn (nếu có)
+    if selected_options:
+        products = products.filter(options__slug__in=selected_options)
+
+    # Loại bỏ các sản phẩm trùng lặp khi áp dụng nhiều bộ lọc
+    products = products.distinct()
 
     # 1. Lấy tất cả các hãng để hiển thị sidebar/menu
     brands = Brand.objects.all()
@@ -284,6 +307,9 @@ def product_list_by_brand(request, brand_slug):
         'products': products,
         'brands': brands,
         'current_brand': current_brand,
+        'categories': categories,
+        'selected_categories': selected_categories,
+        'selected_options': selected_options,
         # 'cartItems' đã được Context Processor xử lý
     }
     return render(request, 'app/product_list_by_brand.html', context)
@@ -303,3 +329,25 @@ def promotion_list(request):
 
     context = {'promotions': promotions}
     return render(request, 'app/promotion_list.html', context)
+def search_suggestions(request):
+    query = request.GET.get('q', '').strip()
+    suggestions = Product.objects.filter(name__icontains=query)[:10]  # Gợi ý 10 sản phẩm
+    response = [{'id': product.id, 'name': product.name} for product in suggestions]
+    return JsonResponse(response, safe=False)
+def product_search(request):
+    query = request.GET.get('q', '').strip()
+    sort = request.GET.get('sort', 'relevance')
+
+    products = Product.objects.filter(name__icontains=query)
+
+    if sort == 'price_desc':
+        products = products.order_by('-price')
+    elif sort == 'price_asc':
+        products = products.order_by('price')
+
+    context = {
+        'products': products,
+        'q': query,
+        'sort': sort,
+    }
+    return render(request, 'product_search.html', context)
