@@ -1,3 +1,4 @@
+import re
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from .models import *
@@ -9,25 +10,100 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.contrib.auth import logout
 from django.db.models import Q
-from django.db.models import Sum # Thêm import Sum nếu cần dùng tính tổng
+from django.db.models import Sum
+from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth.forms import AuthenticationForm
+from django.shortcuts import redirect
+from django.contrib import messages
 
-@login_required(login_url='login')
 
-# Create your views here.
+
+from django.shortcuts import render, redirect
+from django.contrib.auth import login as auth_login
+from django.contrib import messages
+from django.contrib.auth.models import User
+from .models import Customer
+
 def register(request):
-    form = UserCreationForm()
+    if request.user.is_authenticated:
+        return redirect('home')
+
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        data = request.POST
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
+        confirm_password = data.get('confirm_password')
+
+        if len(password) < 8:
+            messages.error(request, "Mật khẩu phải có ít nhất 8 ký tự!")
+            return redirect('register')
+
+        if not re.search(r'[A-Z]', password):
+            messages.error(request, "Mật khẩu phải chứa ít nhất 1 chữ cái in hoa!")
+            return redirect('register')
+
+        if not re.search(r'\d', password):
+            messages.error(request, "Mật khẩu phải chứa ít nhất 1 chữ số!")
+            return redirect('register')
+
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            messages.error(request, "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt (!@#...)!")
+            return redirect('register')
+
+        if password != confirm_password:
+            messages.error(request, "Mật khẩu nhập lại không khớp!")
+            return redirect('register')
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Tên đăng nhập này đã có người sử dụng!")
+            return redirect('register')
+
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Email này đã được đăng ký!")
+            return redirect('register')
+
+        try:
+            user = User.objects.create_user(username=username, email=email, password=password)
+            Customer.objects.create(user=user, name=username, email=email)
+            auth_login(request, user)
+            messages.success(request, "Tạo tài khoản thành công!")
+            return redirect('home')
+
+        except Exception as e:
+            messages.error(request, f"Đã có lỗi xảy ra: {e}")
+            return redirect('register')
+
+    return render(request, 'app/register.html')
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            form.save()
-    context= {'form': form}
-    return render(request, 'app/register.html',context)
-def login(request):
-    context= {}
-    return render(request, 'app/login.html',context)
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                auth_login(request, user)
+                if request.GET.get('next'):
+                    return redirect(request.GET.get('next'))
+                return redirect('home')
+            else:
+                messages.error(request, "Sai mật khẩu hoặc tên đăng nhập.")
+        else:
+            messages.error(request, "Thông tin không hợp lệ.")
+    else:
+        form = AuthenticationForm()
+
+    context = {'form': form}
+    return render(request, 'app/login.html', context)
+
 def logout_views(request):
     logout(request)
-    return redirect('home')
+    return redirect('login')
 
 def home(request):
     if request.user.is_authenticated:
@@ -145,6 +221,21 @@ def about(request):
     return render(request, 'app/about.html', context)
 
 # app/views.py
+def get_cart_data(request):
+    if request.user.is_authenticated:
+        customer, created = Customer.objects.get_or_create(
+            user=request.user,
+            defaults={'name': request.user.username, 'email': request.user.email}
+        )
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        items = order.orderitem_set.all()
+        cartItems = order.get_cart_items
+        return {'items': items, 'order': order, 'cartItems': cartItems}
+    else:
+        items = []
+        order = {'get_cart_total': 0, 'get_cart_items': 0}
+        cartItems = order['get_cart_items']
+        return {'items': items, 'order': order, 'cartItems': cartItems}
 
 def contact(request):
     # Logic giỏ hàng (giữ nguyên để header không bị lỗi số lượng)
