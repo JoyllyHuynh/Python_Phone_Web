@@ -808,17 +808,8 @@
     font-weight: 600;
 }
 
-.panel-banner {
-    margin-top: 20px;
-    border-radius: var(--nav-radius);
-    overflow: hidden;
-}
 
-.panel-banner img {
-    width: 100%;
-    height: auto;
-    display: block;
-}
+
 
 /* Quick Categories */
 .quick-categories {
