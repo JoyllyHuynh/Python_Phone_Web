@@ -635,6 +635,33 @@
 </script>
 
 
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.getElementById("search-input");
+    const suggestionsBox = document.getElementById("search-suggestions");
+
+    searchInput.addEventListener("input", async function () {
+        const query = searchInput.value.trim();
+
+        if (query.length > 0) {
+            const response = await fetch(`/api/search_suggestions/?q=${query}`);
+            const suggestions = await response.json();
+
+            suggestionsBox.innerHTML = suggestions.map(s => `
+                <a href="/product/${s.id}/" class="list-group-item">${s.name}</a>
+            `).join("");
+
+            suggestionsBox.style.display = "block";
+        } else {
+            suggestionsBox.style.display = "none";
+        }
+        return null;
+    }
+
+    var csrftoken = getCookie('csrftoken');
+</script>
+
+
 <script src="{% static 'app/js/cart.js' %}"></script>
 </body>
 </html>
