@@ -2,7 +2,171 @@
 {% load static %}
 {% load humanize %}
 
+{% block extra_css %}
+<style>
+    /* --- 1. CSS chung cho Product Card (Giữ nguyên) --- */
+    .product-card {
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease-in-out;
+        background: #fff;
+    }
 
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .product-card img.card-img-top {
+        height: 200px;
+        object-fit: contain;
+        padding: 20px;
+        background-color: #fff;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .product-card .card-body {
+        padding: 1.25rem;
+    }
+
+    .product-name {
+        font-size: 1rem;
+        line-height: 1.4;
+        min-height: 44px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .product-price {
+        font-size: 1.25rem;
+        color: #dc3545;
+        font-weight: 700;
+    }
+
+    /* --- CHỈNH SỬA: Nút "Thêm vào giỏ hàng" bo tròn hơn (Giữ nguyên) --- */
+    .update-cart {
+        border-radius: 20px !important;
+        padding: 8px 15px;
+        font-size: 0.9rem;
+    }
+
+    /* --- 2. CSS cho Brand List (Hãng sản xuất) (Giữ nguyên) --- */
+    .brand-section {
+        background-color: #f8f9fa;
+        border-radius: 16px;
+    }
+
+    .brand-card {
+        width: 100px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+ /* 1. Bo tròn khung chứa bên ngoài */
+    .brand-image-wrapper {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto;
+        border: 2px solid #e9ecef;
+        background-color: #ffffff;
+        
+        /* Cực kỳ quan trọng: */
+        border-radius: 50% !important; 
+        overflow: hidden; /* Cắt bỏ bất cứ thứ gì tràn ra ngoài vòng tròn */
+        
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0; /* Xóa padding để ảnh có thể phủ kín nếu muốn */
+        transition: all 0.3s ease;
+    }
+
+    /* 2. Bo tròn chính tấm ảnh bên trong */
+    .brand-logo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Hoặc 'contain' nếu bạn muốn thấy toàn bộ logo */
+        
+        /* Ép tấm ảnh cũng phải tròn theo */
+        border-radius: 50%; 
+    }
+
+    /* Hiệu ứng Hover Brand (Giữ nguyên) */
+    .brand-card:hover .brand-image-wrapper {
+        border-color: #0d6efd;
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
+    }
+
+    .brand-card:hover .brand-logo {
+        transform: scale(1.1);
+    }
+
+    .brand-card:hover .brand-name {
+        color: #0d6efd !important;
+    }
+
+    .brand-name {
+        transition: color 0.3s;
+    }
+
+    /* Utility (Giữ nguyên) */
+    .grayscale {
+        filter: grayscale(100%);
+        opacity: 0.6;
+    }
+    
+    /* --- BỔ SUNG & CHỈNH SỬA: CSS cho Banner Slider 🚀 --- */
+    .carousel-inner {
+        border-radius: 12px; /* Bo tròn khung ngoài của slider */
+        overflow: hidden; /* Cắt bỏ phần dư thừa */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Thêm bóng đổ nhẹ cho nổi bật */
+    }
+
+    .carousel-image,
+    .carousel-item img {
+        width: 100%;
+        height: 450px; 
+        object-fit: contain; /* Ảnh sẽ co giãn để nằm trọn trong khung */
+        background-color: #f0f0f0; /* Thêm màu nền cho khoảng trống (tùy chọn) */
+    }
+
+    /* Chỉnh sửa vị trí và style cho Indicators (Dấu chấm điều hướng) */
+    .carousel-indicators button {
+        width: 10px !important;
+        height: 10px !important;
+        border-radius: 50%;
+        margin: 0 5px;
+        background-color: #fff; /* Chuyển màu trắng để dễ thấy trên mọi nền ảnh */
+        opacity: 0.5;
+        transition: opacity 0.3s, background-color 0.3s;
+    }
+
+    .carousel-indicators .active {
+        opacity: 1;
+        background-color: #fff; /* Highlight màu trắng */
+    }
+    
+    /* Chỉnh sửa style cho Carousel Captions */
+    .carousel-caption {
+        bottom: 20px; /* Đẩy lên trên một chút */
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.6) !important; /* Dùng nền đen mờ để chữ luôn rõ */
+        border-radius: 8px;
+        color: #fff;
+    }
+
+    /* Chỉnh sửa style cho Controls (Mũi tên điều hướng) */
+    .carousel-control-prev, 
+    .carousel-control-next {
+        width: 5%; /* Giảm kích thước vùng click */
+    }
+
+
+</style>
+{% endblock extra_css %}
 
 {% block banner_slider %}
 <div id="carouselExampleDark" class="carousel carousel-dark slide" data-bs-ride="carousel">
