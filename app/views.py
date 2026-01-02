@@ -26,6 +26,7 @@ from django.contrib.auth import login as auth_login
 from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import Customer
+from .models import Promotion
 
 MODEL_PATH = os.path.join(settings.BASE_DIR, 'app', 'model_data', 'model_cam_xuc.pkl')
 VECTOR_PATH = os.path.join(settings.BASE_DIR, 'app', 'model_data', 'vectorizer.pkl')
@@ -426,4 +427,61 @@ def delete_review(request, id):
         
     return JsonResponse({'status': 'error', 'message': 'Không thể xóa'}, status=400)
 
+def apply_coupon_logic(request, order, coupon_code):
 
+    try:
+        promo = Promotion.objects.get(code=coupon_code, active=True)
+    except Promotion.DoesNotExist:
+        return False, "Mã giảm giá không tồn tại hoặc đã hết hạn!", 0
+
+    now = timezone.now()
+    if not (promo.start_date <= now <= promo.end_date):
+        return False, "Mã giảm giá chưa bắt đầu hoặc đã kết thúc!", 0
+
+    if not promo.is_valid_for_user(request.user):
+        return False, "Mã này không dành cho tài khoản hoặc hạng thành viên của bạn.", 0
+    order_items = order.orderitem_set.all()
+    eligible_amount = 0
+
+    has_valid_product = False
+
+    for item in order_items:
+        if promo.is_valid_for_product(item.product):
+            has_valid_product = True
+            eligible_amount += item.get_total # Giả sử OrderItem có property get_total (price * quantity)
+
+    if not has_valid_product:
+        return False, "Giỏ hàng không có sản phẩm nào phù hợp với mã giảm giá này.", 0
+
+    discount_amount = 0
+    if promo.is_percentage:
+        discount_amount = (eligible_amount * promo.discount_value) / 100
+    else:
+        discount_amount = promo.discount_value
+        if discount_amount > eligible_amount:
+            discount_amount = eligible_amount
+
+    return True, f"Áp dụng mã {promo.code} thành công!", discount_amount
+
+def apply_coupon(request):
+    if request.method == 'POST':
+        code = request.POST.get('coupon_code')
+        customer = request.user.customer
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+
+        success, msg, discount = apply_coupon_logic(request, order, code)
+
+        if success:
+            messages.success(request, msg)
+            request.session['coupon_discount'] = discount
+            request.session['coupon_code'] = code
+        else:
+            messages.error(request, msg)
+
+        return redirect('cart')
+
+def promotion_policy(request):
+    # Lấy số lượng promo đang active để hiển thị badge
+    active_promos_count = Promotion.objects.filter(active=True).count()
+    context = {'active_promos_count': active_promos_count}
+    return render(request, 'app/promotion_policy.html', context)

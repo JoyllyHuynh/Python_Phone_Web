@@ -15,11 +15,35 @@ class BrandAdmin(admin.ModelAdmin):
 
 admin.site.register(Brand, BrandAdmin)
 
-# 3. Đăng ký Promotion với PromotionAdmin
+class CustomerTypeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug')
+    prepopulated_fields = {'slug': ('name',)}
+
+admin.site.register(CustomerType, CustomerTypeAdmin)
+
 class PromotionAdmin(admin.ModelAdmin):
-    list_display = ('code', 'discount_value', 'is_percentage', 'start_date', 'end_date', 'active')
+    list_display = ('code', 'discount_value', 'is_percentage', 'promotion_type', 'active', 'start_date', 'end_date')
     search_fields = ('code', 'event_name')
-    list_filter = ('active', 'is_percentage')
+    list_filter = ('active', 'promotion_type', 'start_date')
+
+    filter_horizontal = ('target_products', 'target_brands', 'target_users', 'target_customer_types')
+
+    fieldsets = (
+        ('Thông tin cơ bản', {
+            'fields': ('code', 'description', 'promotion_type', 'discount_value', 'is_percentage', 'active', 'event_name')
+        }),
+        ('Thời gian áp dụng', {
+            'fields': ('start_date', 'end_date')
+        }),
+        ('Phạm vi Sản phẩm (Để trống = Toàn sàn)', {
+            'fields': ('target_brands', 'target_products'),
+            'description': 'Chọn Hãng hoặc Sản phẩm cụ thể. Nếu chọn cả hai, hệ thống sẽ kiểm tra cả hai.'
+        }),
+        ('Đối tượng Khách hàng (Để trống = Tất cả)', {
+            'fields': ('target_customer_types', 'target_users'),
+            'description': 'Chọn hạng thành viên hoặc người dùng cụ thể.'
+        }),
+    )
 
 admin.site.register(Promotion, PromotionAdmin)
 
