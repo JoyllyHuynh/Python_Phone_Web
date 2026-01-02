@@ -1,0 +1,145 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'app/css/promotion_policy.css' %}">
+{% endblock %}
+
+{% block content_promotion_policy %}
+<div class="policy-hero">
+    <div class="policy-container">
+        <h1 class="policy-title">Chính Sách & Quy Định Khuyến Mãi</h1>
+        <p class="policy-subtitle">Minh bạch - Rõ ràng - Đảm bảo quyền lợi khách hàng</p>
+
+        {% if active_promos_count > 0 %}
+        <div class="active-promo-badge">
+            🔥 Đang có {{ active_promos_count }} chương trình hoạt động
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="policy-container">
+
+    <div class="policy-section">
+        <h3 class="section-title">1. Hệ thống Hạng Thành Viên</h3>
+        <p style="margin-bottom: 30px; color: #555;">
+            Hệ thống tự động xét duyệt hạng thành viên dựa trên lịch sử mua hàng để áp dụng các mã giảm giá đặc biệt.
+        </p>
+
+        <div class="tier-row">
+            <div class="tier-col">
+                <div class="tier-card tier-new">
+                    <span class="tier-icon">👋</span>
+                    <h4 class="tier-name">Thành Viên Mới</h4>
+                    <div class="tier-benefit">
+                        <p><strong>• Điều kiện:</strong> Vừa đăng ký tài khoản.</p>
+                        <p><strong>• Quyền lợi:</strong> Nhận bộ Voucher chào mừng trị giá tới 500k.</p>
+                        <p>• Áp dụng cho đơn hàng đầu tiên.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tier-col">
+                <div class="tier-card tier-silver">
+                    <span class="tier-icon">🤝</span>
+                    <h4 class="tier-name">Thân Thiết (Silver)</h4>
+                    <div class="tier-benefit">
+                        <p><strong>• Điều kiện:</strong> Chi tiêu > 5.000.000đ.</p>
+                        <p><strong>• Quyền lợi:</strong> Mã giảm giá 5% hàng tháng.</p>
+                        <p>• Ưu tiên giao hàng & Hỗ trợ kỹ thuật.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tier-col">
+                <div class="tier-card tier-vip">
+                    <span class="tier-icon">💎</span>
+                    <h4 class="tier-name">VIP Gold</h4>
+                    <div class="tier-benefit">
+                        <p><strong>• Điều kiện:</strong> Chi tiêu > 20.000.000đ.</p>
+                        <p><strong>• Quyền lợi:</strong> Voucher sinh nhật, Giảm 10% phụ kiện trọn đời.</p>
+                        <p>• Đặc quyền tham gia Flash Sale sớm 30p.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="policy-section">
+        <h3 class="section-title">2. Quy định Áp dụng</h3>
+        <div class="rules-grid">
+            <div class="rule-box">
+                <div class="rule-header">
+                    <span class="rule-icon">🏷️</span> Theo Hãng (Brand)
+                </div>
+                <div class="rule-content">
+                    <p>Khi mã giảm giá ghi "Áp dụng cho Samsung":</p>
+                    <ul>
+                        <li>Áp dụng cho <strong>tất cả</strong> điện thoại thuộc thương hiệu Samsung.</li>
+                        <li>Có thể kết hợp với khuyến mãi vận chuyển (Freeship).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="rule-box">
+                <div class="rule-header">
+                    <span class="rule-icon">📱</span> Sản phẩm Cụ thể
+                </div>
+                <div class="rule-content">
+                    <p>Mã dành riêng cho sản phẩm "Hot" (VD: iPhone 16):</p>
+                    <ul>
+                        <li>Mã tự động kích hoạt khi giỏ hàng có sản phẩm đó.</li>
+                        <li>Chỉ giảm giá trên giá trị của sản phẩm được chỉ định, không giảm toàn bộ đơn.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="policy-section">
+        <h3 class="section-title">3. Câu hỏi thường gặp</h3>
+
+        <div class="faq-item active">
+            <button class="faq-question">
+                ❓ Tôi có thể dùng 2 mã giảm giá cùng lúc không?
+            </button>
+            <div class="faq-answer">
+                Hiện tại hệ thống chỉ cho phép áp dụng <strong>01 Mã giảm giá sản phẩm</strong> trên một đơn hàng. Tuy nhiên, bạn được phép cộng gộp với ưu đãi Miễn phí vận chuyển.
+            </div>
+        </div>
+
+        <div class="faq-item active">
+            <button class="faq-question">
+                ❓ Tại sao tôi nhập mã nhưng báo lỗi?
+            </button>
+            <div class="faq-answer">
+                Vui lòng kiểm tra: Mã hết hạn, sai ký tự, chưa đạt giá trị tối thiểu, hoặc tài khoản của bạn chưa đủ hạng thành viên để sử dụng mã VIP này.
+            </div>
+        </div>
+    </div>
+
+    <div class="cta-section">
+        <p style="font-size: 1.2rem; margin-bottom: 20px;">Bạn đã hiểu rõ luật chơi?</p>
+        <a href="{% url 'promotion_list' %}" class="btn-cta">Săn Voucher Ngay 🚀</a>
+    </div>
+
+</div>
+
+<script>
+    document.querySelectorAll('.faq-question').forEach(button => {
+        button.addEventListener('click', () => {
+            const faqItem = button.parentElement;
+            // Toggle class 'active'
+            faqItem.classList.toggle('active');
+
+            // Nếu muốn hiệu ứng Accordion (chỉ mở 1 cái 1 lúc) thì thêm đoạn này:
+            /*
+            document.querySelectorAll('.faq-item').forEach(item => {
+                if (item !== faqItem) item.classList.remove('active');
+            });
+            */
+        });
+    });
+</script>
+{% endblock %}
