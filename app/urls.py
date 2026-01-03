@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.urls import path
-from . import views
+from app import views
+
+from django.contrib import admin
+
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -21,4 +24,15 @@ urlpatterns = [
     path('promotion-policy/', views.promotion_policy, name='promotion_policy'),
     path('edit-review/<int:id>/', views.edit_review, name='edit_review'),
     path('delete-review/<int:id>/', views.delete_review, name='delete_review'),
+    #path('payment_return/', views.payment_return, name='payment_return'),
+
+
+    #vnpay urls
+    path('pay',views.index, name='index'),
+    path('payment', views.payment, name='payment'),
+    path('payment_ipn', views.payment_ipn, name='payment_ipn'),
+    path('payment_return', views.payment_return, name='payment_return'),
+    path('query', views.query, name='query'),
+    path('refund', views.refund, name='refund'),
+   # path('admin/', admin.site.urls),
 ]
