@@ -1,0 +1,9 @@
+{% extends 'app/base.html' %}
+{% block content_payment_success %}
+<div style="text-align: center; padding: 50px;">
+    <h2 style="color: green;">🎉 Thanh toán thành công!</h2>
+    <p>Mã đơn hàng: #{{ order_id }}</p>
+    <p>Số tiền: {{ amount }} VND</p>
+    <a href="{% url 'home' %}" class="btn btn-primary">Tiếp tục mua sắm</a>
+</div>
+{% endblock %}
