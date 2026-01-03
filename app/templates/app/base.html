@@ -530,6 +530,8 @@
 {% block content_checkout %} {% endblock content_checkout %}
 {% block cart_content %} {% endblock cart_content %}
 {% block content_promotions %} {% endblock content_promotions %}
+{% block content_promotion_policy %} {% endblock content_promotion_policy %}
+{% block content_payment_success %} {% endblock content_payment_success %}
 <footer class="footer-cps py-5">
     <div class="container">
         <div class="row gy-4">
@@ -567,7 +569,7 @@
                         <li><a href="#">Chính sách đổi trả 1-1</a></li>
                         <li><a href="#">Chính sách bảo hành Apple</a></li>
                         <li><a href="#">Tra cứu hóa đơn điện tử</a></li>
-                        <li><a href="#">Ưu đãi thành viên Smember</a></li>
+                        <li><a href="{% url 'promotion_policy' %}">Chính sách khuyến mãi</a></li>
                     </ul>
                 </div>
             </div>
@@ -656,9 +658,10 @@ document.addEventListener("DOMContentLoaded", () => {
             suggestionsBox.style.display = "none";
         }
         return null;
-    }
+    });
 
-    var csrftoken = getCookie('csrftoken');
+    var csrftoken = getCookie('csrftoken')});
+
 </script>
 
 

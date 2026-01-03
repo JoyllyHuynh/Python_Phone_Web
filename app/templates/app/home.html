@@ -2,7 +2,151 @@
 {% load static %}
 {% load humanize %}
 
+{% block extra_css %}
+<style>
+    .product-card {
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease-in-out;
+        background: #fff;
+    }
 
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .product-card img.card-img-top {
+        height: 200px;
+        object-fit: contain;
+        padding: 20px;
+        background-color: #fff;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .product-card .card-body {
+        padding: 1.25rem;
+    }
+
+    .product-name {
+        font-size: 1rem;
+        line-height: 1.4;
+        min-height: 44px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .product-price {
+        font-size: 1.25rem;
+        color: #dc3545;
+        font-weight: 700;
+    }
+
+    .update-cart {
+        border-radius: 20px !important;
+        padding: 8px 15px;
+        font-size: 0.9rem;
+    }
+
+    .brand-section {
+        background-color: #f8f9fa;
+        border-radius: 16px;
+    }
+
+    .brand-card {
+        width: 100px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .brand-image-wrapper {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto;
+        border: 2px solid #e9ecef;
+        background-color: #ffffff;
+        border-radius: 50% !important;
+        overflow: hidden;
+        
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        transition: all 0.3s ease;
+    }
+
+    .brand-logo {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 50%; 
+    }
+
+
+    .brand-card:hover .brand-image-wrapper {
+        border-color: #0d6efd;
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
+    }
+
+    .brand-card:hover .brand-logo {
+        transform: scale(1.1);
+    }
+
+    .brand-card:hover .brand-name {
+        color: #0d6efd !important;
+    }
+
+    .brand-name {
+        transition: color 0.3s;
+    }
+
+    .grayscale {
+        filter: grayscale(100%);
+        opacity: 0.6;
+    }
+    
+    .carousel-inner {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+
+    .carousel-indicators button {
+        width: 10px !important;
+        height: 10px !important;
+        border-radius: 50%;
+        margin: 0 5px;
+        background-color: #fff;
+        opacity: 0.5;
+        transition: opacity 0.3s, background-color 0.3s;
+    }
+
+    .carousel-indicators .active {
+        opacity: 1;
+        background-color: #fff;
+    }
+    
+    .carousel-caption {
+        bottom: 20px;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.6) !important;
+        border-radius: 8px;
+        color: #fff;
+    }
+
+    /* Chỉnh sửa style cho Controls (Mũi tên điều hướng) */
+    .carousel-control-prev, 
+    .carousel-control-next {
+        width: 5%; /* Giảm kích thước vùng click */
+    }
+
+
+</style>
+{% endblock extra_css %}
 
 {% block banner_slider %}
 <div id="carouselExampleDark" class="carousel carousel-dark slide" data-bs-ride="carousel">

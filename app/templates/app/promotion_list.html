@@ -7,61 +7,117 @@
 
 {% block content_promotions %}
 <div class="promotions-container">
-    <h2 class="promotions-title">🎉 Kho Voucher & Ưu đãi 🎉</h2>
+    <div class="promotions-header">
+        <h2 class="promotions-title">Săn Deal Hời - Đời Lên Hương 📱</h2>
+        <p class="promotions-subtitle">Tổng hợp mã giảm giá độc quyền dành riêng cho bạn</p>
+    </div>
+
+    <div class="promo-filter-tags">
+        <span class="filter-tag active">Tất cả</span>
+        <span class="filter-tag">Khách mới</span>
+        <span class="filter-tag">VIP</span>
+    </div>
 
     <div class="row">
         {% for promo in promotions %}
-        <div class="col-md-4 mb-4">
-            <div class="promo-card">
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="promo-card type-{{ promo.promotion_type }}">
+
+                {% if promo.promotion_type == 'new_user' or promo.promotion_type == 'new customer' %}
+                <div class="promo-badge badge-new-user">👋 New Member</div>
+                {% elif promo.promotion_type == 'vip' %}
+                <div class="promo-badge badge-vip">💎 VIP Only</div>
+                {% elif promo.promotion_type == 'holiday' %}
+                <div class="promo-badge badge-holiday">🎉 Holiday</div>
+                {% elif promo.promotion_type == 'new_arrival' %}
+                <div class="promo-badge badge-new">🔥 Hot New</div>
+                {% elif promo.promotion_type == 'flash_sale' %}
+                <div class="promo-badge badge-danger">⚡ Flash Sale</div>
+                {% endif %}
+
                 <div class="promo-header {% if promo.is_percentage %}promo-header-percentage{% else %}promo-header-fixed{% endif %}">
-                    <h3 class="promo-discount">
-                        {% if promo.is_percentage %}
-                        -{{ promo.discount_value|floatformat:0 }}%
-                        {% else %}
-                        -{{ promo.discount_value|floatformat:0 }}đ
-                        {% endif %}
-                    </h3>
-                    <small class="promo-event-name">{{ promo.event_name }}</small>
+                    <div class="discount-wrapper">
+                        <span class="discount-label">Giảm tới</span>
+                        <h3 class="promo-discount">
+                            {% if promo.is_percentage %}
+                            {{ promo.discount_value|floatformat:0 }}%
+                            {% else %}
+                            {{ promo.discount_value|floatformat:0 }}đ
+                            {% endif %}
+                        </h3>
+                    </div>
+                    <div class="event-tag">{{ promo.event_name }}</div>
                 </div>
 
                 <div class="promo-body">
-                    <h5 class="promo-code">{{ promo.code }}</h5>
+                    <div class="promo-code-display">
+                        <code>{{ promo.code }}</code>
+                    </div>
+
                     <p class="promo-description">{{ promo.description }}</p>
 
-                    <ul class="promo-details">
+                    <div class="promo-meta">
+
+                        {% if promo.target_brands.exists %}
+                        <div class="meta-item">
+                            <span class="icon">🏷️</span>
+                            <span class="meta-label">Hãng:</span>
+                            <span class="meta-value">
+                                {% for brand in promo.target_brands.all %}
+                                    {{ brand.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </span>
+                        </div>
+                        {% endif %}
+
                         {% if promo.target_products.exists %}
-                        <li class="promo-detail-item">
-                            <span class="promo-icon">🛒</span> Chỉ áp dụng cho một số sản phẩm
-                        </li>
-                        {% else %}
-                        <li class="promo-detail-item">
-                            <span class="promo-icon">🛒</span> Áp dụng toàn sàn
-                        </li>
+                        <div class="meta-item">
+                            <span class="icon">📱</span>
+                            <span class="meta-label">Sản phẩm:</span>
+                            <span class="meta-value">
+                                {% for product in promo.target_products.all|slice:":3" %}
+                                    {{ product.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                                {% if promo.target_products.count > 3 %}...{% endif %}
+                            </span>
+                        </div>
                         {% endif %}
 
-                        {% if promo.target_users.exists %}
-                        <li class="promo-detail-item promo-exclusive">
-                            <span class="promo-icon">👑</span> Dành riêng cho bạn!
-                        </li>
+                        {% if promo.target_customer_types.exists %}
+                        <div class="meta-item">
+                            <span class="icon">👑</span>
+                            <span class="meta-label">Dành cho:</span>
+                            <div class="group-tags">
+                                {% for type in promo.target_customer_types.all %}
+                                <span class="badge-group">{{ type.name }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
                         {% endif %}
 
-                        <li class="promo-detail-item">
-                            <span class="promo-icon">⏳</span> HSD: {{ promo.end_date|date:"d/m/Y" }}
-                        </li>
-                    </ul>
-                </div>
+                        <div class="meta-item">
+                            <span class="icon">⏳</span>
+                            <span class="meta-label">HSD:</span>
+                            <span class="meta-value text-danger">
+                                {{ promo.end_date|date:"d/m/Y" }}
+                            </span>
+                        </div>
+                    </div> </div>
 
                 <div class="promo-footer">
-                    <button onclick="copyPromoCode('{{ promo.code }}')" class="btn-copy-code">
-                        Sao chép mã
+                    <button onclick="copyPromoCode(this, '{{ promo.code }}')" class="btn-copy-code">
+                        <span class="btn-text">Sao chép mã</span>
+                        <span class="btn-icon">📋</span>
                     </button>
+                    <a href="{% url 'home' %}" class="btn-use-now">Dùng ngay</a>
                 </div>
             </div>
         </div>
         {% empty %}
         <div class="col-12">
             <div class="promo-empty-state">
-                <p>Hiện tại chưa có khuyến mãi nào cho bạn. Quay lại sau nhé!</p>
+                <img src="{% static 'app/images/empty-promo.png' %}" alt="No Promo" style="max-width: 150px; opacity: 0.5;">
+                <p>Tiếc quá! Hiện chưa có mã giảm giá nào phù hợp.</p>
             </div>
         </div>
         {% endfor %}
@@ -69,11 +125,18 @@
 </div>
 
 <script>
-    function copyPromoCode(code) {
+    function copyPromoCode(btn, code) {
         navigator.clipboard.writeText(code).then(function() {
-            alert("Đã sao chép mã: " + code + ". Hãy nhập tại bước thanh toán!");
+            let originalText = btn.innerHTML;
+            btn.innerHTML = "<span class='btn-text'>Đã sao chép!</span> <span class='btn-icon'>✅</span>";
+            btn.classList.add('copied');
+
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('copied');
+            }, 2000);
         }).catch(function(err) {
-            console.error('Không thể sao chép mã: ', err);
+            console.error('Lỗi sao chép', err);
         });
     }
 </script>
