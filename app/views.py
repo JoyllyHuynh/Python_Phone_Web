@@ -146,9 +146,37 @@ def home(request):
     else:
         cartItems = 0
 
-    products = Product.objects.all()
+    # Handle search query
+    search_query = request.GET.get('q', '').strip()
+    sort_by = request.GET.get('sort', '')
+    
+    if search_query:
+        # Search in product name and description
+        products = Product.objects.filter(
+            Q(name__icontains=search_query)
+        )
+    else:
+        products = Product.objects.all()
+    
+    # Apply sorting
+    if sort_by == 'price_low':
+        products = products.order_by('price')
+    elif sort_by == 'price_high':
+        products = products.order_by('-price')
+    elif sort_by == 'name_asc':
+        products = products.order_by('name')
+    elif sort_by == 'name_desc':
+        products = products.order_by('-name')
+    
     brands = Brand.objects.all()
-    context= {'products': products, 'cartItems': cartItems, 'brands': brands}
+    context= {
+        'products': products, 
+        'cartItems': cartItems, 
+        'brands': brands,
+        'search_query': search_query,
+        'sort_by': sort_by,
+        'products_count': products.count()
+    }
     return render(request, 'app/home.html',context)
 
 def cart(request):

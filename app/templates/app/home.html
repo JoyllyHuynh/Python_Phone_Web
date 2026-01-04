@@ -3,6 +3,7 @@
 {% load humanize %}
 
 {% block extra_css %}
+<link href="{% static 'app/css/search_results.css' %}" rel="stylesheet"/>
 <style>
     .product-card {
         border-radius: 12px;
@@ -180,6 +181,98 @@
 {% block main_content %}
 <div class="container my-5">
 
+    {% if search_query %}
+    <!-- Search Results Section -->
+    <div class="search-results-header text-center">
+        <div class="container">
+            <h1 class="search-results-title">
+                Kết quả tìm kiếm cho: <span class="search-query-highlight">"{{ search_query }}"</span>
+            </h1>
+            <p class="search-results-count">Tìm thấy {{ products_count }} sản phẩm</p>
+        </div>
+    </div>
+
+    <!-- Sorting Options -->
+    <div class="sorting-section">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+            <span class="sorting-label">
+                <i class="fas fa-sort"></i> Sắp xếp theo:
+            </span>
+            <div class="sort-options">
+                <a href="?q={{ search_query }}" class="sort-option {% if not sort_by %}active{% endif %}">
+                    <i class="fas fa-star"></i> Mặc định
+                </a>
+                <a href="?q={{ search_query }}&sort=price_low" class="sort-option {% if sort_by == 'price_low' %}active{% endif %}">
+                    <i class="fas fa-arrow-up"></i> Giá thấp đến cao
+                </a>
+                <a href="?q={{ search_query }}&sort=price_high" class="sort-option {% if sort_by == 'price_high' %}active{% endif %}">
+                    <i class="fas fa-arrow-down"></i> Giá cao đến thấp
+                </a>
+                <a href="?q={{ search_query }}&sort=name_asc" class="sort-option {% if sort_by == 'name_asc' %}active{% endif %}">
+                    <i class="fas fa-sort-alpha-down"></i> Tên A-Z
+                </a>
+                <a href="?q={{ search_query }}&sort=name_desc" class="sort-option {% if sort_by == 'name_desc' %}active{% endif %}">
+                    <i class="fas fa-sort-alpha-up"></i> Tên Z-A
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results Grid -->
+    {% if products_count > 0 %}
+    <div class="row g-4">
+        {% for product in products %}
+        <div class="col-lg-3 col-md-4 col-sm-6">
+            <div class="search-product-card">
+                <a href="{% url 'product_detail' product.id %}">
+                    <img class="search-product-image"
+                         src="{{ product.ImageURL }}"
+                         alt="{{ product.name }}"
+                         loading="lazy"/>
+                </a>
+
+                <div class="search-product-body">
+                    <h6 class="search-product-name">
+                        <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark">
+                            {{ product.name }}
+                        </a>
+                    </h6>
+
+                    <div class="search-product-price">
+                        {{ product.price | floatformat:0 | intcomma }}₫
+                    </div>
+
+                    <div class="d-grid">
+                        <button data-product="{{product.id}}"
+                                data-action="add"
+                                class="btn btn-danger search-add-to-cart update-cart">
+                            <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- No Results Message -->
+    <div class="no-results-container">
+        <div class="no-results-icon">
+            <i class="fas fa-search"></i>
+        </div>
+        <h2 class="no-results-title">Không tìm thấy kết quả</h2>
+        <p class="no-results-text">
+            Rất tiếc, chúng tôi không tìm thấy sản phẩm nào phù hợp với từ khóa "{{ search_query }}".
+            <br>Vui lòng thử lại với từ khóa khác.
+        </p>
+        <a href="{% url 'home' %}" class="back-to-products-btn">
+            <i class="fas fa-home"></i> Về trang chủ
+        </a>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Default Home Page Content (Featured Products) -->
     <section class="brand-section p-4 mb-5 shadow-sm"> <h3 class="fw-bold text-center mb-4 text-uppercase">Khám phá theo Hãng</h3>
 
         <div class="brand-list-container d-flex flex-wrap justify-content-center gap-4"> {% for brand in brands %}
@@ -242,5 +335,6 @@
         </div>
         {% endfor %}
     </div>
+    {% endif %}
 </div>
 {% endblock main_content %}
