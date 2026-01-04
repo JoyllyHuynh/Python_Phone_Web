@@ -169,7 +169,7 @@ def home(request):
         products = products.order_by('-name')
     
     brands = Brand.objects.all()
-    context= {
+    context = {
         'products': products, 
         'cartItems': cartItems, 
         'brands': brands,
