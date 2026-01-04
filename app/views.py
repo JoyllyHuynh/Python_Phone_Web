@@ -238,7 +238,11 @@ def promotion_list(request):
 
     context = {'promotions': promotions}
     return render(request, 'app/promotion_list.html', context)
-
+def search_suggestions(request):
+    query = request.GET.get('q', '').strip()
+    suggestions = Product.objects.filter(name__icontains=query)[:10]  # Gợi ý 10 sản phẩm
+    response = [{'id': product.id, 'name': product.name} for product in suggestions]
+    return JsonResponse(response, safe=False)
 def product_search(request):
     query = request.GET.get('q', '').strip()
     sort = request.GET.get('sort', 'relevance')
@@ -255,4 +259,4 @@ def product_search(request):
         'q': query,
         'sort': sort,
     }
-    return render(request, 'app/product_search.html', context)
+    return render(request, 'product_search.html', context)

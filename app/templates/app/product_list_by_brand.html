@@ -1,11 +1,10 @@
-python manage.py runserver{% extends 'app/base.html' %}
+{% extends 'app/base.html' %}
 {% load static %}
 {% load humanize %} 
 
 {% block title %}Sản phẩm {{ current_brand.name }}{% endblock title %}
 
 {% block main_content %}
-
 <div class="container my-5">
 
     

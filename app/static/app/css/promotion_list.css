@@ -1,183 +1,248 @@
-
+/* Container & Header */
 .promotions-container {
-    padding: 50px 0;
-    max-width: 1200px;
+    padding: 60px 0;
+    max-width: 1140px;
     margin: 0 auto;
+    font-family: 'Inter', sans-serif; /* Font hiện đại nếu có */
 }
 
-/* Title */
 .promotions-title {
     text-align: center;
-    margin-bottom: 3rem;
-    font-size: 2rem;
-    font-weight: 700;
+    font-size: 2.2rem;
+    font-weight: 800;
     color: #333;
+    margin-bottom: 0.5rem;
 }
 
-/* Promo Card */
+.promotions-subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 3rem;
+}
+
+/* Card Design */
 .promo-card {
-    height: 100%;
-    border: none;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
     background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05); /* Shadow mềm mại hơn */
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border: 1px solid #eee;
+}
+
+.promo-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+/* Badges (Nguyên tắc UX: Status Indicator) */
+.promo-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+
+.badge-new-user { color: #2ecc71; border: 1px solid #2ecc71; } /* Xanh lá chào mừng */
+.badge-vip { color: #f1c40f; border: 1px solid #f1c40f; } /* Vàng kim cương */
+.badge-holiday { color: #e74c3c; border: 1px solid #e74c3c; } /* Đỏ lễ hội */
+.badge-new { color: #3498db; border: 1px solid #3498db; } /* Xanh mới mẻ */
+
+/* Header Area */
+.promo-header {
+    padding: 25px 20px;
+    text-align: center;
+    position: relative;
+    color: white;
+}
+
+/* Giữ nguyên logic màu của bạn */
+.promo-header-percentage { background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%); }
+.promo-header-fixed { background: linear-gradient(135deg, #4ecdc4 0%, #556270 100%); }
+
+.discount-label {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.promo-discount {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 5px 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.event-tag {
+    background: rgba(255,255,255,0.2);
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    backdrop-filter: blur(5px);
+}
+
+/* Body Area */
+.promo-body {
+    padding: 20px;
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
 }
 
-.promo-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
-}
-
-/* Promo Header */
-.promo-header {
-    padding: 20px;
+.promo-code-display {
     text-align: center;
-    color: #fff;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px dashed #ccc;
 }
 
-.promo-header-percentage {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
-}
-
-.promo-header-fixed {
-    background: linear-gradient(135deg, #4ecdc4 0%, #44a8a0 100%);
-}
-
-.promo-discount {
-    margin: 0;
-    font-size: 2rem;
+.promo-code-display code {
+    font-size: 1.1rem;
+    color: #333;
     font-weight: 700;
 }
 
-.promo-event-name {
-    display: block;
-    margin-top: 5px;
-    font-size: 0.9rem;
-    opacity: 0.95;
-}
-
-/* Promo Body */
-.promo-body {
-    padding: 1.5rem;
-    flex: 1;
-}
-
-.promo-code {
-    color: #007bff;
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-}
-
 .promo-description {
-    color: #6c757d;
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
+    color: #555;
+    font-size: 0.95rem;
+    margin-bottom: 15px;
     line-height: 1.5;
 }
 
-/* Promo Details List */
-.promo-details {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+.promo-meta {
+    margin-top: auto;
     font-size: 0.85rem;
+    color: #888;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
 }
 
-.promo-detail-item {
-    margin-bottom: 0.5rem;
+.meta-item {
+    margin-bottom: 6px;
     display: flex;
-    align-items: flex-start;
-    line-height: 1.4;
+    align-items: center;
 }
 
-.promo-icon {
-    margin-right: 0.5rem;
-    display: inline-block;
-    min-width: 20px;
-}
+.meta-item .icon { margin-right: 8px; }
 
-.promo-exclusive {
-    color: #dc3545;
-    font-weight: 600;
-}
-
-/* Promo Footer */
+/* Footer & Buttons */
 .promo-footer {
-    padding: 0 1.5rem 1.5rem 1.5rem;
+    padding: 15px 20px;
     background: #fff;
-    border-top: none;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    gap: 10px;
 }
 
 .btn-copy-code {
-    width: 100%;
-    padding: 0.75rem;
+    flex: 2;
+    padding: 10px;
     background: #fff;
     color: #333;
     border: 2px solid #333;
     border-radius: 8px;
     font-weight: 600;
-    font-size: 0.95rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
 }
 
 .btn-copy-code:hover {
     background: #333;
     color: #fff;
-    transform: scale(1.02);
 }
 
-.btn-copy-code:active {
-    transform: scale(0.98);
+.btn-copy-code.copied {
+    background: #27ae60;
+    border-color: #27ae60;
+    color: white;
 }
 
-/* Empty State */
-.promo-empty-state {
-    text-align: center;
-    padding: 3rem 1rem;
-    color: #6c757d;
-    font-size: 1.1rem;
+.btn-use-now {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    background: #f8f9fa;
+    color: #333;
+    font-weight: 600;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: background 0.2s;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .promotions-container {
-        padding: 30px 15px;
-    }
-
-    .promotions-title {
-        font-size: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .promo-discount {
-        font-size: 1.75rem;
-    }
-
-    .promo-code {
-        font-size: 1.1rem;
-    }
+.btn-use-now:hover {
+    background: #e9ecef;
+    color: #000;
 }
 
-@media (max-width: 576px) {
-    .promo-card {
-        margin-bottom: 1.5rem;
-    }
+.badge-group {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    margin-left: 4px;
+}
+/* Sửa lại phần Meta item để canh chỉnh tốt hơn */
+.meta-item {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: flex-start; /* Canh lề trên nếu nội dung dài xuống dòng */
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
 
-    .promo-header {
-        padding: 15px;
-    }
+.meta-item .icon {
+    margin-right: 8px;
+    min-width: 20px; /* Cố định chiều rộng icon */
+}
 
-    .promo-body {
-        padding: 1.25rem;
-    }
+.meta-label {
+    color: #555;
+    margin-right: 5px;
+    white-space: nowrap; /* Không ngắt dòng nhãn */
+}
 
-    .promo-footer {
-        padding: 0 1.25rem 1.25rem 1.25rem;
-    }
+.meta-value {
+    color: #333;
+    font-weight: 600;
+}
+
+/* Style cho Badge nhóm khách hàng (VIP, Silver...) */
+.group-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.badge-group {
+    background-color: #e8f5e9; /* Màu nền xanh nhẹ */
+    color: #2e7d32;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border: 1px solid #c8e6c9;
 }

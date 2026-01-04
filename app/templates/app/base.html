@@ -1,6 +1,6 @@
 {% load static %}
 
-<html xmlns="http://www.w3.org/1999/html">
+<html>
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -21,39 +21,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'app/css/main.css' %}"/>
 
 
-    <!-- JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
-            xintegrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-            xintegrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"
-            xintegrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y"
-            crossorigin="anonymous"></script>
-    <script src="{% static 'app/js/owl.carousel.min.js' %}"></script>
-    <script src="{% static 'app/js/all.min.js' %}"></script>
-    <script src="{% static 'app/js/myscript.js' %}"></script>
 
-    <script type="text/javascript">
-        var user = '{{request.user}}'
-
-        // Lấy CSRF token từ cookie
-        function getCookie(name) {
-            var cookieArr = document.cookie.split(";");
-            for (var i = 0; i < cookieArr.length; i++) {
-                var cookiePair = cookieArr[i].split("=");
-                if (name == cookiePair[0].trim()) {
-                    return decodeURIComponent(cookiePair[1]);
-                }
-            }
-            return null;
-        }
-
-        var csrftoken = getCookie('csrftoken');
-    </script>
-
-    <script src="{% static 'app/js/cart.js' %}"></script>
 
     <title>Web Ban Hang Online</title>
     <meta name="description" content="">
@@ -64,13 +32,11 @@
 {% load static %}
 
 
-<!-- Main Navigation -->
 <nav class="main-navbar" id="mainNavbar">
     <div class="container-fluid px-4">
         <div class="navbar-content">
-            <!-- Logo -->
             <a class="navbar-logo" href="{% url 'home' %}">
-                <img src="{% static 'app/images/Neel.png' %}" alt="Phone Store Logo">
+                <img src="{% static 'app/images/Neel.png' %}" alt="Neel Logo">
                 <div class="logo-text">
                     <span class="logo-name">Neel</span>
                     <span class="logo-tagline">Điện thoại chính hãng</span>
@@ -202,25 +168,14 @@
                                     <span class="menu-badge">2</span>
                                 </a>
                             </li>
-                            <li>
-                                <a href="#">
-                                    <i class="fas fa-heart"></i>
-                                    <span>Sản phẩm yêu thích</span>
-                                </a>
-                            </li>
+
                             <li>
                                 <a href="#">
                                     <i class="fas fa-map-marker-alt"></i>
                                     <span>Sổ địa chỉ</span>
                                 </a>
                             </li>
-                            <li>
-                                <a href="#">
-                                    <i class="fas fa-bell"></i>
-                                    <span>Thông báo</span>
-                                    <span class="menu-badge">5</span>
-                                </a>
-                            </li>
+
                             <li class="menu-divider"></li>
                             <li>
                                 <a href="{% url 'logout'%}" class="logout-link">
@@ -249,10 +204,7 @@
                         <i class="fas fa-shopping-cart"></i>
                         <span class="cart-badge" id="cart-total">{{ cartItems }}</span>
                     </div>
-                    <div class="action-text">
-                        <span class="action-label">Giỏ hàng</span>
-                        <span class="action-value cart-total-price">{{ cartTotal|default:"0" }}₫</span>
-                    </div>
+
                 </a>
             </div>
 
@@ -353,9 +305,7 @@
                                         </ul>
                                     </div>
                                 </div>
-                                <div class="panel-banner">
-                                    <img src="{% static 'app/images/banners/iphone-banner.jpg' %}" alt="iPhone Banner">
-                                </div>
+
                             </div>
                             <!-- Samsung Content -->
                             <div class="category-content-panel" data-panel="samsung">
@@ -410,12 +360,9 @@
                         <span>Samsung</span>
                     </a>
                 </li>
-
                 <li>
                     <a href="#" class="quick-category-link">
                         <span>Xiaomi</span>
-
-
                     </a>
                 </li>
                 <li>
@@ -440,9 +387,9 @@
                     <i class="fas fa-envelope"></i>
                     <span>Liên hệ</span>
                 </a>
-                <a href="#" class="right-link highlight">
-                    <i class="fas fa-newspaper"></i>
-                    <span>Tin công nghệ</span>
+                <a href="{% url 'promotion_list' %}" class="right-link highlight">
+                    <img src="{% static 'images/voucher.png' %}" alt="Promotion Icon" class="promotion-icon">
+                    <span>Khuyến mãi</span>
                 </a>
             </div>
         </div>
@@ -581,6 +528,8 @@
 {% block content_checkout %} {% endblock content_checkout %}
 {% block cart_content %} {% endblock cart_content %}
 {% block content_promotions %} {% endblock content_promotions %}
+{% block content_promotion_policy %} {% endblock content_promotion_policy %}
+{% block content_payment_success %} {% endblock content_payment_success %}
 <footer class="footer-cps py-5">
     <div class="container">
         <div class="row gy-4">
@@ -618,7 +567,7 @@
                         <li><a href="#">Chính sách đổi trả 1-1</a></li>
                         <li><a href="#">Chính sách bảo hành Apple</a></li>
                         <li><a href="#">Tra cứu hóa đơn điện tử</a></li>
-                        <li><a href="#">Ưu đãi thành viên Smember</a></li>
+                        <li><a href="{% url 'promotion_policy' %}">Chính sách khuyến mãi</a></li>
                     </ul>
                 </div>
             </div>
@@ -653,6 +602,39 @@
 
     </div>
 </footer>
+<!-- JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+        xintegrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        xintegrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"
+        xintegrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y"
+        crossorigin="anonymous"></script>
+<script src="{% static 'app/js/owl.carousel.min.js' %}"></script>
+<script src="{% static 'app/js/all.min.js' %}"></script>
+<script src="{% static 'app/js/myscript.js' %}"></script>
+
+<script type="text/javascript">
+    var user = '{{request.user}}'
+
+    // Lấy CSRF token từ cookie
+    function getCookie(name) {
+        var cookieArr = document.cookie.split(";");
+        for (var i = 0; i < cookieArr.length; i++) {
+            var cookiePair = cookieArr[i].split("=");
+            if (name == cookiePair[0].trim()) {
+                return decodeURIComponent(cookiePair[1]);
+            }
+        }
+        return null;
+    }
+
+    var csrftoken = getCookie('csrftoken');
+</script>
+
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const searchInput = document.getElementById("search-input");
@@ -673,15 +655,13 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             suggestionsBox.style.display = "none";
         }
+        return null;
     });
 
-    document.addEventListener("click", (e) => {
-        if (e.target !== searchInput && e.target.parentNode !== suggestionsBox) {
-            suggestionsBox.style.display = "none";
-        }
-    });
-});
+    var csrftoken = getCookie('csrftoken')});
+
 </script>
+
 
 <script src="{% static 'app/js/cart.js' %}"></script>
 <script src="{% static 'app/js/search.js' %}"></script>

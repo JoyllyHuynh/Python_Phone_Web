@@ -20,7 +20,21 @@ class Brand(models.Model):
         return self.name
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True)
 
+    def __str__(self):
+        return self.name
+
+
+class Option(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='options')
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Product(models.Model):
@@ -29,7 +43,8 @@ class Product(models.Model):
     digital = models.BooleanField(default=False, null=True, blank=False)
     image = models.ImageField(null=True, blank=True)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='products')
-
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
+    options = models.ManyToManyField(Option, related_name='products')
     def __str__(self):
         return self.name
     @property
