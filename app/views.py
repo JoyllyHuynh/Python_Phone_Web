@@ -255,4 +255,4 @@ def product_search(request):
         'q': query,
         'sort': sort,
     }
-    return render(request, 'product_search.html', context)
+    return render(request, 'app/product_search.html', context)
