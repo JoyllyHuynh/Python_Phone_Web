@@ -188,7 +188,7 @@
             <h1 class="search-results-title">
                 Kết quả tìm kiếm cho: <span class="search-query-highlight">"{{ search_query }}"</span>
             </h1>
-            <p class="search-results-count">Tìm thấy {{ products_count }} sản phẩm</p>
+            <p class="search-results-count">Tìm thấy {{ products|length }} sản phẩm</p>
         </div>
     </div>
 
@@ -219,7 +219,7 @@
     </div>
 
     <!-- Search Results Grid -->
-    {% if products_count > 0 %}
+    {% if products %}
     <div class="row g-4">
         {% for product in products %}
         <div class="col-lg-3 col-md-4 col-sm-6">

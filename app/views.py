@@ -174,8 +174,7 @@ def home(request):
         'cartItems': cartItems, 
         'brands': brands,
         'search_query': search_query,
-        'sort_by': sort_by,
-        'products_count': products.count()
+        'sort_by': sort_by
     }
     return render(request, 'app/home.html',context)
 
