@@ -48,93 +48,32 @@ VECTOR_PATH = os.path.join(settings.BASE_DIR, 'app', 'model_data', 'vectorizer.p
 
 # --- AUTHENTICATION VIEWS ---
 def register(request):
-    if request.user.is_authenticated:
-        return redirect('home')
-
+    form = UserCreationForm()
     if request.method == "POST":
-        data = request.POST
-        username = data.get('username')
-        email = data.get('email')
-        password = data.get('password')
-        confirm_password = data.get('confirm_password')
-
-        if len(password) < 8:
-            messages.error(request, "Mật khẩu phải có ít nhất 8 ký tự!")
-            return redirect('register')
-        if not re.search(r'[A-Z]', password):
-            messages.error(request, "Mật khẩu phải chứa ít nhất 1 chữ cái in hoa!")
-            return redirect('register')
-        if not re.search(r'\d', password):
-            messages.error(request, "Mật khẩu phải chứa ít nhất 1 chữ số!")
-            return redirect('register')
-        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-            messages.error(request, "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt (!@#...)!")
-            return redirect('register')
-        if password != confirm_password:
-            messages.error(request, "Mật khẩu nhập lại không khớp!")
-            return redirect('register')
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "Tên đăng nhập này đã có người sử dụng!")
-            return redirect('register')
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Email này đã được đăng ký!")
-            return redirect('register')
-
-        try:
-            user = User.objects.create_user(username=username, email=email, password=password)
-            Customer.objects.create(user=user, name=username, email=email)
-            auth_login(request, user)
-            messages.success(request, "Tạo tài khoản thành công!")
-            return redirect('home')
-        except Exception as e:
-            messages.error(request, f"Đã có lỗi xảy ra: {e}")
-            return redirect('register')
-
-    return render(request, 'app/register.html')
-
-def login_view(request):
-    if request.user.is_authenticated:
-        return redirect('home')
-
-    if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
+        form = UserCreationForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                auth_login(request, user)
-                if request.GET.get('next'):
-                    return redirect(request.GET.get('next'))
-                return redirect('home')
-            else:
-                messages.error(request, "Sai mật khẩu hoặc tên đăng nhập.")
-        else:
-            messages.error(request, "Thông tin không hợp lệ.")
-    else:
-        form = AuthenticationForm()
-    context = {'form': form}
-    return render(request, 'app/login.html', context)
-
+            form.save()
+    context= {'form': form}
+    return render(request, 'app/register.html',context)
+def login(request):
+    context= {}
+    return render(request, 'app/login.html',context)
 def logout_views(request):
     logout(request)
-    return redirect('login')
+    return redirect('home')
 
-# --- MAIN SHOP VIEWS ---
 def home(request):
     if request.user.is_authenticated:
-        try:
-            customer = request.user.customer
-            order, created = Order.objects.get_or_create(customer=customer, complete=False)
-            cartItems = order.get_cart_items
-        except:
-            cartItems = 0
+        customer = request.user.customer
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        items = order.orderitem_set.all()
+        cartItems = order.get_cart_items
     else:
-        cartItems = 0
-
+        items = []
+        order = {'get_cart_total':0, 'get_cart_items':0}
+        cartItems = order['get_cart_items']
     products = Product.objects.all()
-    brands = Brand.objects.all()
-    context= {'products': products, 'cartItems': cartItems, 'brands': brands}
+    context= {'products': products, 'cartItems': cartItems}
     return render(request, 'app/home.html',context)
 
 def cart(request):
@@ -148,14 +87,14 @@ def cart(request):
         order = {'get_cart_total':0, 'get_cart_items':0}
         cartItems = order['get_cart_items']
     context= {'items': items, 'order': order, 'cartItems': cartItems}
-    return render(request, 'app/cart.html',context)
+    return render(request, 'app/cart.html',context) 
 
-# --- CORE CHECKOUT & PAYMENT LOGIC ---
 def checkout(request):
     if request.user.is_authenticated:
         customer = request.user.customer
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
         items = order.orderitem_set.all()
+        cartItems = order.get_cart_items
     else:
         items = []
         order = {'get_cart_total': 0, 'get_cart_items': 0, 'id': 0}
@@ -327,11 +266,11 @@ def apply_coupon_logic(request, order, coupon_code):
 
 def updateItem(request):
     data = json.loads(request.body)
-    productId = data['productId']
+    productId = data['productId']   
     action = data['action']
     customer = request.user.customer
     product = Product.objects.get(id = productId)
-    order, created = Order.objects.get_or_create(customer=customer, complete=False)
+    order, created = Order.objects.get_or_create(customer=customer, complete=False) 
     orderItem, created = OrderItem.objects.get_or_create(order=order, product=product)
     if action == 'add':
         orderItem.quantity += 1
@@ -342,14 +281,34 @@ def updateItem(request):
         orderItem.delete()
     return JsonResponse('added', safe=False)
 
-def product_list_by_brand(request, brand_slug):
+def product_detail(request, pk): # Tên hàm phải khớp với tên trong urls.py
+    product = get_object_or_404(Product, pk=pk)
+    # Thêm logic xử lý bình luận, cấu hình, v.v.
+    context = {'product': product}
+    return render(request, 'app/product_detail.html', context)
+
+def home(request):
+    # Lấy tất cả các hãng để truyền vào sidebar/menu
     brands = Brand.objects.all()
+    products = Product.objects.all() # hoặc QuerySet sản phẩm nổi bật
+
+    context = {'products': products, 'brands': brands}
+    return render(request, 'app/home.html', context)
+
+def product_list_by_brand(request, brand_slug):
+    # 1. Lấy tất cả các hãng để hiển thị menu bên trên
+    brands = Brand.objects.all()
+
+    # 2. Lấy đối tượng Brand hiện tại (hoặc trả về 404 nếu không tìm thấy)
     current_brand = get_object_or_404(Brand, slug=brand_slug)
+
+    # 3. Lọc tất cả sản phẩm thuộc Brand đó
     products = Product.objects.filter(brand=current_brand)
+
     context = {
         'products': products,
         'brands': brands,
-        'current_brand': current_brand,
+        'current_brand': current_brand # Dùng để hiển thị tiêu đề
     }
     return render(request, 'app/product_list_by_brand.html', context)
 
@@ -363,9 +322,9 @@ def user_info(request):
              cartItems = 0
     else:
         cartItems = 0
+
     context = {'cartItems': cartItems}
     return render(request, 'app/user_info.html', context)
-
 def about(request):
     if request.user.is_authenticated:
         try:
@@ -376,10 +335,14 @@ def about(request):
              cartItems = 0
     else:
         cartItems = 0
+
     context = {'cartItems': cartItems}
     return render(request, 'app/about.html', context)
 
+# app/views.py
+
 def contact(request):
+    # Logic giỏ hàng (giữ nguyên để header không bị lỗi số lượng)
     if request.user.is_authenticated:
         try:
             customer = request.user.customer
@@ -389,102 +352,37 @@ def contact(request):
             cartItems = 0
     else:
         cartItems = 0
+
     message_success = False
+
+    # Xử lý khi người dùng ấn nút Gửi
     if request.method == 'POST':
         name = request.POST.get('name')
         email = request.POST.get('email')
         subject = request.POST.get('subject')
         message = request.POST.get('message')
-        # Lưu Contact nếu có model
-        # Contact.objects.create(...)
-        message_success = True
+
+        # Lưu vào database
+        Contact.objects.create(
+            name=name,
+            email=email,
+            subject=subject,
+            message=message
+        )
+        message_success = True # Cờ báo thành công để hiển thị popup
+
     context = {'cartItems': cartItems, 'success': message_success}
     return render(request, 'app/contact.html', context)
+def product_list_by_brand(request, brand_slug):
+    # Lấy thông tin thương hiệu hiện tại
+    current_brand = Brand.objects.get(slug=brand_slug)
 
-def promotion_list(request):
-    now = timezone.now()
-    promotions = Promotion.objects.filter(active=True)
-    if request.user.is_authenticated:
-        promotions = promotions.filter(
-            Q(target_users__isnull=True) | Q(target_users=request.user)
-        ).distinct()
-    else:
-        promotions = promotions.filter(target_users__isnull=True)
-    context = {'promotions': promotions}
-    return render(request, 'app/promotion_list.html', context)
+    # Lấy tất cả danh mục và các lựa chọn liên quan để hiển thị bộ lọc
+    categories = Category.objects.all()
 
-def promotion_policy(request):
-    active_promos_count = Promotion.objects.filter(active=True).count()
-    context = {'active_promos_count': active_promos_count}
-    return render(request, 'app/promotion_policy.html', context)
-
-# --- AI & REVIEWS ---
-
-try:
-    model = joblib.load(MODEL_PATH)
-    vectorizer = joblib.load(VECTOR_PATH)
-except Exception as e:
-    print(f"Lỗi AI: {e}")
-    model = vectorizer = None
-
-def product_detail(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-
-    if request.method == "POST" and request.user.is_authenticated:
-        if request.POST.get('honeypot'):
-            return JsonResponse({'status': 'error', 'message': 'Phát hiện hành vi spam!'}, status=400)
-
-        content = request.POST.get('content', '').strip()
-
-        if len(content) < 5:
-            return JsonResponse({'status': 'error', 'message': 'Bình luận quá ngắn (tối thiểu 5 ký tự).'}, status=400)
-
-        blacklist = ['http', 'www', '.com', '.vn', 'zalo', '09', 'kiếm tiền', 'nhận quà', 'click vào']
-        if any(word in content.lower() for word in blacklist):
-            return JsonResponse({'status': 'error', 'message': 'Bình luận chứa liên kết hoặc từ ngữ quảng cáo bị cấm.'}, status=400)
-
-        last_review = Review.objects.filter(user=request.user).order_by('-date_added').first()
-        if last_review:
-            time_diff = timezone.now() - last_review.date_added
-            if time_diff < timedelta(seconds=30):
-                return JsonResponse({'status': 'error', 'message': 'Bạn đang gửi quá nhanh. Vui lòng đợi một chút.'}, status=400)
-            if content.lower() == last_review.content.lower():
-                return JsonResponse({'status': 'error', 'message': 'Bạn đã gửi nội dung này trước đó.'}, status=400)
-
-        sentiment_value = None
-        if model and vectorizer:
-            try:
-                vec = vectorizer.transform([content.lower()])
-                sentiment_value = int(model.predict(vec)[0])
-            except Exception as e:
-                print(f"Lỗi dự đoán AI: {e}")
-
-        review = Review.objects.create(
-            product=product,
-            user=request.user,
-            content=content,
-            sentiment=sentiment_value
-        )
-
-        return JsonResponse({
-            'status': 'success',
-            'user': request.user.username,
-            'content': content,
-            'ai_sentiment': review.get_sentiment_display,
-            'date': review.date_added.strftime("%d/%m/%Y %H:%M")
-        })
-
-    product_reviews = product.reviews.all()
-    cartItems = 0
-    if request.user.is_authenticated:
-        try:
-            customer = request.user.customer
-            order, _ = Order.objects.get_or_create(customer=customer, complete=False)
-            cartItems = order.get_cart_items
-        except: pass
-
-    context = {'product': product, 'product_reviews': product_reviews, 'cartItems': cartItems}
-    return render(request, 'app/product_detail.html', context)
+    # Lấy query parameters từ URL (nếu người dùng chọn bộ lọc)
+    selected_categories = request.GET.getlist('category')  # Danh mục chọn
+    selected_options = request.GET.getlist('option')  # Tùy chọn chọn
 
 def edit_review(request, id):
     if request.method == "POST" and request.user.is_authenticated:
@@ -525,17 +423,19 @@ def delete_review(request, id):
 
 
 
-#vnpay view demo
-def index(request):
-    return render(request, "payment/index.html", {"title": "Danh sách demo"})
+    # Lọc theo các danh mục đã chọn (nếu có)
+    if selected_categories:
+        products = products.filter(category__slug__in=selected_categories)
 
-def hmacsha512(key, data):
-    byteKey = key.encode('utf-8')
-    byteData = data.encode('utf-8')
-    return hmac.new(byteKey, byteData, hashlib.sha512).hexdigest()
+    # Lọc theo các tùy chọn đã chọn (nếu có)
+    if selected_options:
+        products = products.filter(options__slug__in=selected_options)
 
+    # Loại bỏ các sản phẩm trùng lặp khi áp dụng nhiều bộ lọc
+    products = products.distinct()
 
-def payment(request):
+    # 1. Lấy tất cả các hãng để hiển thị sidebar/menu
+    brands = Brand.objects.all()
 
     if request.method == 'POST':
         # Process input data and build url payment
@@ -670,123 +570,54 @@ def payment_return(request):
     else:
         return render(request, "payment/payment_return.html", {"title": "Kết quả thanh toán", "result": ""})
 
+    # 3. Lọc tất cả sản phẩm thuộc hãng này
+    products = Product.objects.filter(brand=current_brand)
 
-def get_client_ip(request):
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
-
-n = random.randint(10**11, 10**12 - 1)
-n_str = str(n)
-while len(n_str) < 12:
-    n_str = '0' + n_str
-
-
-def query(request):
-    if request.method == 'GET':
-        return render(request, "payment/query.html", {"title": "Kiểm tra kết quả giao dịch"})
-
-    url = settings.VNPAY_API_URL
-    secret_key = settings.VNPAY_HASH_SECRET_KEY
-    vnp_TmnCode = settings.VNPAY_TMN_CODE
-    vnp_Version = '2.1.0'
-
-    vnp_RequestId = n_str
-    vnp_Command = 'querydr'
-    vnp_TxnRef = request.POST['order_id']
-    vnp_OrderInfo = 'kiem tra gd'
-    vnp_TransactionDate = request.POST['trans_date']
-    vnp_CreateDate = datetime.now().strftime('%Y%m%d%H%M%S')
-    vnp_IpAddr = get_client_ip(request)
-
-    hash_data = "|".join([
-        vnp_RequestId, vnp_Version, vnp_Command, vnp_TmnCode,
-        vnp_TxnRef, vnp_TransactionDate, vnp_CreateDate,
-        vnp_IpAddr, vnp_OrderInfo
-    ])
-
-    secure_hash = hmac.new(secret_key.encode(), hash_data.encode(), hashlib.sha512).hexdigest()
-
-    data = {
-        "vnp_RequestId": vnp_RequestId,
-        "vnp_TmnCode": vnp_TmnCode,
-        "vnp_Command": vnp_Command,
-        "vnp_TxnRef": vnp_TxnRef,
-        "vnp_OrderInfo": vnp_OrderInfo,
-        "vnp_TransactionDate": vnp_TransactionDate,
-        "vnp_CreateDate": vnp_CreateDate,
-        "vnp_IpAddr": vnp_IpAddr,
-        "vnp_Version": vnp_Version,
-        "vnp_SecureHash": secure_hash
+    context = {
+        'products': products,
+        'brands': brands,
+        'current_brand': current_brand,
+        'categories': categories,
+        'selected_categories': selected_categories,
+        'selected_options': selected_options,
+        # 'cartItems' đã được Context Processor xử lý
     }
+    return render(request, 'app/product_list_by_brand.html', context)
 
-    headers = {"Content-Type": "application/json"}
+def promotion_list(request):
 
-    response = requests.post(url, headers=headers, data=json.dumps(data))
+    now = timezone.now()
 
-    if response.status_code == 200:
-        response_json = json.loads(response.text)
+    promotions = Promotion.objects.filter(active=True)
+
+    if request.user.is_authenticated:
+        promotions = promotions.filter(
+            Q(target_users__isnull=True) | Q(target_users=request.user)
+        ).distinct()
     else:
-        response_json = {"error": f"Request failed with status code: {response.status_code}"}
+        promotions = promotions.filter(target_users__isnull=True)
 
-    return render(request, "payment/query.html", {"title": "Kiểm tra kết quả giao dịch", "response_json": response_json})
+    context = {'promotions': promotions}
+    return render(request, 'app/promotion_list.html', context)
+def search_suggestions(request):
+    query = request.GET.get('q', '').strip()
+    suggestions = Product.objects.filter(name__icontains=query)[:10]  # Gợi ý 10 sản phẩm
+    response = [{'id': product.id, 'name': product.name} for product in suggestions]
+    return JsonResponse(response, safe=False)
+def product_search(request):
+    query = request.GET.get('q', '').strip()
+    sort = request.GET.get('sort', 'relevance')
 
-def refund(request):
-    if request.method == 'GET':
-        return render(request, "payment/refund.html", {"title": "Hoàn tiền giao dịch"})
-    url = settings.VNPAY_API_URL
-    secret_key = settings.VNPAY_HASH_SECRET_KEY
-    vnp_TmnCode = settings.VNPAY_TMN_CODE
-    vnp_RequestId = n_str
-    vnp_Version = '2.1.0'
-    vnp_Command = 'refund'
-    vnp_TransactionType = request.POST['TransactionType']
-    vnp_TxnRef = request.POST['order_id']
-    vnp_Amount = request.POST['amount']
-    vnp_OrderInfo = request.POST['order_desc']
-    vnp_TransactionNo = '0'
-    vnp_TransactionDate = request.POST['trans_date']
-    vnp_CreateDate = datetime.now().strftime('%Y%m%d%H%M%S')
-    vnp_CreateBy = 'user01'
-    vnp_IpAddr = get_client_ip(request)
+    products = Product.objects.filter(name__icontains=query)
 
-    hash_data = "|".join([
-        vnp_RequestId, vnp_Version, vnp_Command, vnp_TmnCode, vnp_TransactionType, vnp_TxnRef,
-        vnp_Amount, vnp_TransactionNo, vnp_TransactionDate, vnp_CreateBy, vnp_CreateDate,
-        vnp_IpAddr, vnp_OrderInfo
-    ])
+    if sort == 'price_desc':
+        products = products.order_by('-price')
+    elif sort == 'price_asc':
+        products = products.order_by('price')
 
-    secure_hash = hmac.new(secret_key.encode(), hash_data.encode(), hashlib.sha512).hexdigest()
-
-    data = {
-        "vnp_RequestId": vnp_RequestId,
-        "vnp_TmnCode": vnp_TmnCode,
-        "vnp_Command": vnp_Command,
-        "vnp_TxnRef": vnp_TxnRef,
-        "vnp_Amount": vnp_Amount,
-        "vnp_OrderInfo": vnp_OrderInfo,
-        "vnp_TransactionDate": vnp_TransactionDate,
-        "vnp_CreateDate": vnp_CreateDate,
-        "vnp_IpAddr": vnp_IpAddr,
-        "vnp_TransactionType": vnp_TransactionType,
-        "vnp_TransactionNo": vnp_TransactionNo,
-        "vnp_CreateBy": vnp_CreateBy,
-        "vnp_Version": vnp_Version,
-        "vnp_SecureHash": secure_hash
+    context = {
+        'products': products,
+        'q': query,
+        'sort': sort,
     }
-
-    headers = {"Content-Type": "application/json"}
-
-    response = requests.post(url, headers=headers, data=json.dumps(data))
-
-    if response.status_code == 200:
-        response_json = json.loads(response.text)
-    else:
-        response_json = {"error": f"Request failed with status code: {response.status_code}"}
-
-    return render(request, "payment/refund.html", {"title": "Kết quả hoàn tiền giao dịch", "response_json": response_json})
-
-
+    return render(request, 'product_search.html', context)

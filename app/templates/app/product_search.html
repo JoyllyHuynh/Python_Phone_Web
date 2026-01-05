@@ -1,0 +1,125 @@
+<script src="../../static/app/js/search.js"></script>python manage.py runserver{% extends 'app/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Sản phẩm {{ current_brand.name }}{% endblock title %}
+
+
+<!-- Updated HTML Template -->
+{% block main_content %}
+<style>
+    .search-results {
+    padding: 20px 0;
+}
+
+.search-results h3 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e5e5e5;
+}
+
+.sorting {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.sorting-box {
+    padding: 10px 20px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #666;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.sorting-box:hover {
+    border-color: #007bff;
+    color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.sorting-box.active {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .search-results h3 {
+        font-size: 20px;
+    }
+
+    .sorting {
+        gap: 8px;
+    }
+
+    .sorting-box {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+}
+</style>
+<div class="container my-5">
+<div class="search-results">
+    <h3>Kết quả tìm kiếm "{{ q }}"</h3>
+
+    <div class="sorting">
+
+        <a href="?q={{ q }}&sort=relevance" class="sorting-box {% if sort == 'relevance' %}active{% endif %}">Liên quan</a>
+        <a href="?q={{ q }}&sort=price_asc" class="sorting-box {% if sort == 'price_asc' %}active{% endif %}">Giá tăng dần</a>
+        <a href="?q={{ q }}&sort=price_desc" class="sorting-box {% if sort == 'price_desc' %}active{% endif %}">Giá giảm dần</a>
+    </div>
+
+     <div class="row g-4">
+        {% for product in products %}
+        <div class="col-lg-3 col-md-4 col-sm-6"> <div class="card product-card h-100 shadow-sm border-0">
+
+            <a href="{% url 'product_detail' product.id %}">
+                <img class="card-img-top"
+                     src="{{ product.ImageURL }}"
+                     alt="{{ product.name }}"
+                     loading="lazy"/>
+            </a>
+
+            <div class="card-body d-flex flex-column">
+                <h6 class="card-title product-name fw-bold mb-2">
+                    <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark">
+                        {{ product.name }}
+                    </a>
+                </h6>
+
+                <h3 class="product-price mt-auto mb-3">
+                    {{ product.price | floatformat:0 | intcomma }}₫
+                </h3>
+
+                <div class="d-grid gap-2">
+                    <button data-product="{{product.id}}"
+                            data-action="add"
+                            class="btn btn-danger update-cart fw-bold">
+                        <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                    </button>
+                </div>
+            </div>
+        </div>
+        </div>
+
+
+        {% empty %}
+            <p>Không tìm thấy sản phẩm nào khớp với từ khóa.</p>
+        {% endfor %}
+    </div>
+</div>
+    </div>
+
+
+{% endblock %}
