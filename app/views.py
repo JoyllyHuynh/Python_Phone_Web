@@ -1,49 +1,35 @@
-# Python built-in
+
 import os
 import re
 import json
-import datetime
-import joblib
-from datetime import timedelta
 import hashlib
 import hmac
-import json
-import urllib
 import urllib.parse
-import urllib.request   
-import random       
+import urllib.request
+import random
+from datetime import datetime, timedelta
+
 import requests
+import joblib
+
+
 from django.conf import settings
-from datetime import datetime
-
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, redirect
-
-from app.models import PaymentForm
-from app.vnpay import vnpay
-
-# Django core
-
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.db.models import Q, Sum
 from django.contrib import messages
-from django.contrib.auth import (
-    authenticate,
-    login as auth_login,
-    logout
-)
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import (
-    UserCreationForm,
-    AuthenticationForm
-)
-from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import intcomma
 
-# Local apps
+
+from django.contrib.auth import authenticate, login as auth_login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.models import User
+
+
+from .vnpay import vnpay
 from .models import (
     Product,
     Review,
@@ -52,10 +38,10 @@ from .models import (
     Brand,
     Order,
     OrderItem,
-    ShippingAddress, # Đảm bảo đã import ShippingAddress
+    ShippingAddress,
+    Payment_VNPay, 
+    PaymentForm    
 )
-from .vnpay import vnpay # Đảm bảo file vnpay.py nằm cùng thư mục app
-
 
 MODEL_PATH = os.path.join(settings.BASE_DIR, 'app', 'model_data', 'model_cam_xuc.pkl')
 VECTOR_PATH = os.path.join(settings.BASE_DIR, 'app', 'model_data', 'vectorizer.pkl')
@@ -166,7 +152,6 @@ def cart(request):
 
 # --- CORE CHECKOUT & PAYMENT LOGIC ---
 def checkout(request):
-    # 1. Lấy thông tin đơn hàng hiện tại
     if request.user.is_authenticated:
         customer = request.user.customer
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
@@ -177,16 +162,13 @@ def checkout(request):
         messages.warning(request, "Vui lòng đăng nhập để thanh toán.")
         return redirect('login')
 
-    # 2. Tính toán tiền (Server-side calculation)
     subtotal = order.get_cart_total if hasattr(order, 'get_cart_total') else 0
     shipping_fee = 0 if subtotal >= 2000000 else 30000
     if subtotal == 0: shipping_fee = 0
 
-    # Coupon Logic
     discount_amount = 0
     coupon_code = request.session.get('coupon_code')
     if coupon_code:
-        # Giả sử bạn có hàm apply_coupon_logic
         success, msg, real_discount = apply_coupon_logic(request, order, coupon_code)
         if success:
             discount_amount = real_discount
@@ -197,10 +179,8 @@ def checkout(request):
     final_total = subtotal + shipping_fee - discount_amount
     if final_total < 0: final_total = 0
 
-    # 3. XỬ LÝ KHI NGƯỜI DÙNG BẤM "ĐẶT HÀNG NGAY" (POST REQUEST)
     if request.method == 'POST':
         try:
-            # A. Lấy dữ liệu Form
             name = request.POST.get('name')
             email = request.POST.get('email')
             phone = request.POST.get('phone')
@@ -213,7 +193,6 @@ def checkout(request):
 
             full_address = f"{address}, {ward}, {district}, {city}"
 
-            # B. Lưu thông tin giao hàng
             ShippingAddress.objects.create(
                 customer=customer,
                 order=order,
@@ -223,27 +202,22 @@ def checkout(request):
                 phone_number=phone
             )
 
-            # C. Phân loại xử lý theo phương thức thanh toán
             if payment_method == 'vnpay':
-                # --- LOGIC VNPAY MỚI (TÍCH HỢP TỪ DEMO) ---
                 order_type = 'billpayment'
                 order_desc = f'Thanh toan don hang {order.id}'
                 language = 'vn'
                 ipaddr = get_client_ip(request)
 
-                # Tạo mã giao dịch unique: ID đơn hàng + Timestamp
                 txn_ref = f"{order.id}_{int(datetime.now().timestamp())}"
                 
-                # Lưu mã giao dịch vào Order để đối soát
                 order.transaction_id = txn_ref
                 order.save()
 
-                # Build URL Payment sử dụng Class vnpay
                 vnp = vnpay()
                 vnp.requestData['vnp_Version'] = '2.1.0'
                 vnp.requestData['vnp_Command'] = 'pay'
                 vnp.requestData['vnp_TmnCode'] = settings.VNPAY_TMN_CODE
-                vnp.requestData['vnp_Amount'] = int(final_total * 100) # VNPay nhân 100
+                vnp.requestData['vnp_Amount'] = int(final_total * 100) #
                 vnp.requestData['vnp_CurrCode'] = 'VND'
                 vnp.requestData['vnp_TxnRef'] = txn_ref
                 vnp.requestData['vnp_OrderInfo'] = order_desc
@@ -253,13 +227,11 @@ def checkout(request):
                 vnp.requestData['vnp_IpAddr'] = ipaddr
                 vnp.requestData['vnp_ReturnUrl'] = settings.VNPAY_RETURN_URL
                 
-                # Tạo URL Redirect
                 vnpay_payment_url = vnp.get_payment_url(settings.VNPAY_PAYMENT_URL, settings.VNPAY_HASH_SECRET_KEY)
                 
                 return redirect(vnpay_payment_url)
 
             else:
-                # --- LOGIC COD / Mặc định ---
                 order.complete = True
                 order.save()
 
@@ -273,7 +245,6 @@ def checkout(request):
             messages.error(request, f"Có lỗi xảy ra: {e}")
             return redirect('checkout')
 
-    # 4. Render giao diện Checkout (GET request)
     context = {
         'items': items,
         'order': order,
@@ -285,7 +256,6 @@ def checkout(request):
     return render(request, 'app/checkout.html', context)
 
 
-# --- COUPON & UTILS ---
 
 def apply_coupon(request):
     if request.method == 'POST':
@@ -553,15 +523,7 @@ def delete_review(request, id):
 
     return JsonResponse({'status': 'error', 'message': 'Không thể xóa'}, status=400)
 
-# --- HELPER FUNCTIONS ---
 
-def get_client_ip(request):
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
 
 #vnpay view demo
 def index(request):
@@ -674,6 +636,17 @@ def payment_return(request):
         vnp_PayDate = inputData['vnp_PayDate']
         vnp_BankCode = inputData['vnp_BankCode']
         vnp_CardType = inputData['vnp_CardType']
+
+        payment = Payment_VNPay.objects.create(
+            order_id=order_id,
+            amount=amount,
+            order_desc=order_desc,
+            vnp_TransactionNo=vnp_TransactionNo,
+            vnp_ResponseCode=vnp_ResponseCode
+
+
+        )
+
         if vnp.validate_response(settings.VNPAY_HASH_SECRET_KEY):
             if vnp_ResponseCode == "00":
                 return render(request, "payment/payment_return.html", {"title": "Kết quả thanh toán",
