@@ -24,6 +24,8 @@ urlpatterns = [
     path('promotion-policy/', views.promotion_policy, name='promotion_policy'),
     path('edit-review/<int:id>/', views.edit_review, name='edit_review'),
     path('delete-review/<int:id>/', views.delete_review, name='delete_review'),
+    path('product-search/', views.product_search, name='product_search'),
+
     #path('payment_return/', views.payment_return, name='payment_return'),
 
 

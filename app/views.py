@@ -791,3 +791,20 @@ def refund(request):
     return render(request, "payment/refund.html", {"title": "Kết quả hoàn tiền giao dịch", "response_json": response_json})
 
 
+def product_search(request):
+    query = request.GET.get('q', '').strip()
+    sort = request.GET.get('sort', 'relevance')
+
+    products = Product.objects.filter(name__icontains=query)
+
+    if sort == 'price_desc':
+        products = products.order_by('-price')
+    elif sort == 'price_asc':
+        products = products.order_by('price')
+
+    context = {
+        'products': products,
+        'q': query,
+        'sort': sort,
+    }
+    return render(request, 'app/product_search.html', context)
