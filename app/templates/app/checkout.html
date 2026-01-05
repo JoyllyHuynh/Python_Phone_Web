@@ -96,12 +96,7 @@
                                     <option value="other">Khác</option>
                                 </select>
                             </div>
-                            <div class="form-group third">
-                                <label>Quận / Huyện <span class="required">*</span></label>
-                                <input type="text" name="district" class="input-field select-field" required
-                                       placeholder="Nhập Quận/Huyện">
 
-                            </div>
                             <div class="form-group third">
                                 <label>Phường / Xã <span class="required">*</span></label>
                                 <input type="text" name="ward" class="input-field select-field" required
@@ -166,7 +161,7 @@
                                         <span class="option-name">Thanh toán khi nhận hàng (COD)</span>
                                         <span class="option-desc">Thanh toán tiền mặt cho shipper</span>
                                     </div>
-                                    <div class="option-check">✓</div>
+
                                 </div>
                             </label>
 
@@ -174,7 +169,8 @@
                                 <input type="radio" name="payment_method" value="vnpay">
                                 <div class="option-content">
                                     <div class="option-icon-wrapper wallet">
-                                        <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Icon-VNPAY-QR.png" alt="VNPay" style="width: 24px;">
+                                        <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Icon-VNPAY-QR.png"
+                                             alt="VNPay" style="width: 24px;">
                                     </div>
                                     <div class="option-details">
                                         <span class="option-name">Ví điện tử VNPAY / VNPAY-QR</span>
@@ -271,14 +267,29 @@
                     {% endfor %}
                 </div>
 
-                <div class="voucher-box">
+                <form action="{% url 'apply_coupon' %}" method="POST" class="voucher-box">
+                    {% csrf_token %}
                     <div class="input-group">
-                        <input type="text" id="couponInput" placeholder="Nhập mã giảm giá"
-                               value="{{ coupon_code|default:'' }}">
-                        <button type="button" id="applyVoucherBtn">Áp dụng</button>
+                        <input type="text"
+                               name="coupon_code"
+                               placeholder="Nhập mã giảm giá"
+                               value="{{ coupon_code|default:'' }}"
+                               required>
+
+                        <button type="submit" id="applyVoucherBtn">Áp dụng</button>
                     </div>
-                    <div id="voucherMessage"></div>
-                </div>
+
+                    {% if messages %}
+                    <div id="voucherMessage" style="margin-top: 10px; font-size: 0.9em;">
+                        {% for message in messages %}
+                        <span class="{{ message.tags }}"
+                              style="color {% if message.tags == 'error' %}red{% else %}green{% endif %};">
+                    {{ message }}
+                </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </form>
 
                 <div class="summary-divider"></div>
 

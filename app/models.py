@@ -128,4 +128,74 @@ class Promotion(models.Model):
         return self.code
 
 
+    def is_valid_for_product(self, product):
+
+        has_product_limit = self.target_products.exists()
+        has_brand_limit = self.target_brands.exists()
+
+        if not has_product_limit and not has_brand_limit:
+            return True
+
+        check_product = product in self.target_products.all() if has_product_limit else False
+        check_brand = product.brand in self.target_brands.all() if has_brand_limit else False
+
+        return check_product or check_brand
+
+    def is_valid_for_user(self, user):
+
+        if not user.is_authenticated:
+            return False
+
+        has_user_limit = self.target_users.exists()
+        has_type_limit = self.target_customer_types.exists()
+
+        if not has_user_limit and not has_type_limit:
+            return True
+
+        if has_user_limit and user in self.target_users.all():
+            return True
+
+        if has_type_limit:
+            try:
+                customer = user.customer
+                if customer.customer_type in self.target_customer_types.all():
+                    return True
+            except:
+                return False
+        return False
+
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    # Thêm dòng này vào hoặc sửa lại nếu đã có
+    rating = models.IntegerField(default=5, null=True, blank=True) 
+    sentiment = models.IntegerField(null=True, blank=True) 
+    date_added = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date_added']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product.name}"
+
+    @property
+    def get_sentiment_display(self):
+        if self.sentiment == 1:
+            return "Tích cực"
+        elif self.sentiment == 0:
+            return "Tiêu cực"
+        return "Chưa xác định"
+    
+
+class Payment_VNPay(models.Model):
+    order_id = models.IntegerField(default=0, null=True, blank=True)
+    amount = models.FloatField(default=0.0, null=True, blank=True)
+    order_desc = models.CharField(max_length=200, null=True, blank=True)
+    vnp_TransactionNo = models.CharField(max_length=100, null=True, blank=True)
+    vnp_ResponseCode = models.CharField(max_length=100, null=True, blank=True)
+    
+
+
+class PaymentForm(forms.Form):
 

@@ -1,6 +1,6 @@
 __pycache__/
 *.pyc
-*.sqlite3
+
 dbbackup.sqlite3
 .idea/
 .venv/

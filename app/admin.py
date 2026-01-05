@@ -1,11 +1,13 @@
 from django.contrib import admin
 from .models import *
+from .models import Payment_VNPay
 
 # 1. Đăng ký các model cơ bản (Không cần tùy chỉnh giao diện)
 admin.site.register(Customer)
 admin.site.register(Product)
 admin.site.register(OrderItem)
 admin.site.register(ShippingAddress)
+
 
 # 2. Đăng ký Brand với BrandAdmin
 class BrandAdmin(admin.ModelAdmin):
@@ -68,3 +70,4 @@ class ReviewAdmin(admin.ModelAdmin):
     sentiment_label.short_description = "Cảm xúc"
 
 admin.site.register(Review, ReviewAdmin)
+admin.site.register(Payment_VNPay)
