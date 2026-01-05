@@ -1,23 +1,15 @@
 from django.db import models
-from django.contrib.auth.models import User, Group
-from django import forms
+from django.contrib.auth.models import User
 
-class CustomerType(models.Model):
-    name = models.CharField(max_length=50, unique=True, verbose_name="Tên hạng")
-    slug = models.SlugField(unique=True)
-    description = models.TextField(blank=True)
-
-    def __str__(self):
-        return self.name
+# Create your models here.
 class Customer(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=False)
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=False)
     name = models.CharField(max_length=200, null=True)
     email = models.CharField(max_length=200, null=True)
     phone = models.CharField(max_length=15, null=True)
-    customer_type = models.ForeignKey(CustomerType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Hạng thành viên")
 
     def __str__(self):
-        return self.name if self.name else "Unknown Customer"
+        return self.name
 
 class Brand(models.Model):
     name = models.CharField(max_length=200, null=True, unique=True)
@@ -27,13 +19,32 @@ class Brand(models.Model):
     def __str__(self):
         return self.name
 
+
+class Category(models.Model):
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Option(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='options')
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
     name = models.CharField(max_length=200, null=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.FloatField()
     digital = models.BooleanField(default=False, null=True, blank=False)
     image = models.ImageField(null=True, blank=True)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='products')
-
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
+    options = models.ManyToManyField(Option, related_name='products')
     def __str__(self):
         return self.name
     @property
@@ -84,7 +95,8 @@ class OrderItem(models.Model):
 
     @property
     def get_total(self):
-        return float(self.product.price) * self.quantity
+        total = self.product.price * self.quantity
+        return total
 
 class ShippingAddress(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, blank=True, null=True)
@@ -109,22 +121,8 @@ class Promotion(models.Model):
     end_date = models.DateTimeField()
     active = models.BooleanField(default=True)
 
-    target_products = models.ManyToManyField('Product', blank=True, related_name='product_promotions', verbose_name="Sản phẩm cụ thể")
-    target_brands = models.ManyToManyField('Brand', blank=True, related_name='brand_promotions', verbose_name="Toàn bộ hãng")
-
-    target_users = models.ManyToManyField(User, blank=True, related_name='private_promotions', verbose_name="Người dùng cụ thể")
-    target_customer_types = models.ManyToManyField(CustomerType, blank=True, related_name='type_promotions', verbose_name="Hạng thành viên áp dụng")
-
-    PROMOTION_TYPES = [
-        ('normal', '🎫 Thông thường'),
-        ('new_arrival', '🔥 Sản phẩm mới'),
-        ('vip', '💎 Khách hàng thân thiết'),
-        ('flash_sale', '⚡ Flash Sale'),
-        ('new customer', '🌟 Khách hàng mới'),
-        ('holiday', '🎉 Dịp lễ hội'),
-
-    ]
-    promotion_type = models.CharField(max_length=20, choices=PROMOTION_TYPES, default='normal')
+    target_users = models.ManyToManyField(User, blank=True, related_name='private_promotions')
+    target_products = models.ManyToManyField('Product', blank=True, related_name='product_promotions')
 
     def __str__(self):
         return self.code
@@ -201,9 +199,3 @@ class Payment_VNPay(models.Model):
 
 class PaymentForm(forms.Form):
 
-    order_id = forms.CharField(max_length=250)
-    order_type = forms.CharField(max_length=20)
-    amount = forms.IntegerField()
-    order_desc = forms.CharField(max_length=100)
-    bank_code = forms.CharField(max_length=20, required=False)
-    language = forms.CharField(max_length=2)
