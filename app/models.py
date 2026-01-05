@@ -200,7 +200,6 @@ class Payment_VNPay(models.Model):
 
 
 class PaymentForm(forms.Form):
-
     order_id = forms.CharField(max_length=250)
     order_type = forms.CharField(max_length=20)
     amount = forms.IntegerField()
