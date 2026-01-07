@@ -43,7 +43,6 @@
                 </div>
             </a>
 
-            <!-- Search Bar - Desktop -->
             <div class="navbar-search">
               <form class="search-form" action="{% url 'product_search' %}" method="GET">
                     <div class="search-input-wrapper">
@@ -63,7 +62,6 @@
                     </button>
                 </form>
 
-                <!-- Search Suggestions Dropdown -->
                 <div class="search-suggestions" id="searchSuggestions">
                     <div class="suggestions-section">
                         <h4 class="suggestions-title">
@@ -198,7 +196,6 @@
                     {% endif %}
                 </div>
 
-                <!-- Cart -->
                 <a href="{% url 'cart' %}" class="action-item cart-btn" id="cartBtn">
                     <div class="action-icon cart-icon-wrapper">
                         <i class="fas fa-shopping-cart"></i>
@@ -208,7 +205,6 @@
                 </a>
             </div>
 
-            <!-- Mobile Toggle -->
             <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
                 <span class="toggle-line"></span>
                 <span class="toggle-line"></span>
@@ -218,11 +214,9 @@
     </div>
 </nav>
 
-<!-- Category Navigation Bar -->
 <nav class="category-navbar" id="categoryNavbar">
     <div class="container-fluid px-4">
         <div class="category-content">
-            <!-- All Categories Button -->
             <div class="all-categories-dropdown" id="allCategoriesDropdown">
                 <button class="all-categories-btn">
                     <i class="fas fa-bars"></i>
@@ -272,7 +266,6 @@
                             </ul>
                         </div>
                         <div class="mega-menu-content">
-                            <!-- iPhone Content -->
                             <div class="category-content-panel active" data-panel="iphone">
                                 <div class="panel-header">
                                     <h3>iPhone</h3>
@@ -307,7 +300,6 @@
                                 </div>
 
                             </div>
-                            <!-- Samsung Content -->
                             <div class="category-content-panel" data-panel="samsung">
                                 <div class="panel-header">
                                     <h3>Samsung</h3>
@@ -396,10 +388,8 @@
     </div>
 </nav>
 
-<!-- Mobile Navigation Overlay -->
 <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
 
-<!-- Mobile Navigation Drawer -->
 <div class="mobile-nav-drawer" id="mobileNavDrawer">
     <div class="mobile-nav-header">
         <a href="{% url 'home' %}" class="mobile-logo">
@@ -434,7 +424,6 @@
     </div>
     {% endif %}
 
-    <!-- Mobile Search -->
     <div class="mobile-search">
         <form action="" method="GET">
             <i class="fas fa-search"></i>
@@ -442,7 +431,6 @@
         </form>
     </div>
 
-    <!-- Mobile Menu -->
     <nav class="mobile-menu">
         <ul class="mobile-menu-list">
             <li class="mobile-menu-item">
@@ -508,7 +496,6 @@
         </ul>
     </nav>
 
-    <!-- Mobile Footer -->
     <div class="mobile-nav-footer">
         <a href="tel:1900123456" class="mobile-hotline">
             <i class="fas fa-phone-alt"></i>

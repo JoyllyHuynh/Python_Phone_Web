@@ -40,17 +40,7 @@
                 </div>
             </div>
 
-            <div class="tier-col">
-                <div class="tier-card tier-silver">
-                    <span class="tier-icon">🤝</span>
-                    <h4 class="tier-name">Thân Thiết (Silver)</h4>
-                    <div class="tier-benefit">
-                        <p><strong>• Điều kiện:</strong> Chi tiêu > 5.000.000đ.</p>
-                        <p><strong>• Quyền lợi:</strong> Mã giảm giá 5% hàng tháng.</p>
-                        <p>• Ưu tiên giao hàng & Hỗ trợ kỹ thuật.</p>
-                    </div>
-                </div>
-            </div>
+
 
             <div class="tier-col">
                 <div class="tier-card tier-vip">
@@ -120,7 +110,6 @@
     </div>
 
     <div class="cta-section">
-        <p style="font-size: 1.2rem; margin-bottom: 20px;">Bạn đã hiểu rõ luật chơi?</p>
         <a href="{% url 'promotion_list' %}" class="btn-cta">Săn Voucher Ngay 🚀</a>
     </div>
 
@@ -130,15 +119,10 @@
     document.querySelectorAll('.faq-question').forEach(button => {
         button.addEventListener('click', () => {
             const faqItem = button.parentElement;
-            // Toggle class 'active'
+
             faqItem.classList.toggle('active');
 
-            // Nếu muốn hiệu ứng Accordion (chỉ mở 1 cái 1 lúc) thì thêm đoạn này:
-            /*
-            document.querySelectorAll('.faq-item').forEach(item => {
-                if (item !== faqItem) item.classList.remove('active');
-            });
-            */
+
         });
     });
 </script>

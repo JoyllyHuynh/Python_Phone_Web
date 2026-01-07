@@ -46,7 +46,6 @@ from .models import (
 MODEL_PATH = os.path.join(settings.BASE_DIR, 'app', 'model_data', 'model_cam_xuc.pkl')
 VECTOR_PATH = os.path.join(settings.BASE_DIR, 'app', 'model_data', 'vectorizer.pkl')
 
-# --- AUTHENTICATION VIEWS ---
 def register(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -120,7 +119,6 @@ def logout_views(request):
     logout(request)
     return redirect('login')
 
-# --- MAIN SHOP VIEWS ---
 def home(request):
     if request.user.is_authenticated:
         try:
@@ -150,7 +148,6 @@ def cart(request):
     context= {'items': items, 'order': order, 'cartItems': cartItems}
     return render(request, 'app/cart.html',context)
 
-# --- CORE CHECKOUT & PAYMENT LOGIC ---
 def checkout(request):
     if request.user.is_authenticated:
         customer = request.user.customer
@@ -217,7 +214,7 @@ def checkout(request):
                 vnp.requestData['vnp_Version'] = '2.1.0'
                 vnp.requestData['vnp_Command'] = 'pay'
                 vnp.requestData['vnp_TmnCode'] = settings.VNPAY_TMN_CODE
-                vnp.requestData['vnp_Amount'] = int(final_total * 100) #
+                vnp.requestData['vnp_Amount'] = int(final_total * 100)
                 vnp.requestData['vnp_CurrCode'] = 'VND'
                 vnp.requestData['vnp_TxnRef'] = txn_ref
                 vnp.requestData['vnp_OrderInfo'] = order_desc
@@ -323,7 +320,6 @@ def apply_coupon_logic(request, order, coupon_code):
 
     return True, "Áp dụng thành công!", discount
 
-# --- OTHER FEATURES ---
 
 def updateItem(request):
     data = json.loads(request.body)
@@ -395,8 +391,7 @@ def contact(request):
         email = request.POST.get('email')
         subject = request.POST.get('subject')
         message = request.POST.get('message')
-        # Lưu Contact nếu có model
-        # Contact.objects.create(...)
+
         message_success = True
     context = {'cartItems': cartItems, 'success': message_success}
     return render(request, 'app/contact.html', context)
@@ -418,7 +413,6 @@ def promotion_policy(request):
     context = {'active_promos_count': active_promos_count}
     return render(request, 'app/promotion_policy.html', context)
 
-# --- AI & REVIEWS ---
 
 try:
     model = joblib.load(MODEL_PATH)
@@ -538,7 +532,6 @@ def hmacsha512(key, data):
 def payment(request):
 
     if request.method == 'POST':
-        # Process input data and build url payment
         form = PaymentForm(request.POST)
         if form.is_valid():
             order_type = form.cleaned_data['order_type']
@@ -548,7 +541,6 @@ def payment(request):
             bank_code = form.cleaned_data['bank_code']
             language = form.cleaned_data['language']
             ipaddr = get_client_ip(request)
-            # Build URL Payment
             vnp = vnpay()
             vnp.requestData['vnp_Version'] = '2.1.0'
             vnp.requestData['vnp_Command'] = 'pay'
@@ -558,16 +550,14 @@ def payment(request):
             vnp.requestData['vnp_TxnRef'] = order_id
             vnp.requestData['vnp_OrderInfo'] = order_desc
             vnp.requestData['vnp_OrderType'] = order_type
-            # Check language, default: vn
             if language and language != '':
                 vnp.requestData['vnp_Locale'] = language
             else:
                 vnp.requestData['vnp_Locale'] = 'vn'
-                # Check bank_code, if bank_code is empty, customer will be selected bank on VNPAY
             if bank_code and bank_code != "":
                 vnp.requestData['vnp_BankCode'] = bank_code
 
-            vnp.requestData['vnp_CreateDate'] = datetime.now().strftime('%Y%m%d%H%M%S')  # 20150410063022
+            vnp.requestData['vnp_CreateDate'] = datetime.now().strftime('%Y%m%d%H%M%S')
             vnp.requestData['vnp_IpAddr'] = ipaddr
             vnp.requestData['vnp_ReturnUrl'] = settings.VNPAY_RETURN_URL
             vnpay_payment_url = vnp.get_payment_url(settings.VNPAY_PAYMENT_URL, settings.VNPAY_HASH_SECRET_KEY)
@@ -594,8 +584,7 @@ def payment_ipn(request):
         vnp_BankCode = inputData['vnp_BankCode']
         vnp_CardType = inputData['vnp_CardType']
         if vnp.validate_response(settings.VNPAY_HASH_SECRET_KEY):
-            # Check & Update Order Status in your Database
-            # Your code here
+
             firstTimeUpdate = True
             totalamount = True
             if totalamount:
@@ -605,16 +594,12 @@ def payment_ipn(request):
                     else:
                         print('Payment Error. Your code implement here')
 
-                    # Return VNPAY: Merchant update success
                     result = JsonResponse({'RspCode': '00', 'Message': 'Confirm Success'})
                 else:
-                    # Already Update
                     result = JsonResponse({'RspCode': '02', 'Message': 'Order Already Update'})
             else:
-                # invalid amount
                 result = JsonResponse({'RspCode': '04', 'Message': 'invalid amount'})
         else:
-            # Invalid Signature
             result = JsonResponse({'RspCode': '97', 'Message': 'Invalid Signature'})
     else:
         result = JsonResponse({'RspCode': '99', 'Message': 'Invalid request'})
