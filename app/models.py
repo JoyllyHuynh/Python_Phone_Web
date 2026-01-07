@@ -116,12 +116,12 @@ class Promotion(models.Model):
     target_customer_types = models.ManyToManyField(CustomerType, blank=True, related_name='type_promotions', verbose_name="Hạng thành viên áp dụng")
 
     PROMOTION_TYPES = [
-        ('normal', '🎫 Thông thường'),
-        ('new_arrival', '🔥 Sản phẩm mới'),
-        ('vip', '💎 Khách hàng thân thiết'),
-        ('flash_sale', '⚡ Flash Sale'),
-        ('new customer', '🌟 Khách hàng mới'),
-        ('holiday', '🎉 Dịp lễ hội'),
+        ('normal', 'Thông thường'),
+        ('new_arrival', 'Sản phẩm mới'),
+        ('vip', 'Khách hàng thân thiết'),
+        ('flash_sale', 'Flash Sale'),
+        ('new customer', 'Khách hàng mới'),
+        ('holiday', 'Dịp lễ hội'),
 
     ]
     promotion_type = models.CharField(max_length=20, choices=PROMOTION_TYPES, default='normal')
@@ -170,8 +170,7 @@ class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
-    # Thêm dòng này vào hoặc sửa lại nếu đã có
-    rating = models.IntegerField(default=5, null=True, blank=True) 
+    rating = models.IntegerField(default=5, null=True, blank=True)
     sentiment = models.IntegerField(null=True, blank=True) 
     date_added = models.DateTimeField(auto_now_add=True)
 

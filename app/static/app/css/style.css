@@ -101,7 +101,7 @@
 
 /* Đánh dấu nút đã chọn */
 .btn-check:checked + .config-btn {
-    border-color: #007bff; /* Màu xanh nổi bật khi chọn */
+    border-color: #007bff;
     background-color: #e9f5ff; 
 }
 
@@ -117,7 +117,7 @@
 }
 
 .color-dot.active, .color-dot:hover {
-    box-shadow: 0 0 0 3px #007bff; /* Viền xanh khi active/hover */
+    box-shadow: 0 0 0 3px #007bff;
 }
 
 /* Khu vực Giá và Ưu đãi */
