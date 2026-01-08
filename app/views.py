@@ -1,4 +1,7 @@
 
+print(">>> USING ABSA PREDICTOR <<<")
+from app.ai.absa.predictor import predict_comment
+
 import os
 import re
 import json
@@ -9,10 +12,17 @@ import urllib.request
 import random
 from datetime import datetime, timedelta
 
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from app.ai.absa.hybrid import predict_comment_hybrid as predict_comment
+
 import requests
 import joblib
-
-
+from app.ai.absa.predictor import predict_comment
+from .models import Product, Review
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -413,112 +423,6 @@ def promotion_policy(request):
     context = {'active_promos_count': active_promos_count}
     return render(request, 'app/promotion_policy.html', context)
 
-
-try:
-    model = joblib.load(MODEL_PATH)
-    vectorizer = joblib.load(VECTOR_PATH)
-except Exception as e:
-    print(f"Lỗi AI: {e}")
-    model = vectorizer = None
-
-def product_detail(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-
-    if request.method == "POST" and request.user.is_authenticated:
-        if request.POST.get('honeypot'):
-            return JsonResponse({'status': 'error', 'message': 'Phát hiện hành vi spam!'}, status=400)
-
-        content = request.POST.get('content', '').strip()
-
-        if len(content) < 5:
-            return JsonResponse({'status': 'error', 'message': 'Bình luận quá ngắn (tối thiểu 5 ký tự).'}, status=400)
-
-        blacklist = ['http', 'www', '.com', '.vn', 'zalo', '09', 'kiếm tiền', 'nhận quà', 'click vào']
-        if any(word in content.lower() for word in blacklist):
-            return JsonResponse({'status': 'error', 'message': 'Bình luận chứa liên kết hoặc từ ngữ quảng cáo bị cấm.'}, status=400)
-
-        last_review = Review.objects.filter(user=request.user).order_by('-date_added').first()
-        if last_review:
-            time_diff = timezone.now() - last_review.date_added
-            if time_diff < timedelta(seconds=30):
-                return JsonResponse({'status': 'error', 'message': 'Bạn đang gửi quá nhanh. Vui lòng đợi một chút.'}, status=400)
-            if content.lower() == last_review.content.lower():
-                return JsonResponse({'status': 'error', 'message': 'Bạn đã gửi nội dung này trước đó.'}, status=400)
-
-        sentiment_value = None
-        if model and vectorizer:
-            try:
-                vec = vectorizer.transform([content.lower()])
-                sentiment_value = int(model.predict(vec)[0])
-            except Exception as e:
-                print(f"Lỗi dự đoán AI: {e}")
-
-        review = Review.objects.create(
-            product=product,
-            user=request.user,
-            content=content,
-            sentiment=sentiment_value
-        )
-
-        return JsonResponse({
-            'status': 'success',
-            'user': request.user.username,
-            'content': content,
-            'ai_sentiment': review.get_sentiment_display,
-            'date': review.date_added.strftime("%d/%m/%Y %H:%M")
-        })
-
-    product_reviews = product.reviews.all()
-    cartItems = 0
-    if request.user.is_authenticated:
-        try:
-            customer = request.user.customer
-            order, _ = Order.objects.get_or_create(customer=customer, complete=False)
-            cartItems = order.get_cart_items
-        except: pass
-
-    context = {'product': product, 'product_reviews': product_reviews, 'cartItems': cartItems}
-    return render(request, 'app/product_detail.html', context)
-
-def edit_review(request, id):
-    if request.method == "POST" and request.user.is_authenticated:
-        review = get_object_or_404(Review, id=id, user=request.user)
-        new_content = request.POST.get('content', '').strip()
-
-        if len(new_content) < 5:
-            return JsonResponse({'status': 'error', 'message': 'Nội dung quá ngắn.'}, status=400)
-
-        blacklist = ['http', 'www', 'zalo', 'kiếm tiền']
-        if any(word in new_content.lower() for word in blacklist):
-            return JsonResponse({'status': 'error', 'message': 'Nội dung sửa đổi chứa từ cấm.'}, status=400)
-
-        if new_content:
-            review.content = new_content
-            if model and vectorizer:
-                try:
-                    vec = vectorizer.transform([new_content.lower()])
-                    review.sentiment = int(model.predict(vec)[0])
-                except: pass
-            review.save()
-
-            return JsonResponse({
-                'status': 'success',
-                'content': review.content,
-                'ai_sentiment': review.get_sentiment_display
-            })
-
-    return JsonResponse({'status': 'error', 'message': 'Không thể chỉnh sửa'}, status=400)
-
-def delete_review(request, id):
-    if request.method == "POST" and request.user.is_authenticated:
-        review = get_object_or_404(Review, id=id, user=request.user)
-        review.delete()
-        return JsonResponse({'status': 'success'})
-
-    return JsonResponse({'status': 'error', 'message': 'Không thể xóa'}, status=400)
-
-
-
 #vnpay view demo
 def index(request):
     return render(request, "payment/index.html", {"title": "Danh sách demo"})
@@ -793,3 +697,157 @@ def product_search(request):
         'sort': sort,
     }
     return render(request, 'app/product_search.html', context)
+
+
+@csrf_exempt
+def absa_predict(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST only"}, status=405)
+
+    try:
+        body = json.loads(request.body.decode("utf-8"))
+        text = body.get("text", "").strip()
+
+        if not text:
+            return JsonResponse({"error": "empty text"}, status=400)
+
+        results = predict_comment(text)
+
+        return JsonResponse({
+            "input": text,
+            "results": [
+                {"aspect": a, "sentiment": s}
+                for a, s in results
+            ]
+        }, json_dumps_params={"ensure_ascii": False})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+def add_review(request, product_id):
+    if request.method != "POST":
+        return JsonResponse({"status": "error"}, status=405)
+
+    content = request.POST.get("content", "").strip()
+    honeypot = request.POST.get("honeypot", "")
+
+    if honeypot or not content:
+        return JsonResponse({"status": "spam"})
+
+    product = Product.objects.get(id=product_id)
+
+    # ===== AI CHẠY Ở ĐÂY =====
+    ai_result = predict_comment(content)
+
+    # MẶC ĐỊNH TRUNG LẬP
+    sentiment = None
+
+    for _, s in ai_result:
+        if s == "negative":
+            sentiment = 0
+            break
+        if s == "positive":
+            sentiment = 1
+
+    Review.objects.create(
+        product=product,
+        user=request.user,
+        content=content,
+        sentiment=sentiment
+    )
+
+    return JsonResponse({"status": "success"})
+
+
+@login_required
+def product_detail(request, id):
+    product = get_object_or_404(Product, id=id)
+    product_reviews = product.reviews.select_related("user").all()
+
+    # ===== XỬ LÝ GỬI BÌNH LUẬN =====
+    if request.method == "POST":
+        content = request.POST.get("content", "").strip()
+        honeypot = request.POST.get("honeypot", "")
+
+        # anti-spam / empty
+        if honeypot or not content:
+            return JsonResponse({"status": "spam"})
+
+        # ===== AI PREDICT =====
+        ai_result = predict_comment(content)
+        # ví dụ: [('man_hinh','positive'), ('nhiet_do','negative')]
+
+        # ===== SENTIMENT TỔNG (để filter) =====
+        # ƯU TIÊN: negative > positive > neutral
+        sentiments = [s for _, s in ai_result]
+
+        if "negative" in sentiments:
+            sentiment = 0
+        elif "positive" in sentiments:
+            sentiment = 1
+        else:
+            sentiment = None
+
+        # ===== LƯU REVIEW =====
+        Review.objects.create(
+            product=product,
+            user=request.user,
+            content=content,
+            sentiment=sentiment,
+            ai_result=ai_result  # 🔥 GIỮ NGUYÊN LIST NHIỀU ASPECT
+        )
+
+        return JsonResponse({"status": "success"})
+
+    return render(request, "app/product_detail.html", {
+        "product": product,
+        "product_reviews": product_reviews
+    })
+
+@login_required
+@require_POST
+def delete_review(request, review_id):
+    review = get_object_or_404(Review, id=review_id)
+
+    # chỉ cho phép chủ bình luận
+    if review.user != request.user:
+        return JsonResponse({"status": "forbidden"}, status=403)
+
+    review.delete()
+    return JsonResponse({"status": "success"})
+
+@login_required
+@require_POST
+def edit_review(request, review_id):
+    review = get_object_or_404(Review, id=review_id)
+
+    if review.user != request.user:
+        return JsonResponse({"status": "forbidden"}, status=403)
+
+    content = request.POST.get("content", "").strip()
+    if not content:
+        return JsonResponse({"status": "error"}, status=400)
+
+    # 👉 CHẠY LẠI AI
+    ai_result = predict_comment(content)
+
+    # sentiment tổng
+    sentiments = [s for _, s in ai_result]
+    if "negative" in sentiments:
+        sentiment = 0
+    elif "positive" in sentiments:
+        sentiment = 1
+    else:
+        sentiment = None
+
+    # cập nhật
+    review.content = content
+    review.ai_result = ai_result
+    review.sentiment = sentiment
+    review.save()
+
+    return JsonResponse({
+        "status": "success",
+        "content": content,
+        "ai_result": ai_result
+    })

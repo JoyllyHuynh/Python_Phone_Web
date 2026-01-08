@@ -171,8 +171,13 @@ class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     rating = models.IntegerField(default=5, null=True, blank=True)
-    sentiment = models.IntegerField(null=True, blank=True) 
+
+    # 1 = positive, 0 = negative, None = neutral / unknown
+    sentiment = models.IntegerField(null=True, blank=True)
+
     date_added = models.DateTimeField(auto_now_add=True)
+
+    ai_result = models.JSONField(null=True, blank=True)
 
     class Meta:
         ordering = ['-date_added']
@@ -186,7 +191,8 @@ class Review(models.Model):
             return "Tích cực"
         elif self.sentiment == 0:
             return "Tiêu cực"
-        return "Chưa xác định"
+        return "Trung lập"
+
     
 
 class Payment_VNPay(models.Model):

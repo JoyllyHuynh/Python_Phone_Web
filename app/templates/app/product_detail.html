@@ -172,10 +172,29 @@
                                         </div>
 
                                         <div id="content-box-{{ review.id }}">
-                                            <p class="review-content text-secondary mb-1">{{ review.content }}</p>
-                                            <span class="badge rounded-pill ai-label {% if review.sentiment == 1 %}bg-success-soft{% else %}bg-danger-soft{% endif %}">
-                                                AI: {{ review.get_sentiment_display }}
-                                            </span>
+                                            <p class="review-content text-secondary mb-1">
+                                                {{ review.content }}
+                                            </p>
+
+                                            {% if review.ai_result %}
+                                                {% for asp, sent in review.ai_result %}
+                                                    <span class="badge rounded-pill ai-label
+                                                        {% if sent == 'positive' %}
+                                                            bg-success-soft
+                                                        {% elif sent == 'negative' %}
+                                                            bg-danger-soft
+                                                        {% else %}
+                                                            bg-secondary
+                                                        {% endif %}
+                                                    ">
+                                                        {{ asp }}:
+                                                        {% if sent == 'positive' %}Tích cực
+                                                        {% elif sent == 'negative' %}Tiêu cực
+                                                        {% else %}Trung lập
+                                                        {% endif %}
+                                                    </span>
+                                                {% endfor %}
+                                            {% endif %}
                                         </div>
 
                                         <div id="edit-box-{{ review.id }}" class="edit-box">
