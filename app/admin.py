@@ -30,7 +30,7 @@ class PromotionAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Thông tin cơ bản', {
-            'fields': ('code', 'description', 'promotion_type', 'discount_value', 'is_percentage', 'active', 'event_name')
+            'fields': ('code', 'description', 'promotion_type', 'discount_value', 'is_percentage','usage_limit', 'used_count', 'active', 'event_name')
         }),
         ('Thời gian áp dụng', {
             'fields': ('start_date', 'end_date')
