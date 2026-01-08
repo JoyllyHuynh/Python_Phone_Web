@@ -108,6 +108,8 @@ class Promotion(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     active = models.BooleanField(default=True)
+    usage_limit = models.IntegerField(default=0, verbose_name="Giới hạn số lượng (0 là không giới hạn)")
+    used_count = models.IntegerField(default=0, verbose_name="Đã sử dụng")
 
     target_products = models.ManyToManyField('Product', blank=True, related_name='product_promotions', verbose_name="Sản phẩm cụ thể")
     target_brands = models.ManyToManyField('Brand', blank=True, related_name='brand_promotions', verbose_name="Toàn bộ hãng")
@@ -120,7 +122,7 @@ class Promotion(models.Model):
         ('new_arrival', 'Sản phẩm mới'),
         ('vip', 'Khách hàng thân thiết'),
         ('flash_sale', 'Flash Sale'),
-        ('new customer', 'Khách hàng mới'),
+        ('new_customer', 'Khách hàng mới'),
         ('holiday', 'Dịp lễ hội'),
 
     ]
@@ -144,27 +146,34 @@ class Promotion(models.Model):
         return check_product or check_brand
 
     def is_valid_for_user(self, user):
-
         if not user.is_authenticated:
             return False
 
-        has_user_limit = self.target_users.exists()
-        has_type_limit = self.target_customer_types.exists()
+        if self.target_users.exists() and user not in self.target_users.all():
+            return False
+        if self.usage_limit > 0 and self.used_count >= self.usage_limit:
+            return False
+        try:
+            customer = user.customer
+        except Customer.DoesNotExist:
+            return False
 
-        if not has_user_limit and not has_type_limit:
-            return True
+        completed_orders = Order.objects.filter(customer=customer, complete=True)
+        total_spent = sum([order.get_final_total for order in completed_orders])
 
-        if has_user_limit and user in self.target_users.all():
-            return True
-
-        if has_type_limit:
-            try:
-                customer = user.customer
-                if customer.customer_type in self.target_customer_types.all():
-                    return True
-            except:
+        if self.promotion_type == 'new_customer':
+            if total_spent > 0:
                 return False
-        return False
+
+        elif self.promotion_type == 'vip':
+            if total_spent < 5000:
+                return False
+
+        if self.target_customer_types.exists():
+            if customer.customer_type not in self.target_customer_types.all():
+                return False
+
+        return True
 
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
@@ -190,7 +199,7 @@ class Review(models.Model):
     
 
 class Payment_VNPay(models.Model):
-    order_id = models.IntegerField(default=0, null=True, blank=True)
+    order_id = models.CharField(max_length=200, null=True, blank=True)
     amount = models.FloatField(default=0.0, null=True, blank=True)
     order_desc = models.CharField(max_length=200, null=True, blank=True)
     vnp_TransactionNo = models.CharField(max_length=100, null=True, blank=True)
@@ -205,3 +214,4 @@ class PaymentForm(forms.Form):
     order_desc = forms.CharField(max_length=100)
     bank_code = forms.CharField(max_length=20, required=False)
     language = forms.CharField(max_length=2)
+
