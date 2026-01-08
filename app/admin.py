@@ -22,7 +22,7 @@ class CustomerTypeAdmin(admin.ModelAdmin):
 admin.site.register(CustomerType, CustomerTypeAdmin)
 
 class PromotionAdmin(admin.ModelAdmin):
-    list_display = ('code', 'discount_value', 'is_percentage', 'promotion_type', 'active', 'start_date', 'end_date')
+    list_display = ('code', 'discount_value', 'is_percentage', 'promotion_type','usage_limit', 'used_count', 'active', 'start_date', 'end_date')
     search_fields = ('code', 'event_name')
     list_filter = ('active', 'promotion_type', 'start_date')
 
@@ -30,7 +30,7 @@ class PromotionAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Thông tin cơ bản', {
-            'fields': ('code', 'description', 'promotion_type', 'discount_value', 'is_percentage', 'active', 'event_name')
+            'fields': ('code', 'description', 'promotion_type', 'discount_value', 'is_percentage','usage_limit', 'used_count', 'active', 'event_name')
         }),
         ('Thời gian áp dụng', {
             'fields': ('start_date', 'end_date')
@@ -48,7 +48,7 @@ class PromotionAdmin(admin.ModelAdmin):
 admin.site.register(Promotion, PromotionAdmin)
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'customer', 'date_ordered', 'complete', 'transaction_id', 'get_cart_total', 'get_final_total')
+    list_display = ('id', 'customer', 'date_ordered', 'complete', 'transaction_id','coupon_code', 'get_cart_total', 'get_final_total')
     readonly_fields = ('get_cart_total', 'get_final_total')
 
 admin.site.register(Order, OrderAdmin)

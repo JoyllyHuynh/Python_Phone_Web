@@ -300,7 +300,12 @@ def apply_coupon_logic(request, order, coupon_code):
         return False, "Mã giảm giá đã hết hạn!", 0
 
     if hasattr(promo, 'is_valid_for_user') and not promo.is_valid_for_user(request.user):
-        return False, "Mã này không dành cho bạn.", 0
+            if promo.promotion_type == 'new_customer':
+                return False, "Mã này chỉ dành cho khách hàng lần đầu mua sắm.", 0
+            elif promo.promotion_type == 'vip':
+                 return False, "Mã này chỉ dành cho khách hàng VIP (Chi tiêu trên 20tr).", 0
+            else:
+                return False, "Bạn không thuộc đối tượng áp dụng mã này.", 0
 
     eligible_amount = 0
     order_items = order.orderitem_set.all()
