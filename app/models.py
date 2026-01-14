@@ -29,7 +29,6 @@ class Brand(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=200, null=True, verbose_name="Tên sản phẩm")
-    # Giá này sẽ dùng làm giá hiển thị mặc định (hoặc giá thấp nhất)
     price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Giá bán (Mặc định)")
     old_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name="Giá gốc (Mặc định)")
 
@@ -38,7 +37,6 @@ class Product(models.Model):
     image_url = models.URLField(max_length=500, null=True, blank=True)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='products', null=True, verbose_name="Hãng sản xuất")
 
-    # Thông số chung (Các phiên bản thường dùng chung Chip, RAM, Camera...)
     screen_size = models.CharField(max_length=50, null=True, blank=True, verbose_name="Màn hình")
     ram = models.CharField(max_length=50, null=True, blank=True, verbose_name="RAM")
     chip = models.CharField(max_length=100, null=True, blank=True, verbose_name="Chip xử lý")
@@ -63,14 +61,12 @@ class Product(models.Model):
                 url = ''
         return url
 
-# --- MODEL BIẾN THỂ (VARIANTS) ---
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='variants')
     storage_size = models.CharField(max_length=50, verbose_name="Dung lượng") # Vd: 128GB, 256GB, 1TB
     price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Giá bán riêng")
     old_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name="Giá gốc riêng")
 
-    # Bạn có thể thêm tồn kho riêng cho từng biến thể nếu muốn
     stock = models.IntegerField(default=0, verbose_name="Số lượng tồn")
 
     class Meta:
@@ -79,7 +75,7 @@ class ProductVariant(models.Model):
 
     def __str__(self):
         return f"{self.product.name} - {self.storage_size}"
-        
+
 class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, blank=True, null=True)
     date_ordered = models.DateTimeField(auto_now_add=True)

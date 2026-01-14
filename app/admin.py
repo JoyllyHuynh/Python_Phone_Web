@@ -50,10 +50,8 @@ class ProductAdmin(ImportExportModelAdmin):
     resource_class = ProductResource
     inlines = [ProductVariantInline]
 
-    # 1. Xóa 'storage' khỏi list_display
     list_display = ('name', 'price_display', 'brand', 'sold_count', 'variant_count', 'view_image_status')
 
-    # 2. Xóa 'storage' khỏi list_filter (vì Product không còn field này để lọc)
     list_filter = ('brand', 'ram')
 
     search_fields = ('name', 'brand__name', 'chip')
@@ -66,7 +64,6 @@ class ProductAdmin(ImportExportModelAdmin):
             'fields': ('image', 'image_url')
         }),
         ('Cấu hình chi tiết', {
-            # 3. Xóa 'storage' khỏi fieldsets nhập liệu
             'fields': ('screen_size', 'chip', 'ram', 'rear_camera', 'front_camera', 'battery')
         }),
     )
