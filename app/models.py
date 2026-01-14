@@ -21,29 +21,61 @@ class Customer(models.Model):
 
 class Brand(models.Model):
     name = models.CharField(max_length=200, null=True, unique=True)
-    slug = models.SlugField(max_length=200, unique=True) # Dùng cho URL thân thiện
+    slug = models.SlugField(max_length=200, unique=True)
     image = models.ImageField(upload_to='brands/', null=True, blank=True)
 
     def __str__(self):
         return self.name
 
 class Product(models.Model):
-    name = models.CharField(max_length=200, null=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    name = models.CharField(max_length=200, null=True, verbose_name="Tên sản phẩm")
+    price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Giá bán (Mặc định)")
+    old_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name="Giá gốc (Mặc định)")
+
     digital = models.BooleanField(default=False, null=True, blank=False)
-    image = models.ImageField(null=True, blank=True)
-    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='products')
+    image = models.ImageField(upload_to='products/', null=True, blank=True)
+    image_url = models.URLField(max_length=500, null=True, blank=True)
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='products', null=True, verbose_name="Hãng sản xuất")
+
+    screen_size = models.CharField(max_length=50, null=True, blank=True, verbose_name="Màn hình")
+    ram = models.CharField(max_length=50, null=True, blank=True, verbose_name="RAM")
+    chip = models.CharField(max_length=100, null=True, blank=True, verbose_name="Chip xử lý")
+    rear_camera = models.CharField(max_length=255, null=True, blank=True, verbose_name="Camera sau")
+    front_camera = models.CharField(max_length=255, null=True, blank=True, verbose_name="Camera trước")
+    battery = models.CharField(max_length=255, null=True, blank=True, verbose_name="Pin & Sạc")
+
+    sold_count = models.IntegerField(default=0, verbose_name="Đã bán")
+    average_rating = models.FloatField(default=0.0, verbose_name="Đánh giá TB")
 
     def __str__(self):
         return self.name
+
     @property
-    def ImageURL(self):
+    def get_image_url(self):
         try:
             url = self.image.url
         except:
-            url = ''
+            if self.image_url:
+                url = self.image_url
+            else:
+                url = ''
         return url
-    
+
+class ProductVariant(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='variants')
+    storage_size = models.CharField(max_length=50, verbose_name="Dung lượng") # Vd: 128GB, 256GB, 1TB
+    price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Giá bán riêng")
+    old_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name="Giá gốc riêng")
+
+    stock = models.IntegerField(default=0, verbose_name="Số lượng tồn")
+
+    class Meta:
+        verbose_name = "Biến thể sản phẩm"
+        verbose_name_plural = "Các biến thể (Dung lượng/Màu...)"
+
+    def __str__(self):
+        return f"{self.product.name} - {self.storage_size}"
+
 class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, blank=True, null=True)
     date_ordered = models.DateTimeField(auto_now_add=True)

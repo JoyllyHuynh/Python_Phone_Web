@@ -1,19 +1,98 @@
 from django.contrib import admin
 from .models import *
 from .models import Payment_VNPay
+from import_export import resources, fields
+from import_export.widgets import ForeignKeyWidget
+from import_export.admin import ImportExportModelAdmin
 
 admin.site.register(Customer)
-admin.site.register(Product)
 admin.site.register(OrderItem)
 admin.site.register(ShippingAddress)
 
 
-class BrandAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'image')
-    prepopulated_fields = {'slug': ('name',)} 
-    search_fields = ('name',)
+class ProductResource(resources.ModelResource):
+    brand = fields.Field(
+        column_name='brand',
+        attribute='brand',
+        widget=ForeignKeyWidget(Brand, field='name')
+    )
 
-admin.site.register(Brand, BrandAdmin)
+    class Meta:
+        model = Product
+        fields = (
+            'id', 'name', 'price', 'old_price', 'digital', 'brand', 'image_url',
+            'screen_size', 'storage', 'ram', 'chip',
+            'rear_camera', 'front_camera', 'battery',
+            'sold_count', 'average_rating'
+        )
+        export_order = fields
+        import_id_fields = ('id',)
+
+class ProductVariantResource(resources.ModelResource):
+    product = fields.Field(
+        column_name='product',
+        attribute='product',
+        widget=ForeignKeyWidget(Product, field='name')
+    )
+
+    class Meta:
+        model = ProductVariant
+        fields = ('id', 'product', 'storage_size', 'price', 'old_price', 'stock')
+        import_id_fields = ('id',)
+
+class ProductVariantInline(admin.TabularInline):
+    model = ProductVariant
+    extra = 1
+    fields = ('storage_size', 'price', 'old_price', 'stock')
+
+@admin.register(Product)
+class ProductAdmin(ImportExportModelAdmin):
+    resource_class = ProductResource
+    inlines = [ProductVariantInline]
+
+    list_display = ('name', 'price_display', 'brand', 'sold_count', 'variant_count', 'view_image_status')
+
+    list_filter = ('brand', 'ram')
+
+    search_fields = ('name', 'brand__name', 'chip')
+
+    fieldsets = (
+        ('Thông tin chung', {
+            'fields': ('name', 'brand', 'price', 'old_price', 'digital', 'sold_count', 'average_rating')
+        }),
+        ('Hình ảnh', {
+            'fields': ('image', 'image_url')
+        }),
+        ('Cấu hình chi tiết', {
+            'fields': ('screen_size', 'chip', 'ram', 'rear_camera', 'front_camera', 'battery')
+        }),
+    )
+
+    def view_image_status(self, obj):
+        if obj.image: return "Local Upload"
+        elif obj.image_url: return "URL Link"
+        return "No Image"
+    view_image_status.short_description = "Nguồn ảnh"
+
+    def price_display(self, obj):
+        return f"{obj.price:,.0f} đ"
+    price_display.short_description = "Giá bán"
+
+    def variant_count(self, obj):
+        return obj.variants.count()
+    variant_count.short_description = "Số biến thể"
+
+@admin.register(ProductVariant)
+class ProductVariantAdmin(ImportExportModelAdmin):
+    resource_class = ProductVariantResource
+    list_display = ('product', 'storage_size', 'price', 'stock')
+    search_fields = ('product__name',)
+
+
+@admin.register(Brand)
+class BrandAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug')
+    prepopulated_fields = {'slug': ('name',)}
 
 class CustomerTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug')
