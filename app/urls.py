@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from app import views
-from .views import absa_predict
+
 from django.contrib import admin
 
 
@@ -22,12 +22,10 @@ urlpatterns = [
     path('contact/', views.contact, name='contact'),
     path('promotions/', views.promotion_list, name='promotion_list'),
     path('promotion-policy/', views.promotion_policy, name='promotion_policy'),
+    path('edit-review/<int:id>/', views.edit_review, name='edit_review'),
+    path('delete-review/<int:id>/', views.delete_review, name='delete_review'),
     path('product-search/', views.product_search, name='product_search'),
-    path("predict/", absa_predict, name="absa_predict"),
-    path("product/<int:product_id>/review/", views.add_review, name="add_review"),
-    path("product/<int:id>/", views.product_detail, name="product_detail"),
-    path("edit-review/<int:review_id>/", views.edit_review, name="edit_review"),
-    path("delete-review/<int:review_id>/", views.delete_review, name="delete_review"),
+
     #path('payment_return/', views.payment_return, name='payment_return'),
 
 
