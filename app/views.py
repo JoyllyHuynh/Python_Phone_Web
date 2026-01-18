@@ -702,6 +702,14 @@ def product_search(request):
         'sort': sort,
     }
     return render(request, 'app/product_search.html', context)
+def order_history(request):
+    # Lấy thông tin user và các đơn hàng của họ
+    customer = request.user.customer
+    orders = Order.objects.filter(customer=customer).order_by('-date_ordered')
+    context = {
+        'orders': orders,
+    }
+    return render(request, 'app/order_history.html', context)
 
 
 @csrf_exempt
