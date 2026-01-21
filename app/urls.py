@@ -25,6 +25,7 @@ urlpatterns = [
     path('edit-review/<int:id>/', views.edit_review, name='edit_review'),
     path('delete-review/<int:id>/', views.delete_review, name='delete_review'),
     path('product-search/', views.product_search, name='product_search'),
+    path('order_history/', views.order_history, name='order_history'),
 
     #path('payment_return/', views.payment_return, name='payment_return'),
 

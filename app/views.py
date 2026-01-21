@@ -703,13 +703,12 @@ def product_search(request):
     }
     return render(request, 'app/product_search.html', context)
 def order_history(request):
-    # Lấy thông tin user và các đơn hàng của họ
-    customer = request.user.customer
-    orders = Order.objects.filter(customer=customer).order_by('-date_ordered')
-    context = {
-        'orders': orders,
-    }
-    return render(request, 'app/order_history.html', context)
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        orders = Order.objects.filter(customer=customer).order_by('-date_ordered')
+        return render(request, 'app/order_history.html', {'orders': orders})
+    else:
+        return redirect('login')
 
 
 @csrf_exempt
