@@ -2,12 +2,25 @@
 {% load static %}
 {% block title %}Giỏ hàng{% endblock title %}
 {% load humanize %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'app/css/cart.css' %}">
-
+<style>
+    /* CSS tùy chỉnh nhỏ để căn chỉnh checkbox đẹp hơn */
+    .cart-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    .delete-btn {
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .delete-btn:hover {
+        color: #dc3545 !important; /* Màu đỏ khi hover */
+    }
+</style>
 {% endblock extra_css %}
-
-
 
 {% block cart_content %}
 <div class="container my-5">
@@ -23,48 +36,68 @@
             <div class="box-element cart-list-container bg-white border rounded shadow-sm">
 
                 {% if items %}
-                <div class="cart-table-header d-flex text-uppercase small border-bottom">
-                    <div class="col-5 ps-4">Sản phẩm</div>
+                <div class="cart-table-header d-flex text-uppercase small border-bottom py-2 fw-bold text-muted">
+                    <div class="col-1 text-center d-flex align-items-center justify-content-center">
+                        <input type="checkbox" id="select-all" class="cart-checkbox" checked>
+                    </div>
+                    <div class="col-4 ps-2">Sản phẩm</div>
                     <div class="col-2 text-center">Đơn giá</div>
                     <div class="col-3 text-center">Số lượng</div>
-                    <div class="col-2 text-center">Thành tiền</div>
+                    <div class="col-1 text-center">Tổng</div>
+                    <div class="col-1 text-center">Xóa</div>
                 </div>
 
                 <div id="cart-items-list">
                     {% for item in items %}
-                    <div class="cart-row d-flex align-items-center border-bottom">
+                    <div class="cart-row d-flex align-items-center border-bottom py-3 item-row"
+                         data-price="{{item.get_total}}"> <div class="col-1 text-center d-flex align-items-center justify-content-center">
+                            <input type="checkbox"
+                                   class="item-checkbox cart-checkbox"
+                                   name="selected_items"
+                                   value="{{item.product.id}}"
+                                   checked>
+                        </div>
 
-                        <div class="col-5 d-flex align-items-center ps-4">
+                        <div class="col-4 d-flex align-items-center ps-2">
                             <img class="product-image rounded me-3"
-                                    src="{{item.product.get_image_url}}"
-                                    alt="{{item.product.name}}">
+                                 style="width: 50px; height: 50px; object-fit: cover;"
+                                 src="{{item.product.get_image_url}}"
+                                 alt="{{item.product.name}}">
                             <div>
-                                <p class="product-name fw-bold mb-0 text-dark">{{item.product.name}}</p>
+                                <p class="product-name fw-bold mb-0 text-dark small text-truncate" style="max-width: 150px;">{{item.product.name}}</p>
                             </div>
                         </div>
 
                         <div class="col-2 text-center">
-                            <p class="price-text mb-0 text-muted">{{item.product.price|floatformat:0|intcomma}}₫</p>
+                            <p class="price-text mb-0 text-muted small">{{item.product.price|floatformat:0|intcomma}}₫</p>
                         </div>
 
                         <div class="col-3 text-center">
                             <div class="d-flex justify-content-center align-items-center quantity-group mx-auto">
-                                <button class="btn update-cart"
+                                <button class="btn btn-sm btn-light border update-cart"
                                         data-product="{{item.product.id}}"
                                         data-action="remove">
-                                    <i class="fas fa-minus"></i>
+                                    <i class="fas fa-minus small"></i>
                                 </button>
-                                <span class="quantity-value" id="quantity-{{item.product.id}}">{{item.quantity}}</span>
-                                <button class="btn update-cart"
+                                <span class="quantity-value mx-2 fw-bold" id="quantity-{{item.product.id}}">{{item.quantity}}</span>
+                                <button class="btn btn-sm btn-light border update-cart"
                                         data-product="{{item.product.id}}"
                                         data-action="add">
-                                    <i class="fas fa-plus"></i>
+                                    <i class="fas fa-plus small"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <div class="col-2 text-center">
-                            <p class="total-text mb-0 fw-bold text-danger">{{item.get_total|floatformat:0|intcomma}}₫</p>
+                        <div class="col-1 text-center px-0">
+                            <p class="total-text mb-0 fw-bold text-dark small">{{item.get_total|floatformat:0|intcomma}}₫</p>
+                        </div>
+
+                        <div class="col-1 text-center">
+                            <button class="btn btn-link text-secondary p-0 delete-item-btn delete-cart-item"
+                                    data-product="{{item.product.id}}"
+                                    title="Xóa sản phẩm">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
                         </div>
                     </div>
                     {% endfor %}
@@ -84,34 +117,132 @@
         </div>
 
         <div class="col-lg-4 cart-summary-sidebar">
-
             <div class="box-element p-4 rounded shadow-sm bg-white border">
                 <h4 class="fw-bold mb-4 border-bottom pb-3">📝 Tổng kết đơn hàng</h4>
 
                 <div class="d-flex justify-content-between mb-3 small text-muted">
-                    <span>Tổng số lượng:</span>
-                    <span class="fw-bold text-dark">{{order.get_cart_items}} sản phẩm</span>
+                    <span>Số lượng đã chọn:</span>
+                    <span class="fw-bold text-dark" id="selected-count">{{order.get_cart_items}} sản phẩm</span>
                 </div>
 
                 <div class="d-flex justify-content-between mb-3 small text-muted">
                     <span>Tạm tính:</span>
-                    <span class="fw-bold text-dark">{{order.get_cart_total|floatformat:0|intcomma}}₫</span>
+                    <span class="fw-bold text-dark" id="subtotal-price">{{order.get_cart_total|floatformat:0|intcomma}}₫</span>
                 </div>
 
                 <hr>
 
                 <div class="d-flex justify-content-between mb-4">
                     <span class="h5 fw-bold text-uppercase">TỔNG TIỀN:</span>
-                    <span class="total-price-text">{{order.get_cart_total|floatformat:0|intcomma}}₫</span>
+                    <span class="total-price-text text-danger h4" id="final-total">{{order.get_cart_total|floatformat:0|intcomma}}₫</span>
                 </div>
 
-                <a class="btn checkout-btn btn-lg w-100" href="{% url 'checkout' %}">
-                    <i class="fas fa-money-check-alt me-2"></i> TIẾN HÀNH THANH TOÁN
-                </a>
+                <button id="checkout-btn" class="btn btn-danger btn-lg w-100 fw-bold">
+                    <i class="fas fa-money-check-alt me-2"></i> MUA HÀNG
+                </button>
             </div>
-
-
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAllCheckbox = document.getElementById('select-all');
+        const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+        const selectedCountSpan = document.getElementById('selected-count');
+        const subtotalSpan = document.getElementById('subtotal-price');
+        const finalTotalSpan = document.getElementById('final-total');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const deleteButtons = document.querySelectorAll('.delete-cart-item');
+
+        // Hàm định dạng tiền tệ (VD: 100000 -> 100,000₫)
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN').format(amount) + '₫';
+        }
+
+        // Hàm tính lại tổng tiền dựa trên checkbox
+        function updateSummary() {
+            let total = 0;
+            let count = 0;
+
+            itemCheckboxes.forEach(cb => {
+                if (cb.checked) {
+                    // Tìm dòng chứa checkbox này để lấy giá tiền
+                    const row = cb.closest('.item-row');
+                    const price = parseFloat(row.getAttribute('data-price').replace(',', '.')); // Đảm bảo đúng format số
+                    total += price;
+                    count += 1; // Hoặc count += quantity nếu muốn đếm tổng số lượng item con
+                }
+            });
+
+            // Cập nhật giao diện
+            selectedCountSpan.textContent = count + ' sản phẩm';
+            subtotalSpan.textContent = formatCurrency(total);
+            finalTotalSpan.textContent = formatCurrency(total);
+        }
+
+        // 1. Sự kiện Click "Chọn tất cả"
+        if(selectAllCheckbox){
+            selectAllCheckbox.addEventListener('change', function() {
+                itemCheckboxes.forEach(cb => {
+                    cb.checked = selectAllCheckbox.checked;
+                });
+                updateSummary();
+            });
+        }
+
+        // 2. Sự kiện Click từng checkbox lẻ
+        itemCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                // Nếu bỏ chọn 1 cái thì bỏ chọn "Select All"
+                if (!cb.checked) {
+                    selectAllCheckbox.checked = false;
+                }
+                // Nếu chọn hết thì tự tick "Select All"
+                const allChecked = Array.from(itemCheckboxes).every(c => c.checked);
+                if (allChecked) {
+                    selectAllCheckbox.checked = true;
+                }
+                updateSummary();
+            });
+        });
+
+        // 3. Xử lý nút Xóa (Cần kết nối với Backend)
+        // Lưu ý: Đoạn này giả định bạn có file cart.js xử lý AJAX tương tự nút +/-
+        // Nếu bạn chưa có logic xóa hẳn trong JS, bạn có thể thêm class 'update-cart'
+        // và thêm data-action="delete" (cần backend hỗ trợ) hoặc set quantity về 0.
+        deleteButtons.forEach(btn => {
+            btn.addEventListener('click', function(){
+                const productId = this.dataset.product;
+                console.log('Xóa sản phẩm ID:', productId);
+
+                // Gửi request xóa ở đây. Ví dụ dùng fetch hoặc gọi hàm updateUserOrder có sẵn
+                // updateUserOrder(productId, 'delete_all');
+            });
+        });
+
+        // 4. Xử lý nút Mua hàng
+        checkoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const selectedIds = [];
+            itemCheckboxes.forEach(cb => {
+                if (cb.checked) {
+                    selectedIds.push(cb.value);
+                }
+            });
+
+            if (selectedIds.length === 0) {
+                alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán!');
+                return;
+            }
+
+            console.log('Các ID sản phẩm được chọn:', selectedIds);
+            // Ở đây bạn có thể chuyển hướng sang trang checkout kèm theo param
+            // window.location.href = "/checkout/?items=" + selectedIds.join(',');
+            // Hoặc submit form nếu bạn bọc danh sách trong thẻ <form>
+            window.location.href = "{% url 'checkout' %}"; // Hiện tại đang để mặc định
+        });
+
+    });
+</script>
 {% endblock cart_content %}
