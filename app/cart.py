@@ -1,9 +1,13 @@
-from .models import Product # Giả định Product Model nằm trong app/models.py
+from decimal import Decimal
+from django.conf import settings
+from .models import Product
+
 
 class Cart:
     """
-    Lớp cơ bản cho Giỏ hàng, quản lý các mục thông qua Session.
+    Lớp quản lý Giỏ hàng thông qua Session.
     """
+
     def __init__(self, request):
         """
         Khởi tạo giỏ hàng.
@@ -22,9 +26,9 @@ class Cart:
         product_ids = self.cart.keys()
         # Lấy các đối tượng Product và tạo ánh xạ ID -> Product
         products = Product.objects.filter(id__in=product_ids)
-        
+
         cart = self.cart.copy()
-        
+
         for product in products:
             cart[str(product.id)]['product'] = product
 
@@ -35,7 +39,7 @@ class Cart:
 
     def __len__(self):
         """
-        Đếm tổng số lượng sản phẩm trong giỏ hàng.
+        Đếm tổng số lượng sản phẩm (items) trong giỏ hàng.
         """
         return sum(item['quantity'] for item in self.cart.values())
 
@@ -51,13 +55,13 @@ class Cart:
             self.cart[product_id]['quantity'] = quantity
         else:
             self.cart[product_id]['quantity'] += quantity
-        
+
         self.save()
 
     def save(self):
         # Đánh dấu session là đã thay đổi để đảm bảo nó được lưu
         self.session.modified = True
-        
+
     def remove(self, product):
         """
         Xóa sản phẩm khỏi giỏ hàng.
@@ -67,10 +71,25 @@ class Cart:
             del self.cart[product_id]
             self.save()
 
-    def get_total_price(self):
-        return sum(float(item['price']) * item['quantity'] for item in self.cart.values())
+    def get_total_price(self, selected_ids=None):
+        """
+        Tính tổng tiền.
+        - Nếu selected_ids = None: Tính tổng toàn bộ giỏ hàng.
+        - Nếu có selected_ids (list các chuỗi ID): Chỉ tính tổng các sản phẩm trong list đó.
+        """
+        total = 0
+        for p_id, item in self.cart.items():
+            # Nếu có danh sách chọn lọc, và ID sản phẩm này không nằm trong đó -> Bỏ qua
+            if selected_ids and p_id not in selected_ids:
+                continue
+
+            total += float(item['price']) * item['quantity']
+
+        return total
 
     def clear(self):
-        # Xóa giỏ hàng khỏi session
+        """
+        Xóa toàn bộ giỏ hàng khỏi session.
+        """
         del self.session['cart']
         self.save()

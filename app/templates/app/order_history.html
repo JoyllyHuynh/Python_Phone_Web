@@ -29,7 +29,7 @@
             <td>{{ order.transaction_id }}</td>
             <td>{{ order.coupon_code|default:"N/A" }}</td>
             <td>{{ order.discount_amount|intcomma }} VNĐ</td>
-            <td>{{ order.get_final_total|intcomma }} VNĐ</td>
+            <td>{{ order.get_final_total|intcomma }} VNĐ</td>-->
             <td>{{ order.estimated_delivery_date|date:"d/m/Y" }}</td>
         </tr>
         {% empty %}
