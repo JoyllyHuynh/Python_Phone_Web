@@ -262,3 +262,24 @@ class PaymentForm(forms.Form):
     bank_code = forms.CharField(max_length=20, required=False)
     language = forms.CharField(max_length=2)
 
+
+# app/models.py
+
+class Store(models.Model):
+    name = models.CharField(max_length=200, verbose_name="Tên cửa hàng")
+    address = models.CharField(max_length=500, verbose_name="Địa chỉ")
+    phone = models.CharField(max_length=20, verbose_name="Số điện thoại")
+
+    # Để hiển thị trên map, cần toạ độ. Bạn có thể lấy trên google map (click phải vào địa điểm chọn 'What's here')
+    latitude = models.FloatField(verbose_name="Vĩ độ (Latitude)")
+    longitude = models.FloatField(verbose_name="Kinh độ (Longitude)")
+
+    # Khu vực để lọc (nếu muốn)
+    region = models.CharField(max_length=50, choices=[
+        ('MB', 'Miền Bắc'),
+        ('MT', 'Miền Trung'),
+        ('MN', 'Miền Nam')
+    ], default='MN', verbose_name="Khu vực")
+
+    def __str__(self):
+        return self.name
