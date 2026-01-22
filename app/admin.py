@@ -4,6 +4,7 @@ from .models import Payment_VNPay
 from import_export import resources, fields
 from import_export.widgets import ForeignKeyWidget
 from import_export.admin import ImportExportModelAdmin
+from .models import Order, Store
 
 admin.site.register(Customer)
 admin.site.register(OrderItem)
@@ -132,6 +133,23 @@ class OrderAdmin(admin.ModelAdmin):
 
 admin.site.register(Order, OrderAdmin)
 
+
+class StoreAdmin(admin.ModelAdmin):
+    # Các cột sẽ hiển thị ra danh sách
+    list_display = ('id', 'name', 'phone', 'region', 'address', 'latitude', 'longitude')
+
+    # Thanh tìm kiếm: cho phép tìm theo tên và địa chỉ
+    search_fields = ('name', 'address')
+
+    # Bộ lọc bên phải: Lọc theo khu vực (Miền Bắc/Trung/Nam)
+    list_filter = ('region',)
+
+    # Sắp xếp mặc định theo ID
+    ordering = ('id',)
+
+
+# Đăng ký model
+admin.site.register(Store, StoreAdmin)
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ('user', 'product', 'content', 'sentiment_label', 'rating')
 

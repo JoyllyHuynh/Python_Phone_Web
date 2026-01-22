@@ -50,7 +50,8 @@ from .models import (
     OrderItem,
     ShippingAddress,
     Payment_VNPay, 
-    PaymentForm    
+    PaymentForm,
+    Store
 )
 
 MODEL_PATH = os.path.join(settings.BASE_DIR, 'app', 'model_data', 'model_cam_xuc.pkl')
@@ -721,13 +722,12 @@ def product_search(request):
     }
     return render(request, 'app/product_search.html', context)
 def order_history(request):
-    # Lấy thông tin user và các đơn hàng của họ
-    customer = request.user.customer
-    orders = Order.objects.filter(customer=customer).order_by('-date_ordered')
-    context = {
-        'orders': orders,
-    }
-    return render(request, 'app/order_history.html', context)
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        orders = Order.objects.filter(customer=customer).order_by('-date_ordered')
+        return render(request, 'app/order_history.html', {'orders': orders})
+    else:
+        return redirect('login')
 
 
 @csrf_exempt
@@ -882,3 +882,16 @@ def edit_review(request, review_id):
         "content": content,
         "ai_result": ai_result
     })
+def store_list(request):
+    stores = [
+        {
+            'name': 'Đại học Nông Lâm TP.HCM',
+            'address': 'VQCR+GP6, khu phố 6, Thủ Đức, TP. Hồ Chí Minh',
+            'phone': '0123456789',
+            'latitude': 10.8712764,
+            'longitude': 106.7917617,
+            # Link embed Google Maps cho địa chỉ này
+            'map_url': "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.2541344440056!2d106.7891867757366!3d10.87128165749005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3174d86698969f7b%3A0x9672b7efd0893fc4!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBOw7RuZyBMw6JtIFRQLiBI4buTIENow60gTWluaA!5e0!3m2!1svi!2s!4v1700000000000!5m2!1vi!2s"
+        }
+    ]
+    return render(request, 'app/store_list.html', {'stores': stores})
