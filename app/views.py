@@ -352,6 +352,24 @@ def updateItem(request):
     if orderItem.quantity <= 0:
         orderItem.delete()
     return JsonResponse('added', safe=False)
+ # mua ngay
+def buy_now(request):
+    data = json.loads(request.body)
+    productId = data['productId']
+    action = data['action']
+
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        #xoa giỏ hàng hiện tại
+        order.orderitem_set.all().delete()
+
+        product = Product.objects.get(id=productId)
+        OrderItem.objects.create(order=order, product=product, quantity=1)
+
+        return JsonResponse('Cart cleared and item added', safe=False)
+    else:
+        return JsonResponse('User not logged in', safe=False)
 
 def product_list_by_brand(request, brand_slug):
     brands = Brand.objects.all()
