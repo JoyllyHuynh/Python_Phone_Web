@@ -21,29 +21,61 @@ class Customer(models.Model):
 
 class Brand(models.Model):
     name = models.CharField(max_length=200, null=True, unique=True)
-    slug = models.SlugField(max_length=200, unique=True) # Dùng cho URL thân thiện
+    slug = models.SlugField(max_length=200, unique=True)
     image = models.ImageField(upload_to='brands/', null=True, blank=True)
 
     def __str__(self):
         return self.name
 
 class Product(models.Model):
-    name = models.CharField(max_length=200, null=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    name = models.CharField(max_length=200, null=True, verbose_name="Tên sản phẩm")
+    price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Giá bán (Mặc định)")
+    old_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name="Giá gốc (Mặc định)")
+
     digital = models.BooleanField(default=False, null=True, blank=False)
-    image = models.ImageField(null=True, blank=True)
-    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='products')
+    image = models.ImageField(upload_to='products/', null=True, blank=True)
+    image_url = models.URLField(max_length=500, null=True, blank=True)
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='products', null=True, verbose_name="Hãng sản xuất")
+
+    screen_size = models.CharField(max_length=50, null=True, blank=True, verbose_name="Màn hình")
+    ram = models.CharField(max_length=50, null=True, blank=True, verbose_name="RAM")
+    chip = models.CharField(max_length=100, null=True, blank=True, verbose_name="Chip xử lý")
+    rear_camera = models.CharField(max_length=255, null=True, blank=True, verbose_name="Camera sau")
+    front_camera = models.CharField(max_length=255, null=True, blank=True, verbose_name="Camera trước")
+    battery = models.CharField(max_length=255, null=True, blank=True, verbose_name="Pin & Sạc")
+
+    sold_count = models.IntegerField(default=0, verbose_name="Đã bán")
+    average_rating = models.FloatField(default=0.0, verbose_name="Đánh giá TB")
 
     def __str__(self):
         return self.name
+
     @property
-    def ImageURL(self):
+    def get_image_url(self):
         try:
             url = self.image.url
         except:
-            url = ''
+            if self.image_url:
+                url = self.image_url
+            else:
+                url = ''
         return url
-    
+
+class ProductVariant(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='variants')
+    storage_size = models.CharField(max_length=50, verbose_name="Dung lượng") # Vd: 128GB, 256GB, 1TB
+    price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Giá bán riêng")
+    old_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name="Giá gốc riêng")
+
+    stock = models.IntegerField(default=0, verbose_name="Số lượng tồn")
+
+    class Meta:
+        verbose_name = "Biến thể sản phẩm"
+        verbose_name_plural = "Các biến thể (Dung lượng/Màu...)"
+
+    def __str__(self):
+        return f"{self.product.name} - {self.storage_size}"
+
 class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, blank=True, null=True)
     date_ordered = models.DateTimeField(auto_now_add=True)
@@ -108,6 +140,8 @@ class Promotion(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     active = models.BooleanField(default=True)
+    usage_limit = models.IntegerField(default=0, verbose_name="Giới hạn số lượng (0 là không giới hạn)")
+    used_count = models.IntegerField(default=0, verbose_name="Đã sử dụng")
 
     target_products = models.ManyToManyField('Product', blank=True, related_name='product_promotions', verbose_name="Sản phẩm cụ thể")
     target_brands = models.ManyToManyField('Brand', blank=True, related_name='brand_promotions', verbose_name="Toàn bộ hãng")
@@ -120,7 +154,7 @@ class Promotion(models.Model):
         ('new_arrival', 'Sản phẩm mới'),
         ('vip', 'Khách hàng thân thiết'),
         ('flash_sale', 'Flash Sale'),
-        ('new customer', 'Khách hàng mới'),
+        ('new_customer', 'Khách hàng mới'),
         ('holiday', 'Dịp lễ hội'),
 
     ]
@@ -144,27 +178,34 @@ class Promotion(models.Model):
         return check_product or check_brand
 
     def is_valid_for_user(self, user):
-
         if not user.is_authenticated:
             return False
 
-        has_user_limit = self.target_users.exists()
-        has_type_limit = self.target_customer_types.exists()
+        if self.target_users.exists() and user not in self.target_users.all():
+            return False
+        if self.usage_limit > 0 and self.used_count >= self.usage_limit:
+            return False
+        try:
+            customer = user.customer
+        except Customer.DoesNotExist:
+            return False
 
-        if not has_user_limit and not has_type_limit:
-            return True
+        completed_orders = Order.objects.filter(customer=customer, complete=True)
+        total_spent = sum([order.get_final_total for order in completed_orders])
 
-        if has_user_limit and user in self.target_users.all():
-            return True
-
-        if has_type_limit:
-            try:
-                customer = user.customer
-                if customer.customer_type in self.target_customer_types.all():
-                    return True
-            except:
+        if self.promotion_type == 'new_customer':
+            if total_spent > 0:
                 return False
-        return False
+
+        elif self.promotion_type == 'vip':
+            if total_spent < 5000:
+                return False
+
+        if self.target_customer_types.exists():
+            if customer.customer_type not in self.target_customer_types.all():
+                return False
+
+        return True
 
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
@@ -196,7 +237,7 @@ class Review(models.Model):
     
 
 class Payment_VNPay(models.Model):
-    order_id = models.IntegerField(default=0, null=True, blank=True)
+    order_id = models.CharField(max_length=200, null=True, blank=True)
     amount = models.FloatField(default=0.0, null=True, blank=True)
     order_desc = models.CharField(max_length=200, null=True, blank=True)
     vnp_TransactionNo = models.CharField(max_length=100, null=True, blank=True)
@@ -211,3 +252,4 @@ class PaymentForm(forms.Form):
     order_desc = forms.CharField(max_length=100)
     bank_code = forms.CharField(max_length=20, required=False)
     language = forms.CharField(max_length=2)
+

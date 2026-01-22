@@ -1,0 +1,41 @@
+{% endblock extra_css %}
+{% extends 'app/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block extra_css %}
+{% block main_content %}
+<h2>Lịch sử Đơn Hàng</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Mã Đơn Hàng</th>
+            <th>Ngày Đặt</th>
+            <th>Hoàn Thành</th>
+            <th>Mã Giao Dịch</th>
+            <th>Mã Giảm Giá</th>
+            <th>Giảm Giá</th>
+            <th>Tổng Giá</th>
+            <th>Ngày Dự Kiến Giao Hàng</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.date_ordered }}</td>
+            <td>{{ order.complete|yesno:"Có,Không" }}</td>
+            <td>{{ order.transaction_id }}</td>
+            <td>{{ order.coupon_code|default:"N/A" }}</td>
+            <td>{{ order.discount_amount|floatformat:2 }}</td>
+            <td>{{ order.get_final_total|floatformat:2 }}</td>
+            <td>{{ order.estimated_delivery_date }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="8">Bạn chưa có đơn hàng nào.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

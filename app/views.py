@@ -300,7 +300,12 @@ def apply_coupon_logic(request, order, coupon_code):
         return False, "Mã giảm giá đã hết hạn!", 0
 
     if hasattr(promo, 'is_valid_for_user') and not promo.is_valid_for_user(request.user):
-        return False, "Mã này không dành cho bạn.", 0
+            if promo.promotion_type == 'new_customer':
+                return False, "Mã này chỉ dành cho khách hàng lần đầu mua sắm.", 0
+            elif promo.promotion_type == 'vip':
+                 return False, "Mã này chỉ dành cho khách hàng VIP (Chi tiêu trên 20tr).", 0
+            else:
+                return False, "Bạn không thuộc đối tượng áp dụng mã này.", 0
 
     eligible_amount = 0
     order_items = order.orderitem_set.all()
@@ -347,6 +352,24 @@ def updateItem(request):
     if orderItem.quantity <= 0:
         orderItem.delete()
     return JsonResponse('added', safe=False)
+ # mua ngay
+def buy_now(request):
+    data = json.loads(request.body)
+    productId = data['productId']
+    action = data['action']
+
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        #xoa giỏ hàng hiện tại
+        order.orderitem_set.all().delete()
+
+        product = Product.objects.get(id=productId)
+        OrderItem.objects.create(order=order, product=product, quantity=1)
+
+        return JsonResponse('Cart cleared and item added', safe=False)
+    else:
+        return JsonResponse('User not logged in', safe=False)
 
 def product_list_by_brand(request, brand_slug):
     brands = Brand.objects.all()
@@ -697,6 +720,14 @@ def product_search(request):
         'sort': sort,
     }
     return render(request, 'app/product_search.html', context)
+def order_history(request):
+    # Lấy thông tin user và các đơn hàng của họ
+    customer = request.user.customer
+    orders = Order.objects.filter(customer=customer).order_by('-date_ordered')
+    context = {
+        'orders': orders,
+    }
+    return render(request, 'app/order_history.html', context)
 
 
 @csrf_exempt

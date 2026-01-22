@@ -1,157 +1,303 @@
 {% extends 'app/base.html' %}
 {% load static %}
-{% load humanize %}  
+{% load humanize %}
 
 {% block extra_css %}
-<link href="{% static 'app/css/product_detail.css' %}" rel="stylesheet" />
-<style>
-    .bg-success-soft { background-color: #f0fff4; color: #2f855a; border: none; font-size: 0.7rem; padding: 4px 8px; }
-    .bg-danger-soft { background-color: #fff5f5; color: #c53030; border: none; font-size: 0.7rem; padding: 4px 8px; }
-    
-    .review-item { padding: 1rem 0; border-bottom: 1px solid #f1f1f1; margin-bottom: 0.5rem; transition: all 0.3s ease; }
-    .avatar-sm { width: 32px; height: 32px; background-color: #f0f2f5; color: #65676b; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 600; font-size: 0.8rem; }
-    .review-user { font-size: 0.9rem; color: #050505; }
-    .review-date { font-size: 0.75rem; color: #65676b; }
-    .review-content { font-size: 0.85rem; color: #1c1e21; line-height: 1.4; margin-top: 2px; }
-
-    .filter-btn { font-size: 0.8rem; border-radius: 20px; padding: 4px 15px; margin-right: 5px; border: 1px solid #ddd; background: #fff; transition: all 0.2s; }
-    .filter-btn.active { background: #333; color: #fff; border-color: #333; }
-
-    .new-comment-animate { animation: fadeIn 0.4s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* --- CSS MỚI CHO SỬA/XÓA --- */
-    .comment-actions { opacity: 0; transition: opacity 0.2s; }
-    .review-item:hover .comment-actions { opacity: 1; }
-    .action-link { font-size: 0.75rem; color: #65676b; cursor: pointer; margin-left: 10px; text-decoration: none; font-weight: 500; }
-    .action-link:hover { text-decoration: underline; color: #0d6efd; }
-    .action-link.delete:hover { color: #dc3545; }
-    
-    .edit-box { display: none; margin-top: 10px; }
-    .edit-textarea { font-size: 0.85rem; border-radius: 8px; border: 1px solid #ddd; padding: 10px; width: 100%; margin-bottom: 8px; }
-
-    
-</style>
+<link href="{% static 'app/css/product_detail.css' %}" rel="stylesheet"/>
 {% endblock extra_css %}
 
 {% block main_content %}
 <div class="container my-5">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="#">Điện thoại</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+        </ol>
+    </nav>
+
     <h1 class="product-title fw-bold mb-3">{{ product.name }}</h1>
+
     <div class="product-header-info d-flex align-items-center mb-4">
         <div class="product-rating me-3">
-            <i class="fas fa-star text-warning"></i> 4.9/5 (100 đánh giá)
+            <i class="fas fa-star"></i>
+            <span class="fw-bold">{{ product.average_rating|default:"0" }}</span>/5
+            <span class="text-muted">({{ product_reviews|length }} đánh giá)</span>
         </div>
-        <span class="text-muted">|</span>
-        <span class="ms-3 text-success fw-bold">Còn hàng</span>
+        <span class="divider">|</span>
+        <span class="ms-3 sold-count">Đã bán: <b>{{ product.sold_count|default:"0" }}</b></span>
+        <span class="divider mx-2">|</span>
+        <span class="stock-status in-stock"><i class="fas fa-check-circle me-1"></i>Còn hàng</span>
     </div>
 
-    <div class="row">
+    <div class="row g-4">
         <div class="col-lg-5">
-            <div class="product-gallery card p-3 mb-4 border-0">
-                <img src="{{ product.ImageURL }}" class="img-fluid main-product-img" alt="{{ product.name }}">
+            <div class="product-gallery card p-3 mb-4">
+                <img src="{{ product.get_image_url }}" class="img-fluid main-product-img" alt="{{ product.name }}">
             </div>
-            <div class="tech-specs card p-4 border-0 shadow-sm">
-                <h5 class="fw-bold mb-3">Thông số kỹ thuật</h5>
-                <table class="table table-borderless table-sm">
+
+            <div class="tech-specs card p-4">
+                <h5 class="specs-title fw-bold mb-3">
+                    <i class="fas fa-microchip me-2"></i>Thông số tóm tắt
+                </h5>
+                <table class="table table-borderless table-sm specs-table">
                     <tbody>
-                        <tr><th>Màn hình</th><td>6.7 inch, Dynamic AMOLED</td></tr>
-                        <tr><th>Chip</th><td>{{ product.chip_model|default:"Apple A19 Bionic" }}</td></tr>
-                        <tr><th>RAM</th><td>{{ product.ram_size|default:"8GB" }}</td></tr>
-                        <tr><th>Pin</th><td>5000 mAh</td></tr>
+                    <tr>
+                        <th><i class="fas fa-mobile-alt"></i> Màn hình</th>
+                        <td>{{ product.screen_size|default:"Đang cập nhật" }}</td>
+                    </tr>
+                    <tr>
+                        <th><i class="fas fa-microchip"></i> Chip</th>
+                        <td>{{ product.chip|default:"Đang cập nhật" }}</td>
+                    </tr>
+                    <tr>
+                        <th><i class="fas fa-memory"></i> RAM</th>
+                        <td>{{ product.ram|default:"Đang cập nhật" }}</td>
+                    </tr>
+                    <tr>
+                        <th><i class="fas fa-hdd"></i> Bộ nhớ</th>
+                        <td>{{ product.storage|default:"Đang cập nhật" }}</td>
+                    </tr>
+                    <tr>
+                        <th><i class="fas fa-battery-full"></i> Pin</th>
+                        <td>{{ product.battery|default:"Đang cập nhật" }}</td>
+                    </tr>
                     </tbody>
                 </table>
-                <a href="#fullspecs-tab" class="btn btn-outline-dark btn-sm mt-2">Xem chi tiết cấu hình</a>
+                <a href="#fullspecs-tab" class="btn btn-view-specs btn-sm mt-2"
+                   onclick="document.querySelector('#nav-specs-tab').click()">
+                    <i class="fas fa-list-alt me-1"></i>Xem cấu hình chi tiết
+                </a>
             </div>
         </div>
 
         <div class="col-lg-7">
-            <div class="config-selection mb-4">
-                <h5 class="fw-bold mb-3">Chọn phiên bản:</h5>
-                <div class="btn-group mb-3" role="group">
-                    <input type="radio" class="btn-check" name="capacity" id="cap128" checked>
-                    <label class="btn btn-outline-primary config-btn" for="cap128">128GB (Giá tốt nhất)</label>
-                    <input type="radio" class="btn-check" name="capacity" id="cap256">
-                    <label class="btn btn-outline-primary config-btn" for="cap256">256GB</label>
-                    <input type="radio" class="btn-check" name="capacity" id="cap512">
-                    <label class="btn btn-outline-primary config-btn" for="cap512">512GB</label>
+            <div class="product-info-card">
+                <div class="config-selection mb-4">
+                    <h5 class="section-title fw-bold mb-3">
+                        <i class="fas fa-cog me-2"></i>Chọn phiên bản:
+                    </h5>
+
+                    {% if product.variants.all %}
+                    <div class="variant-group mb-3" role="group">
+                        {% for variant in product.variants.all %}
+                        <input type="radio" class="btn-check variant-option"
+                               name="variant_id"
+                               id="var_{{ variant.id }}"
+                               autocomplete="off"
+                               data-price="{{ variant.price }}"
+                               data-old-price="{{ variant.old_price|default_if_none:'0' }}"
+                               {% if forloop.first %}checked{% endif %}>
+                        <label class="config-btn" for="var_{{ variant.id }}">
+                            <strong>{{ variant.storage_size }}</strong>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted small">Sản phẩm này chỉ có một phiên bản duy nhất: <strong>{{ product.storage|default:"Tiêu chuẩn" }}</strong></p>
+                    {% endif %}
+
+                    <h6 class="section-title fw-bold mt-4 mb-3">
+                        <i class="fas fa-palette me-2"></i>Màu sắc:
+                    </h6>
+                    <div class="color-options d-flex">
+                        <button class="color-dot active" style="background-color: #1a1a2e;" title="Đen"></button>
+                        <button class="color-dot" style="background-color: #e94560;" title="Đỏ"></button>
+                        <button class="color-dot" style="background-color: #f5f5dc;" title="Kem"></button>
+                        <button class="color-dot" style="background-color: #0f3460;" title="Xanh Navy"></button>
+                    </div>
                 </div>
 
-                <h6 class="fw-bold mt-2">Chọn màu:</h6>
-                <div class="color-options d-flex">
-                    <button class="color-dot me-2 active" style="background-color: #f75d59;"></button>
-                    <button class="color-dot me-2" style="background-color: #000;"></button>
-                    <button class="color-dot me-2" style="background-color: #f5f5dc;"></button>
-                </div>
-            </div>
+                <div class="price-offer-box">
+                    <div class="price-header d-flex align-items-center mb-2">
+                        <span class="old-price" id="display-old-price" {% if not product.old_price %}style="display:none" {% endif %}>
+                            {% if product.old_price %}{{ product.old_price|floatformat:0|intcomma }}₫{% endif %}
+                        </span>
+                        <span class="discount-badge ms-2" id="discount-badge"
+                              {% if not product.old_price or product.price >= product.old_price %}style="display: none;"{% endif %}>
+                            <i class="fas fa-tags me-1"></i>Giảm giá
+                        </span>
+                    </div>
 
-            <div class="price-offer-box border p-4 rounded shadow-sm">
-                <h3 class="price-sale text-danger display-5 fw-bold mb-0" id="product-price">
-                    {{ product.price|floatformat:0|intcomma }}₫
-                </h3>
-                <div class="promotion-box p-3 mt-3 bg-light rounded text-secondary">
-                    <h6 class="text-success mb-2 fw-bold"><i class="fas fa-gift me-2"></i> Ưu đãi & Quà tặng</h6>
-                    <ul class="list-unstyled small mb-0">
-                        <li><i class="fas fa-check-circle text-success me-2"></i> Trả góp 0% hỗ trợ 12 tháng.</li>
-                        <li><i class="fas fa-check-circle text-success me-2"></i> Tặng voucher 500K mua phụ kiện.</li>
-                    </ul>
-                </div>
-            </div>
+                    <h3 class="price-sale fw-bold mb-0" id="display-price">
+                        {{ product.price|floatformat:0|intcomma }}₫
+                    </h3>
 
-            <div class="d-grid gap-2 mt-4">
-                <button class="btn btn-danger btn-lg update-cart fw-bold">MUA NGAY</button>
+                    <div class="promotion-box mt-3">
+                        <h6 class="promo-title mb-3">
+                            <i class="fas fa-gift me-2"></i>Ưu đãi & Quà tặng
+                        </h6>
+                        <ul class="promo-list">
+                            <li><i class="fas fa-check-circle"></i> Trả góp 0% lãi suất qua thẻ tín dụng</li>
+                            <li><i class="fas fa-check-circle"></i> Thu cũ đổi mới trợ giá đến 2 triệu</li>
+                            <li><i class="fas fa-check-circle"></i> Giảm thêm 5% cho thành viên VIP</li>
+                            <li><i class="fas fa-check-circle"></i> Bảo hành chính hãng 12 tháng</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="action-buttons mt-4">
+                    <button data-product="{{ product.id }}" data-action="add"
+                            class="btn btn-add-cart update-cart fw-bold">
+                        <i class="fas fa-cart-plus me-2"></i>THÊM VÀO GIỎ
+                    </button>
+                    <button id="buy-now-btn"
+                            data-product="{{ product.id }}"
+                            data-action="add"
+                            class="btn btn-buy-now fw-bold">
+                        <i class="fas fa-bolt me-2"></i>MUA NGAY
+                    </button>
+                </div>
+
+                <div class="support-info mt-4">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="support-item">
+                                <i class="fas fa-shipping-fast"></i>
+                                <span>Giao hàng miễn phí</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="support-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Bảo hành 12 tháng</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="support-item">
+                                <i class="fas fa-sync-alt"></i>
+                                <span>Đổi trả trong 7 ngày</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="support-item">
+                                <i class="fas fa-headset"></i>
+                                <span>Hỗ trợ 24/7</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <hr class="my-5">
-
-    <div class="product-tabs-section">
+    <div class="product-tabs-section mt-5">
         <ul class="nav nav-tabs" id="productTab" role="tablist">
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#description">Mô tả</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#fullspecs">Thông số</button></li>
-            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#reviews">Đánh giá & Bình luận</button></li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#description">
+                    <i class="fas fa-file-alt me-1"></i>Mô tả
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="nav-specs-tab" data-bs-toggle="tab" data-bs-target="#fullspecs">
+                    <i class="fas fa-cogs me-1"></i>Thông số kỹ thuật
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#reviews">
+                    <i class="fas fa-comments me-1"></i>Đánh giá ({{ product_reviews|length }})
+                </button>
+            </li>
         </ul>
 
-        <div class="tab-content border border-top-0 p-4 bg-white" id="productTabContent">
+        <div class="tab-content" id="productTabContent">
             <div class="tab-pane fade" id="description" role="tabpanel">
-                <p>{{ product.description|default:"Chưa có mô tả." }}</p>
+                <div class="content-description">
+                    {{ product.description|default:"Sản phẩm này hiện chưa có bài viết mô tả chi tiết."|linebreaks }}
+                </div>
             </div>
 
             <div class="tab-pane fade" id="fullspecs" role="tabpanel">
-                <p>Thông số kỹ thuật chi tiết của sản phẩm...</p>
+                <div class="row justify-content-center">
+                    <div class="col-md-10">
+                        <table class="table specs-detail-table">
+                            <tbody>
+                            <tr>
+                                <th><i class="fas fa-mobile-alt me-2"></i>Màn hình</th>
+                                <td>{{ product.screen_size|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-camera me-2"></i>Camera sau</th>
+                                <td>{{ product.rear_camera|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-camera-retro me-2"></i>Camera trước</th>
+                                <td>{{ product.front_camera|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-microchip me-2"></i>Chip xử lý (CPU)</th>
+                                <td>{{ product.chip|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-memory me-2"></i>RAM</th>
+                                <td>{{ product.ram|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-hdd me-2"></i>Bộ nhớ trong</th>
+                                <td>{{ product.storage|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-battery-full me-2"></i>Pin & Sạc</th>
+                                <td>{{ product.battery|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-industry me-2"></i>Hãng sản xuất</th>
+                                <td>{{ product.brand.name }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <div class="tab-pane fade show active" id="reviews" role="tabpanel">
                 <div class="row">
-                    <div class="col-lg-4 text-center border-end">
-                        <h2 class="display-6 fw-bold text-dark mt-4">Phản hồi</h2>
-                        <p class="text-muted small">Dựa trên ý kiến người dùng</p>
+                    <div class="col-lg-4">
+                        <div class="rating-summary text-center">
+                            <div class="rating-score">{{ product.average_rating|default:"5.0" }}</div>
+                            <div class="rating-stars mb-2">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <p class="rating-count">Dựa trên {{ product_reviews|length }} đánh giá</p>
+                        </div>
                     </div>
 
                     <div class="col-lg-8">
                         <div class="review-form mb-4" id="review-form-section">
-                            <h6 class="mb-3 fw-bold">Viết bình luận</h6>
+                            <h6 class="mb-3 fw-bold">
+                                <i class="fas fa-pen me-2"></i>Viết bình luận
+                            </h6>
                             <form id="comment-form">
                                 {% csrf_token %}
-                                <div style="display:none;"><input type="text" name="honeypot" id="honeypot">
+                                <div style="display:none;">
+                                    <input type="text" name="honeypot" id="honeypot">
                                 </div>
-                                <textarea class="form-control mb-2" id="comment-content" rows="3" placeholder="Sản phẩm rất tuyệt..."></textarea>
-                                <button type="submit" id="submit-review-btn" class="btn btn-warning btn-sm fw-bold px-4">Gửi đánh giá</button>
+                                <textarea class="form-control mb-3" id="comment-content" rows="3"
+                                          placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."></textarea>
+                                <button type="submit" id="submit-review-btn" class="btn btn-submit-review fw-bold">
+                                    <i class="fas fa-paper-plane me-1"></i>Gửi đánh giá
+                                </button>
                             </form>
                         </div>
 
-                        <hr>
-
-                        <div class="d-flex align-items-center mb-3">
+                        <div class="filter-section d-flex align-items-center mb-3">
                             <span class="small fw-bold me-3">Lọc theo:</span>
                             <button class="filter-btn active" data-filter="all">Tất cả</button>
-                            <button class="filter-btn" data-filter="pos">Tích cực</button>
-                            <button class="filter-btn" data-filter="neg">Tiêu cực</button>
+                            <button class="filter-btn" data-filter="pos">
+                                <i class="fas fa-smile me-1"></i>Tích cực
+                            </button>
+                            <button class="filter-btn" data-filter="neg">
+                                <i class="fas fa-frown me-1"></i>Tiêu cực
+                            </button>
                         </div>
 
                         <div id="comment-list">
                             {% for review in product_reviews %}
-                            <div class="review-item {% if forloop.counter > 3 %}d-none extra-review{% endif %}" 
+                            <div class="review-item {% if forloop.counter > 3 %}d-none extra-review{% endif %}"
                                  id="review-item-{{ review.id }}"
                                  data-sentiment="{% if review.sentiment == 1 %}pos{% else %}neg{% endif %}">
                                 <div class="d-flex align-items-start">
@@ -160,61 +306,64 @@
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
                                                 <span class="review-user fw-bold">{{ review.user.username }}</span>
-                                                <small class="review-date text-muted ms-2">{{ review.date_added|date:"d/m/Y H:i" }}</small>
+                                                <small class="review-date text-muted ms-2">
+                                                    {{ review.date_added|date:"d/m/Y H:i" }}
+                                                </small>
                                             </div>
-
                                             {% if review.user == request.user %}
                                             <div class="comment-actions">
-                                                <span class="action-link" onclick="toggleEdit('{{ review.id }}')">Sửa</span>
-                                                <span class="action-link delete" onclick="deleteComment('{{ review.id }}')">Xóa</span>
+                                                <span class="action-link edit" onclick="toggleEdit('{{ review.id }}')">
+                                                    <i class="fas fa-edit"></i> Sửa
+                                                </span>
+                                                <span class="action-link delete" onclick="deleteComment('{{ review.id }}')">
+                                                    <i class="fas fa-trash"></i> Xóa
+                                                </span>
                                             </div>
                                             {% endif %}
                                         </div>
-
                                         <div id="content-box-{{ review.id }}">
-                                            <p class="review-content text-secondary mb-1">
-                                                {{ review.content }}
-                                            </p>
-
+                                            <p class="review-content mb-2">{{ review.content }}</p>
                                             {% if review.ai_result %}
+                                            <div class="ai-labels">
                                                 {% for asp, sent in review.ai_result %}
-                                                    <span class="badge rounded-pill ai-label
-                                                        {% if sent == 'positive' %}
-                                                            bg-success-soft
-                                                        {% elif sent == 'negative' %}
-                                                            bg-danger-soft
-                                                        {% else %}
-                                                            bg-secondary
-                                                        {% endif %}
-                                                    ">
-                                                        {{ asp }}:
-                                                        {% if sent == 'positive' %}Tích cực
-                                                        {% elif sent == 'negative' %}Tiêu cực
-                                                        {% else %}Trung lập
-                                                        {% endif %}
-                                                    </span>
+                                                <span class="badge ai-label
+                                                    {% if sent == 'positive' %}positive
+                                                    {% elif sent == 'negative' %}negative
+                                                    {% else %}neutral{% endif %}">
+                                                    {{ asp }}:
+                                                    {% if sent == 'positive' %}Tích cực
+                                                    {% elif sent == 'negative' %}Tiêu cực
+                                                    {% else %}Trung lập{% endif %}
+                                                </span>
                                                 {% endfor %}
+                                            </div>
                                             {% endif %}
                                         </div>
-
                                         <div id="edit-box-{{ review.id }}" class="edit-box">
                                             <textarea class="edit-textarea" id="edit-input-{{ review.id }}">{{ review.content }}</textarea>
                                             <div class="d-flex gap-2">
-                                                <button class="btn btn-dark btn-sm px-3" onclick="saveEdit('{{ review.id }}')">Lưu</button>
-                                                <button class="btn btn-light btn-sm px-3" onclick="toggleEdit('{{ review.id }}')">Hủy</button>
+                                                <button class="btn btn-save-edit btn-sm" onclick="saveEdit('{{ review.id }}')">
+                                                    <i class="fas fa-check me-1"></i>Lưu
+                                                </button>
+                                                <button class="btn btn-cancel-edit btn-sm" onclick="toggleEdit('{{ review.id }}')">
+                                                    <i class="fas fa-times me-1"></i>Hủy
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             {% empty %}
-                            <p id="no-comment" class="text-muted small">Chưa có bình luận nào.</p>
+                            <p id="no-comment" class="text-muted text-center py-4">
+                                <i class="fas fa-comment-slash fa-2x mb-2 d-block"></i>
+                                Chưa có bình luận nào. Hãy là người đầu tiên đánh giá!
+                            </p>
                             {% endfor %}
                         </div>
 
                         {% if product_reviews|length > 3 %}
                         <div class="text-center mt-3" id="load-more-container">
-                            <button class="btn btn-outline-dark btn-sm fw-bold px-4" id="load-more-btn" data-expanded="false">
+                            <button class="btn btn-load-more fw-bold" id="load-more-btn" data-expanded="false">
                                 Xem thêm <i class="fas fa-chevron-down ms-1"></i>
                             </button>
                         </div>
@@ -227,119 +376,225 @@
 </div>
 
 <script>
-document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        const filterValue = this.getAttribute('data-filter');
-        const items = document.querySelectorAll('.review-item');
-        const loadMoreBtn = document.getElementById('load-more-btn');
+    document.addEventListener('DOMContentLoaded', function () {
+        // Format currency helper
+        function formatCurrency(number) {
+            return new Intl.NumberFormat('vi-VN').format(number) + '₫';
+        }
 
-        items.forEach((item, index) => {
-            const itemSentiment = item.getAttribute('data-sentiment');
-            if (filterValue === 'all') {
-                if (index < 3) item.classList.remove('d-none');
-                else item.classList.add('d-none');
-                if (loadMoreBtn) loadMoreBtn.parentElement.classList.remove('d-none');
+        // Variant selection handler
+        const variants = document.querySelectorAll('.variant-option');
+        const displayPrice = document.getElementById('display-price');
+        const displayOldPrice = document.getElementById('display-old-price');
+        const badge = document.getElementById('discount-badge');
+
+        variants.forEach(radio => {
+            radio.addEventListener('change', function () {
+                const newPrice = parseFloat(this.getAttribute('data-price'));
+                const newOldPrice = parseFloat(this.getAttribute('data-old-price'));
+
+                displayPrice.innerText = formatCurrency(newPrice);
+
+                if (newOldPrice > 0) {
+                    displayOldPrice.innerText = formatCurrency(newOldPrice);
+                    displayOldPrice.style.display = 'inline';
+                    badge.style.display = newPrice < newOldPrice ? 'inline-block' : 'none';
+                } else {
+                    displayOldPrice.style.display = 'none';
+                    badge.style.display = 'none';
+                }
+            });
+        });
+
+        const checkedRadio = document.querySelector('.variant-option:checked');
+        if (checkedRadio) {
+            checkedRadio.dispatchEvent(new Event('change'));
+        }
+
+        // Color selection handler
+        document.querySelectorAll('.color-dot').forEach(dot => {
+            dot.addEventListener('click', function() {
+                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Filter buttons handler
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const filterValue = this.getAttribute('data-filter');
+                const items = document.querySelectorAll('.review-item');
+                const loadMoreBtn = document.getElementById('load-more-btn');
+
+                items.forEach((item, index) => {
+                    const itemSentiment = item.getAttribute('data-sentiment');
+                    if (filterValue === 'all') {
+                        if (index < 3) item.classList.remove('d-none');
+                        else item.classList.add('d-none');
+                        if (loadMoreBtn) loadMoreBtn.parentElement.classList.remove('d-none');
+                    } else {
+                        if (itemSentiment === filterValue) {
+                            item.classList.remove('d-none');
+                            item.classList.add('new-comment-animate');
+                        } else {
+                            item.classList.add('d-none');
+                        }
+                        if (loadMoreBtn) loadMoreBtn.parentElement.classList.add('d-none');
+                    }
+                });
+            });
+        });
+
+        // Load more reviews
+        document.getElementById('load-more-btn')?.addEventListener('click', function () {
+            const isExpanded = this.getAttribute('data-expanded') === 'true';
+            const extraReviews = document.querySelectorAll('.extra-review');
+
+            if (!isExpanded) {
+                extraReviews.forEach(el => {
+                    el.classList.remove('d-none');
+                    el.classList.add('new-comment-animate');
+                });
+                this.innerHTML = 'Thu lại <i class="fas fa-chevron-up ms-1"></i>';
+                this.setAttribute('data-expanded', 'true');
             } else {
-                if (itemSentiment === filterValue) {
-                    item.classList.remove('d-none');
-                    item.classList.add('new-comment-animate');
-                } else { item.classList.add('d-none'); }
-                if (loadMoreBtn) loadMoreBtn.parentElement.classList.add('d-none');
+                extraReviews.forEach(el => el.classList.add('d-none'));
+                this.innerHTML = 'Xem thêm <i class="fas fa-chevron-down ms-1"></i>';
+                this.setAttribute('data-expanded', 'false');
+                document.getElementById('comment-list').scrollIntoView({behavior: 'smooth', block: 'start'});
             }
         });
     });
-});
 
-document.getElementById('load-more-btn')?.addEventListener('click', function() {
-    const isExpanded = this.getAttribute('data-expanded') === 'true';
-    const extraReviews = document.querySelectorAll('.extra-review');
-    if (!isExpanded) {
-        extraReviews.forEach(el => { el.classList.remove('d-none'); el.classList.add('new-comment-animate'); });
-        this.innerHTML = 'Thu lại <i class="fas fa-chevron-up ms-1"></i>';
-        this.setAttribute('data-expanded', 'true');
-    } else {
-        extraReviews.forEach(el => el.classList.add('d-none'));
-        this.innerHTML = 'Xem thêm <i class="fas fa-chevron-down ms-1"></i>';
-        this.setAttribute('data-expanded', 'false');
-        document.getElementById('comment-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Toggle edit mode
+    function toggleEdit(id) {
+        const contentBox = document.getElementById(`content-box-${id}`);
+        const editBox = document.getElementById(`edit-box-${id}`);
+        const isEditing = editBox.style.display === 'block';
+        editBox.style.display = isEditing ? 'none' : 'block';
+        contentBox.style.display = isEditing ? 'block' : 'none';
     }
-});
 
-function toggleEdit(id) {
-    const contentBox = document.getElementById(`content-box-${id}`);
-    const editBox = document.getElementById(`edit-box-${id}`);
-    const isEditing = editBox.style.display === 'block';
-    
-    editBox.style.display = isEditing ? 'none' : 'block';
-    contentBox.style.display = isEditing ? 'block' : 'none';
-}
+    // Delete comment
+    function deleteComment(id) {
+        if (!confirm("Bạn có chắc chắn muốn xóa bình luận này?")) return;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-function deleteComment(id) {
-    if (!confirm("Bạn có chắc chắn muốn xóa bình luận này?")) return;
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        fetch(`/delete-review/${id}/`, {
+            method: "POST",
+            headers: {"X-CSRFToken": csrfToken}
+        }).then(res => res.json()).then(data => {
+            if (data.status === 'success') {
+                const item = document.getElementById(`review-item-${id}`);
+                item.style.transform = 'scale(0.95)';
+                item.style.opacity = '0';
+                setTimeout(() => item.remove(), 300);
+            }
+        });
+    }
 
-    fetch(`/delete-review/${id}/`, {
-        method: "POST",
-        headers: { "X-CSRFToken": csrfToken }
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === 'success') {
-            const item = document.getElementById(`review-item-${id}`);
-            item.style.transform = 'scale(0.95)';
-            item.style.opacity = '0';
-            setTimeout(() => item.remove(), 300);
-        }
+    // Save edit
+    function saveEdit(id) {
+        const content = document.getElementById(`edit-input-${id}`).value;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch(`/edit-review/${id}/`, {
+            method: "POST",
+            headers: {"X-CSRFToken": csrfToken, "Content-Type": "application/x-www-form-urlencoded"},
+            body: new URLSearchParams({'content': content})
+        }).then(res => res.json()).then(data => {
+            if (data.status === 'success') {
+                const contentBox = document.getElementById(`content-box-${id}`);
+                contentBox.querySelector('.review-content').innerText = data.content;
+                const label = contentBox.querySelector('.ai-label');
+                if (label) {
+                    label.innerText = `AI: ${data.ai_sentiment}`;
+                    label.className = `badge ai-label ${data.ai_sentiment === 'Tích cực' ? 'positive' : 'negative'}`;
+                }
+                toggleEdit(id);
+            }
+        });
+    }
+
+    // Comment form submit
+    document.getElementById('comment-form')?.addEventListener('submit', function (e) {
+        e.preventDefault();
+        let contentInput = document.getElementById('comment-content');
+        let submitBtn = document.getElementById('submit-review-btn');
+        let csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Đang gửi...';
+
+        fetch("", {
+            method: "POST",
+            headers: {"X-CSRFToken": csrfToken, "Content-Type": "application/x-www-form-urlencoded"},
+            body: new URLSearchParams({
+                'content': contentInput.value,
+                'honeypot': document.getElementById('honeypot').value
+            })
+        }).then(response => response.json()).then(data => {
+            if (data.status === 'success') location.reload();
+        }).finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Gửi đánh giá';
+        });
     });
-}
 
-function saveEdit(id) {
-    const content = document.getElementById(`edit-input-${id}`).value;
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    // Buy now button
+    const buyNowBtn = document.getElementById('buy-now-btn');
+    if (buyNowBtn) {
+        buyNowBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const productId = this.getAttribute('data-product');
+            const action = this.getAttribute('data-action');
 
-    fetch(`/edit-review/${id}/`, {
-        method: "POST",
-        headers: { "X-CSRFToken": csrfToken, "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ 'content': content })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === 'success') {
-            const contentBox = document.getElementById(`content-box-${id}`);
-            contentBox.querySelector('.review-content').innerText = data.content;
-            
-            const label = contentBox.querySelector('.ai-label');
-            label.innerText = `AI: ${data.ai_sentiment}`;
-            label.className = `badge rounded-pill ai-label ${data.ai_sentiment === 'Tích cực' ? 'bg-success-soft' : 'bg-danger-soft'}`;
-            
-            toggleEdit(id);
+            if (typeof user !== 'undefined' && user === 'AnonymousUser') {
+                alert("Vui lòng đăng nhập để mua hàng!");
+                window.location.href = "{% url 'login' %}?next={% url 'product_detail' product.id %}";
+                return;
+            }
+            buyNowProduct(productId, action);
+        });
+    }
+
+    function buyNowProduct(productId, action) {
+        const url = '/buy_now/';
+        const csrftoken = getToken('csrftoken');
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({'productId': productId, 'action': action})
+        })
+            .then(response => response.json())
+            .then(data => {
+                window.location.href = "{% url 'checkout' %}";
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Có lỗi xảy ra.");
+            });
+    }
+
+    function getToken(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
         }
-    });
-}
-
-document.getElementById('comment-form')?.addEventListener('submit', function(e) {
-    e.preventDefault(); 
-    let contentInput = document.getElementById('comment-content');
-    let submitBtn = document.getElementById('submit-review-btn');
-    let csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '...';
-
-    fetch("", { 
-        method: "POST",
-        headers: { "X-CSRFToken": csrfToken, "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ 'content': contentInput.value, 'honeypot': document.getElementById('honeypot').value })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            location.reload();
-        }
-    })
-    .finally(() => { submitBtn.disabled = false; submitBtn.innerHTML = 'Gửi đánh giá'; });
-});
+        return cookieValue;
+    }
 </script>
 {% endblock main_content %}

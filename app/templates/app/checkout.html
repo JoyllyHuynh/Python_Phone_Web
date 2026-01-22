@@ -255,7 +255,7 @@
                     {% for item in items %}
                     <div class="product-item">
                         <div class="product-img">
-                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                            <img src="{{ item.product.get_image_url }}" alt="{{ item.product.name }}">
                             <span class="qty-badge">{{ item.quantity }}</span>
                         </div>
                         <div class="product-info">
