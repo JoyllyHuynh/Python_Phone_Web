@@ -3,4 +3,5 @@ __pycache__/
 
 dbbackup.sqlite3
 .idea/
-.venv/
+.venv/db.sqlite3
+db.sqlite3
