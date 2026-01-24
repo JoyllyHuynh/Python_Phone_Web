@@ -14,8 +14,8 @@
             <th>Ngày Đặt</th>
             <th>Hoàn Thành</th>
             <th>Mã Giao Dịch</th>
-            <th>Mã Giảm Giá</th>
-            <th>Giảm Giá</th>
+            {% comment %} <th>Mã Giảm Giá</th>
+            <th>Giảm Giá</th> {% endcomment %}
             <th>Tổng Giá</th>
             <th>Ngày Dự Kiến Giao Hàng</th>
         </tr>
@@ -27,9 +27,9 @@
             <td>{{ order.date_ordered|date:"d/m/Y H:i" }}</td>
             <td>{{ order.complete|yesno:"Có,Không" }}</td>
             <td>{{ order.transaction_id }}</td>
-            <td>{{ order.coupon_code|default:"N/A" }}</td>
-            <td>{{ order.discount_amount|intcomma }} VNĐ</td>
-            <td>{{ order.get_final_total|intcomma }} VNĐ</td>-->
+            {% comment %} <td>{{ order.coupon_code|default:"N/A" }}</td> {% endcomment %}
+            {% comment %} <td>{{ order.discount_amount|intcomma }} VNĐ</td> {% endcomment %}
+            <td>{{ order.get_final_total|intcomma }} VNĐ</td>
             <td>{{ order.estimated_delivery_date|date:"d/m/Y" }}</td>
         </tr>
         {% empty %}
