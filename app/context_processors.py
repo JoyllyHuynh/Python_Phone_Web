@@ -1,6 +1,7 @@
 # app/context_processors.py
 
 from .models import Order
+from django.conf import settings
 
 def cart_context(request):
     """
@@ -38,3 +39,6 @@ def brands_in_navbar(request):
     # Lấy tất cả các hãng, sắp xếp theo tên
     all_brands = Brand.objects.all().order_by('name')
     return {'navbar_brands': all_brands}
+
+def turnstile_keys(request):
+    return {"TURNSTILE_SITE_KEY": getattr(settings, "TURNSTILE_SITE_KEY", "")}

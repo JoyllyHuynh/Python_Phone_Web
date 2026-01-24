@@ -20,10 +20,16 @@
 
     <div class="product-header-info d-flex align-items-center mb-4">
         <div class="product-rating me-3">
-            <i class="fas fa-star"></i>
-            <span class="fw-bold">{{ product.average_rating|default:"0" }}</span>/5
-            <span class="text-muted">({{ product_reviews|length }} đánh giá)</span>
+        <i class="fas fa-star"></i>
+        <span class="fw-bold" id="ai-header-score">
+            {% if ai_overall %}{{ ai_overall }}{% else %}{{ product.average_rating|default:"0" }}{% endif %}
+        </span>/5
+        <span class="text-muted" id="ai-header-count">
+            ({{ product_reviews|length }} đánh giá)
+        </span>
         </div>
+
+
         <span class="divider">|</span>
         <span class="ms-3 sold-count">Đã bán: <b>{{ product.sold_count|default:"0" }}</b></span>
         <span class="divider mx-2">|</span>
@@ -254,7 +260,14 @@
                 <div class="row">
                     <div class="col-lg-4">
                         <div class="rating-summary text-center">
-                            <div class="rating-score">{{ product.average_rating|default:"5.0" }}</div>
+                            <div class="rating-score">
+                                {% if ai_overall %}
+                                {{ ai_overall }}
+                                {% else %}
+                                {{ product.average_rating|default:"5.0" }}
+                                {% endif %}
+                            </div>
+
                             <div class="rating-stars mb-2">
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
@@ -262,8 +275,50 @@
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                             </div>
-                            <p class="rating-count">Dựa trên {{ product_reviews|length }} đánh giá</p>
-                        </div>
+
+                            <p class="rating-count">
+                                {% if ai_overall %}
+                                AI tổng hợp từ {{ product_reviews|length }} đánh giá
+                                {% else %}
+                                Dựa trên {{ product_reviews|length }} đánh giá
+                                {% endif %}
+                            </p>
+                            </div>
+
+                            <div id="feature-breakdown-box">
+                                {% if aspect_stats %}
+                                    <div class="card p-3 mt-3">
+                                    <h6 class="fw-bold mb-3">Feature Breakdown</h6>
+
+                                    <div class="d-grid gap-2">
+                                        {% for asp, s in aspect_stats.items %}
+                                        <div class="border rounded p-2">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                            <div class="fw-bold">{{ asp }}</div>
+                                            <span class="badge
+                                                {% if s.label == 'Mostly Positive' %}bg-success
+                                                {% elif s.label == 'Mostly Negative' %}bg-danger
+                                                {% elif s.label == 'Mixed' %}bg-warning text-dark
+                                                {% else %}bg-secondary{% endif %}">
+                                                {{ s.label }}
+                                            </span>
+                                            </div>
+
+                                            <div class="small text-muted mt-1">
+                                            {{ s.stars }}★ • {{ s.mentions }} mentions
+                                            </div>
+
+                                            <div class="progress mt-2" style="height:6px;">
+                                            <div class="progress-bar bg-success" style="width: {{ s.pos_pct }}%"></div>
+                                            <div class="progress-bar bg-danger" style="width: {{ s.neg_pct }}%"></div>
+                                            <div class="progress-bar bg-secondary" style="width: {{ s.neu_pct }}%"></div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    </div>
+                                {% endif %}
+                                </div>
                     </div>
 
                     <div class="col-lg-8">
@@ -271,16 +326,28 @@
                             <h6 class="mb-3 fw-bold">
                                 <i class="fas fa-pen me-2"></i>Viết bình luận
                             </h6>
-                            <form id="comment-form">
+                            <form id="comment-form" method="post" action="{% url 'add_review' product.id %}">
                                 {% csrf_token %}
                                 <div style="display:none;">
                                     <input type="text" name="honeypot" id="honeypot">
                                 </div>
-                                <textarea class="form-control mb-3" id="comment-content" rows="3"
-                                          placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."></textarea>
+
+                                <textarea class="form-control mb-3"
+                                        id="comment-content"
+                                        name="content"
+                                        rows="3"
+                                        placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."
+                                        required></textarea>
+
+                                <!-- Turnstile đặt TRƯỚC nút submit -->
+                                <div class="my-2 d-flex justify-content-center">
+                                 <div class="cf-turnstile" data-sitekey="{{ TURNSTILE_SITE_KEY }}"></div>
+                                </div>
+
                                 <button type="submit" id="submit-review-btn" class="btn btn-submit-review fw-bold">
                                     <i class="fas fa-paper-plane me-1"></i>Gửi đánh giá
                                 </button>
+
                             </form>
                         </div>
 
@@ -288,18 +355,22 @@
                             <span class="small fw-bold me-3">Lọc theo:</span>
                             <button class="filter-btn active" data-filter="all">Tất cả</button>
                             <button class="filter-btn" data-filter="pos">
-                                <i class="fas fa-smile me-1"></i>Tích cực
+                            <i class="fas fa-smile me-1"></i>Tích cực
                             </button>
                             <button class="filter-btn" data-filter="neg">
-                                <i class="fas fa-frown me-1"></i>Tiêu cực
+                            <i class="fas fa-frown me-1"></i>Tiêu cực
+                            </button>
+                            <button class="filter-btn" data-filter="neu">
+                            <i class="fas fa-meh me-1"></i>Trung lập
                             </button>
                         </div>
 
                         <div id="comment-list">
                             {% for review in product_reviews %}
                             <div class="review-item {% if forloop.counter > 3 %}d-none extra-review{% endif %}"
-                                 id="review-item-{{ review.id }}"
-                                 data-sentiment="{% if review.sentiment == 1 %}pos{% else %}neg{% endif %}">
+                                id="review-item-{{ review.id }}"
+                                data-sentiment="{% if review.sentiment == 1 %}pos{% elif review.sentiment == 0 %}neg{% else %}neu{% endif %}">
+
                                 <div class="d-flex align-items-start">
                                     <div class="avatar-sm me-3">{{ review.user.username|slice:":1"|upper }}</div>
                                     <div class="flex-grow-1">
@@ -321,26 +392,33 @@
                                             </div>
                                             {% endif %}
                                         </div>
+
                                         <div id="content-box-{{ review.id }}">
                                             <p class="review-content mb-2">{{ review.content }}</p>
+
                                             {% if review.ai_result %}
                                             <div class="ai-labels">
-                                                {% for asp, sent in review.ai_result %}
+                                                {% for item in review.ai_result %}
                                                 <span class="badge ai-label
-                                                    {% if sent == 'positive' %}positive
-                                                    {% elif sent == 'negative' %}negative
+                                                    {% if item.sentiment == 'Positive' %}positive
+                                                    {% elif item.sentiment == 'Negative' %}negative
                                                     {% else %}neutral{% endif %}">
-                                                    {{ asp }}:
-                                                    {% if sent == 'positive' %}Tích cực
-                                                    {% elif sent == 'negative' %}Tiêu cực
+                                                    {{ item.aspect }}:
+                                                    {% if item.sentiment == 'Positive' %}Tích cực
+                                                    {% elif item.sentiment == 'Negative' %}Tiêu cực
                                                     {% else %}Trung lập{% endif %}
+                                                    <small>({{ item.confidence|floatformat:2 }})</small>
                                                 </span>
                                                 {% endfor %}
                                             </div>
                                             {% endif %}
                                         </div>
-                                        <div id="edit-box-{{ review.id }}" class="edit-box">
+
+                                        <div id="edit-box-{{ review.id }}" class="edit-box" style="display:none;">
                                             <textarea class="edit-textarea" id="edit-input-{{ review.id }}">{{ review.content }}</textarea>
+                                            <div class="my-2">
+                                                <div class="cf-turnstile" data-sitekey="{{ TURNSTILE_SITE_KEY }}"></div>
+                                            </div>
                                             <div class="d-flex gap-2">
                                                 <button class="btn btn-save-edit btn-sm" onclick="saveEdit('{{ review.id }}')">
                                                     <i class="fas fa-check me-1"></i>Lưu
@@ -353,6 +431,7 @@
                                     </div>
                                 </div>
                             </div>
+
                             {% empty %}
                             <p id="no-comment" class="text-muted text-center py-4">
                                 <i class="fas fa-comment-slash fa-2x mb-2 d-block"></i>
@@ -376,189 +455,386 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Format currency helper
-        function formatCurrency(number) {
-            return new Intl.NumberFormat('vi-VN').format(number) + '₫';
+document.addEventListener('DOMContentLoaded', function () {
+
+  // ===== FILTER REVIEW =====
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+
+      const filterValue = this.getAttribute('data-filter');
+      const items = document.querySelectorAll('.review-item');
+      const loadMoreBtn = document.getElementById('load-more-btn');
+
+      items.forEach((item, index) => {
+        const itemSentiment = item.getAttribute('data-sentiment');
+
+        if (filterValue === 'all') {
+          if (index < 3) item.classList.remove('d-none');
+          else item.classList.add('d-none');
+
+          if (loadMoreBtn) loadMoreBtn.parentElement.classList.remove('d-none');
+        } else {
+          if (itemSentiment === filterValue) item.classList.remove('d-none');
+          else item.classList.add('d-none');
+
+          if (loadMoreBtn) loadMoreBtn.parentElement.classList.add('d-none');
         }
-
-        // Variant selection handler
-        const variants = document.querySelectorAll('.variant-option');
-        const displayPrice = document.getElementById('display-price');
-        const displayOldPrice = document.getElementById('display-old-price');
-        const badge = document.getElementById('discount-badge');
-
-        variants.forEach(radio => {
-            radio.addEventListener('change', function () {
-                const newPrice = parseFloat(this.getAttribute('data-price'));
-                const newOldPrice = parseFloat(this.getAttribute('data-old-price'));
-
-                displayPrice.innerText = formatCurrency(newPrice);
-
-                if (newOldPrice > 0) {
-                    displayOldPrice.innerText = formatCurrency(newOldPrice);
-                    displayOldPrice.style.display = 'inline';
-                    badge.style.display = newPrice < newOldPrice ? 'inline-block' : 'none';
-                } else {
-                    displayOldPrice.style.display = 'none';
-                    badge.style.display = 'none';
-                }
-            });
-        });
-
-        const checkedRadio = document.querySelector('.variant-option:checked');
-        if (checkedRadio) {
-            checkedRadio.dispatchEvent(new Event('change'));
-        }
-
-        // Color selection handler
-        document.querySelectorAll('.color-dot').forEach(dot => {
-            dot.addEventListener('click', function() {
-                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-
-        // Filter buttons handler
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                const filterValue = this.getAttribute('data-filter');
-                const items = document.querySelectorAll('.review-item');
-                const loadMoreBtn = document.getElementById('load-more-btn');
-
-                items.forEach((item, index) => {
-                    const itemSentiment = item.getAttribute('data-sentiment');
-                    if (filterValue === 'all') {
-                        if (index < 3) item.classList.remove('d-none');
-                        else item.classList.add('d-none');
-                        if (loadMoreBtn) loadMoreBtn.parentElement.classList.remove('d-none');
-                    } else {
-                        if (itemSentiment === filterValue) {
-                            item.classList.remove('d-none');
-                            item.classList.add('new-comment-animate');
-                        } else {
-                            item.classList.add('d-none');
-                        }
-                        if (loadMoreBtn) loadMoreBtn.parentElement.classList.add('d-none');
-                    }
-                });
-            });
-        });
-
-        // Load more reviews
-        document.getElementById('load-more-btn')?.addEventListener('click', function () {
-            const isExpanded = this.getAttribute('data-expanded') === 'true';
-            const extraReviews = document.querySelectorAll('.extra-review');
-
-            if (!isExpanded) {
-                extraReviews.forEach(el => {
-                    el.classList.remove('d-none');
-                    el.classList.add('new-comment-animate');
-                });
-                this.innerHTML = 'Thu lại <i class="fas fa-chevron-up ms-1"></i>';
-                this.setAttribute('data-expanded', 'true');
-            } else {
-                extraReviews.forEach(el => el.classList.add('d-none'));
-                this.innerHTML = 'Xem thêm <i class="fas fa-chevron-down ms-1"></i>';
-                this.setAttribute('data-expanded', 'false');
-                document.getElementById('comment-list').scrollIntoView({behavior: 'smooth', block: 'start'});
-            }
-        });
+      });
     });
+  });
 
-    // Toggle edit mode
-    function toggleEdit(id) {
-        const contentBox = document.getElementById(`content-box-${id}`);
-        const editBox = document.getElementById(`edit-box-${id}`);
-        const isEditing = editBox.style.display === 'block';
-        editBox.style.display = isEditing ? 'none' : 'block';
-        contentBox.style.display = isEditing ? 'block' : 'none';
+  // ===== LOAD MORE =====
+  document.getElementById('load-more-btn')?.addEventListener('click', function () {
+    const isExpanded = this.getAttribute('data-expanded') === 'true';
+    const extraReviews = document.querySelectorAll('.extra-review');
+
+    if (!isExpanded) {
+      extraReviews.forEach(el => el.classList.remove('d-none'));
+      this.innerHTML = 'Thu lại <i class="fas fa-chevron-up ms-1"></i>';
+      this.setAttribute('data-expanded', 'true');
+    } else {
+      extraReviews.forEach(el => el.classList.add('d-none'));
+      this.innerHTML = 'Xem thêm <i class="fas fa-chevron-down ms-1"></i>';
+      this.setAttribute('data-expanded', 'false');
+      document.getElementById('comment-list')?.scrollIntoView({behavior: 'smooth', block: 'start'});
     }
+  });
 
-    // Delete comment
-    function deleteComment(id) {
-        if (!confirm("Bạn có chắc chắn muốn xóa bình luận này?")) return;
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  // ===== SUBMIT REVIEW (AJAX) =====
+ document.getElementById("comment-form")?.addEventListener("submit", async function(e){
+  e.preventDefault();
 
-        fetch(`/delete-review/${id}/`, {
-            method: "POST",
-            headers: {"X-CSRFToken": csrfToken}
-        }).then(res => res.json()).then(data => {
-            if (data.status === 'success') {
-                const item = document.getElementById(`review-item-${id}`);
-                item.style.transform = 'scale(0.95)';
-                item.style.opacity = '0';
-                setTimeout(() => item.remove(), 300);
-            }
-        });
-    }
+  const form = this;
+  const content = (document.getElementById("comment-content")?.value || "").trim();
+  if (!content) return;
 
-    // Save edit
-    function saveEdit(id) {
-        const content = document.getElementById(`edit-input-${id}`).value;
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  const csrfToken = document.querySelector("input[name=csrfmiddlewaretoken]")?.value;
+  const turnstileToken = document.querySelector('input[name="cf-turnstile-response"]')?.value || "";
+  const honeypotVal = document.getElementById("honeypot")?.value || "";
 
-        fetch(`/edit-review/${id}/`, {
-            method: "POST",
-            headers: {"X-CSRFToken": csrfToken, "Content-Type": "application/x-www-form-urlencoded"},
-            body: new URLSearchParams({'content': content})
-        }).then(res => res.json()).then(data => {
-            if (data.status === 'success') {
-                const contentBox = document.getElementById(`content-box-${id}`);
-                contentBox.querySelector('.review-content').innerText = data.content;
-                const label = contentBox.querySelector('.ai-label');
-                if (label) {
-                    label.innerText = `AI: ${data.ai_sentiment}`;
-                    label.className = `badge ai-label ${data.ai_sentiment === 'Tích cực' ? 'positive' : 'negative'}`;
-                }
-                toggleEdit(id);
-            }
-        });
-    }
+  if (!turnstileToken) {
+    alert("Turnstile chưa sẵn sàng hoặc bị chặn. Đợi 1-2 giây rồi bấm lại.");
+    return;
+  }
 
-    // Comment form submit
-    document.getElementById('comment-form')?.addEventListener('submit', function (e) {
-        e.preventDefault();
-        let contentInput = document.getElementById('comment-content');
-        let submitBtn = document.getElementById('submit-review-btn');
-        let csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  const resp = await fetch(form.action, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "X-CSRFToken": csrfToken,
+    },
+    body: new URLSearchParams({
+      content,
+      honeypot: honeypotVal,
+      "cf-turnstile-response": turnstileToken,
+    })
+  });
 
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Đang gửi...';
+  const data = await resp.json().catch(async () => {
+    const t = await resp.text();
+    return { ok: false, error: t.slice(0, 200) };
+  });
 
-        fetch("", {
-            method: "POST",
-            headers: {"X-CSRFToken": csrfToken, "Content-Type": "application/x-www-form-urlencoded"},
-            body: new URLSearchParams({
-                'content': contentInput.value,
-                'honeypot': document.getElementById('honeypot').value
-            })
-        }).then(response => response.json()).then(data => {
-            if (data.status === 'success') location.reload();
-        }).finally(() => {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Gửi đánh giá';
-        });
+  if (!resp.ok || !data.ok) {
+    if (window.turnstile) window.turnstile.reset();
+    alert(data.error || "Gửi thất bại");
+    return;
+  }
+
+  document.getElementById("no-comment")?.remove();
+
+  const list = document.getElementById("comment-list");
+  if(list){
+    list.insertAdjacentHTML("afterbegin", buildReviewHTML(data.review));
+  }
+
+  updateAiOverall(data.ai_overall, data.review_count);
+
+  console.log("aspect_stats from server:", data.aspect_stats); // ✅ test
+  if (data.aspect_stats) {
+    const box = document.getElementById("feature-breakdown-box");
+    if (box) box.innerHTML = ""; // ✅ clear để chắc chắn update
+    renderBreakdown(data.aspect_stats);
+  }
+
+  document.getElementById("comment-content").value = "";
+  if (window.turnstile) window.turnstile.reset();
+});
+
+
+  // ===== BUY NOW BUTTON (đưa vào trong DOMContentLoaded) =====
+  const buyNowBtn = document.getElementById('buy-now-btn');
+  if (buyNowBtn) {
+    buyNowBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      const productId = this.getAttribute('data-product');
+      const action = this.getAttribute('data-action');
+
+      if (typeof user !== 'undefined' && user === 'AnonymousUser') {
+        alert("Vui lòng đăng nhập để mua hàng!");
+        window.location.href = "{% url 'login' %}?next={% url 'product_detail' product.id %}";
+        return;
+      }
+      buyNowProduct(productId, action);
     });
+  }
 
-    // Buy now button
-    const buyNowBtn = document.getElementById('buy-now-btn');
-    if (buyNowBtn) {
-        buyNowBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            const productId = this.getAttribute('data-product');
-            const action = this.getAttribute('data-action');
+}); 
 
-            if (typeof user !== 'undefined' && user === 'AnonymousUser') {
-                alert("Vui lòng đăng nhập để mua hàng!");
-                window.location.href = "{% url 'login' %}?next={% url 'product_detail' product.id %}";
-                return;
-            }
-            buyNowProduct(productId, action);
-        });
-    }
+function buildReviewHTML(r){
+  const sentimentKey = (r.sentiment === 1) ? "pos" : (r.sentiment === 0 ? "neg" : "neu");
+
+  const badges = (r.ai_result || []).map(item => {
+    const cls = item.sentiment === "Positive" ? "positive" : (item.sentiment === "Negative" ? "negative" : "neutral");
+    const vn  = item.sentiment === "Positive" ? "Tích cực" : (item.sentiment === "Negative" ? "Tiêu cực" : "Trung lập");
+    const conf = (item.confidence ?? 0).toFixed(2);
+    return `<span class="badge ai-label ${cls}">
+      ${item.aspect}: ${vn} <small>(${conf})</small>
+    </span>`;
+  }).join("");
+
+  return `
+  <div class="review-item" id="review-item-${r.id}" data-sentiment="${sentimentKey}">
+    <div class="d-flex align-items-start">
+      <div class="avatar-sm me-3">${(r.username||"U").slice(0,1).toUpperCase()}</div>
+      <div class="flex-grow-1">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="review-user fw-bold">${r.username}</span>
+            <small class="review-date text-muted ms-2">${r.date_added}</small>
+          </div>
+          <div class="comment-actions">
+            <span class="action-link edit" onclick="toggleEdit('${r.id}')">
+              <i class="fas fa-edit"></i> Sửa
+            </span>
+            <span class="action-link delete" onclick="deleteComment('${r.id}')">
+              <i class="fas fa-trash"></i> Xóa
+            </span>
+          </div>
+        </div>
+
+        <div id="content-box-${r.id}">
+          <p class="review-content mb-2">${escapeHtml(r.content)}</p>
+          <div class="ai-labels">${badges}</div>
+        </div>
+
+        <div id="edit-box-${r.id}" class="edit-box" style="display:none;">
+          <textarea class="edit-textarea" id="edit-input-${r.id}">${escapeHtml(r.content)}</textarea>
+          <div class="d-flex gap-2">
+            <button class="btn btn-save-edit btn-sm" onclick="saveEdit('${r.id}')">
+              <i class="fas fa-check me-1"></i>Lưu
+            </button>
+            <button class="btn btn-cancel-edit btn-sm" onclick="toggleEdit('${r.id}')">
+              <i class="fas fa-times me-1"></i>Hủy
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>`;
+}
+
+function escapeHtml(str){
+  return (str||"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function getCSRFToken(){
+  return document.querySelector("input[name=csrfmiddlewaretoken]")?.value;
+}
+
+function toggleEdit(id){
+  const editBox = document.getElementById(`edit-box-${id}`);
+  const contentBox = document.getElementById(`content-box-${id}`);
+  if(!editBox || !contentBox) return;
+
+  const isHidden = (editBox.style.display === "none" || editBox.style.display === "");
+  if(isHidden){
+    editBox.style.display = "block";
+    contentBox.style.display = "none";
+    const ta = document.getElementById(`edit-input-${id}`);
+    if(ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+  }else{
+    editBox.style.display = "none";
+    contentBox.style.display = "block";
+  }
+}
+
+async function deleteComment(id){
+  if(!confirm("Xóa bình luận này?")) return;
+
+  const csrf = getCSRFToken();
+  const resp = await fetch(`/review/${id}/delete/`, {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": csrf,
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+    },
+    body: new URLSearchParams({})
+  });
+
+  const data = await resp.json();
+
+  if(!resp.ok || !data.ok){
+    alert(data.error || "Xóa thất bại");
+    return;
+  }
+
+  // remove trước rồi mới tính count
+  document.getElementById(`review-item-${id}`)?.remove();
+
+  const count = document.querySelectorAll("#comment-list .review-item").length;
+  updateAiOverall(data.ai_overall, count);
+  renderBreakdown(data.aspect_stats);
+}
+
+
+async function saveEdit(id){
+  const textarea = document.getElementById(`edit-input-${id}`);
+  const newContent = (textarea?.value || "").trim();
+  if(!newContent){ alert("Nội dung trống"); return; }
+
+  // ✅ lấy token Turnstile (đúng name do Cloudflare tạo)
+  const token =
+    document.querySelector(`#edit-box-${id} input[name="cf-turnstile-response"]`)?.value ||
+    document.querySelector(`input[name="cf-turnstile-response"]`)?.value ||
+    "";
+
+  if(!token){
+    alert("Turnstile chưa sẵn sàng. Đợi 1-2 giây rồi bấm Lưu lại.");
+    return;
+  }
+
+  const csrf = getCSRFToken();
+  const resp = await fetch(`/review/${id}/edit/`, {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": csrf,
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+    },
+    body: new URLSearchParams({
+      content: newContent,
+      "cf-turnstile-response": token,   // ✅ GỬI TOKEN LÊN BACKEND
+    })
+  });
+
+  const data = await resp.json();
+  if(!resp.ok || !data.ok){
+    alert(data.error || "Sửa thất bại");
+    return;
+  }
+
+  // cập nhật text
+  const contentP = document.querySelector(`#review-item-${id} .review-content`);
+  if(contentP) contentP.textContent = data.review.content;
+
+  // cập nhật badge AI
+  const labelsBox = document.querySelector(`#review-item-${id} .ai-labels`);
+  if(labelsBox){
+    labelsBox.innerHTML = (data.review.ai_result || []).map(item => {
+      const cls = item.sentiment === "Positive" ? "positive" : (item.sentiment === "Negative" ? "negative" : "neutral");
+      const vn = item.sentiment === "Positive" ? "Tích cực" : (item.sentiment === "Negative" ? "Tiêu cực" : "Trung lập");
+      const conf = (item.confidence ?? 0).toFixed(2);
+      return `<span class="badge ai-label ${cls}">
+        ${item.aspect}: ${vn} <small>(${conf})</small>
+      </span>`;
+    }).join("");
+  }
+
+  // cập nhật data-sentiment để filter đúng
+  const itemDiv = document.getElementById(`review-item-${id}`);
+  if(itemDiv){
+    const s = data.review.sentiment;
+    itemDiv.setAttribute("data-sentiment", s === 1 ? "pos" : (s === 0 ? "neg" : "neu"));
+    updateAiOverall(data.ai_overall, document.querySelectorAll("#comment-list .review-item").length);
+    renderBreakdown(data.aspect_stats);
+  }
+
+  // ✅ reset turnstile sau khi submit (tránh reuse token)
+  if (window.turnstile) window.turnstile.reset();
+
+  toggleEdit(id);
+}
+
+
+function updateAiOverall(ai_overall, reviewCount){
+  // ===== update box rating-summary (tab review bên trái) =====
+  const scoreEl = document.querySelector(".rating-summary .rating-score");
+  const countEl = document.querySelector(".rating-summary .rating-count");
+
+  if(scoreEl && ai_overall !== undefined && ai_overall !== null){
+    scoreEl.textContent = ai_overall;
+  }
+  if(countEl && reviewCount !== undefined){
+    countEl.textContent = `AI tổng hợp từ ${reviewCount} đánh giá`;
+  }
+
+  // ===== update header dưới tên sản phẩm =====
+  const headerScore = document.getElementById("ai-header-score");
+  const headerCount = document.getElementById("ai-header-count");
+
+  if(headerScore && ai_overall !== undefined && ai_overall !== null){
+    headerScore.textContent = ai_overall;
+  }
+  if(headerCount && reviewCount !== undefined){
+    headerCount.textContent = `(${reviewCount} đánh giá)`;
+  }
+}
+
+
+function renderBreakdown(aspect_stats){
+  const box = document.getElementById("feature-breakdown-box");
+  if(!box) return;
+
+  // nếu không có stats -> ẩn
+  if(!aspect_stats || Object.keys(aspect_stats).length === 0){
+    box.innerHTML = "";
+    return;
+  }
+
+  // dựng lại HTML giống bản compact bạn đang dùng
+  let html = `
+    <div class="card p-3 mt-3">
+      <h6 class="fw-bold mb-3">Feature Breakdown</h6>
+      <div class="d-grid gap-2">
+  `;
+
+  for(const asp in aspect_stats){
+    const s = aspect_stats[asp];
+    const label = s.label || "";
+    let badgeClass = "bg-secondary";
+    if(label === "Mostly Positive") badgeClass = "bg-success";
+    else if(label === "Mostly Negative") badgeClass = "bg-danger";
+    else if(label === "Mixed") badgeClass = "bg-warning text-dark";
+
+    html += `
+      <div class="border rounded p-2">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="fw-bold">${asp}</div>
+          <span class="badge ${badgeClass}">${label}</span>
+        </div>
+        <div class="small text-muted mt-1">
+          ${s.stars}★ • ${s.mentions} mentions
+        </div>
+        <div class="progress mt-2" style="height:6px;">
+          <div class="progress-bar bg-success" style="width:${s.pos_pct}%;"></div>
+          <div class="progress-bar bg-danger" style="width:${s.neg_pct}%;"></div>
+          <div class="progress-bar bg-secondary" style="width:${s.neu_pct}%;"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  html += `</div></div>`;
+  box.innerHTML = html;
+}
 
     function buyNowProduct(productId, action) {
         const url = '/buy_now/';
@@ -597,4 +873,5 @@
         return cookieValue;
     }
 </script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 {% endblock main_content %}

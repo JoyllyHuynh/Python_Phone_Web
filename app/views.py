@@ -1,7 +1,3 @@
-
-print(">>> USING ABSA PREDICTOR <<<")
-from app.ai.absa.predictor import predict_comment
-
 import os
 import re
 import json
@@ -10,15 +6,19 @@ import hmac
 import urllib.parse
 import urllib.request
 import random
+from django.core.cache import cache
+from .services.turnstile import verify_turnstile
 from datetime import datetime, timedelta
-
+from .services.ai_rating import recompute_product_ai_rating
+from .services.aspect_aggregate import compute_overall_from_aspects
+from .services.ai_client import analyze_sentiment_detailed
+from .services.ai_client import analyze_sentiment
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from app.ai.absa.hybrid import predict_comment_hybrid as predict_comment
+from .services.aspect_aggregate import aggregate_aspects
 
 import requests
 import joblib
-from app.ai.absa.predictor import predict_comment
 from .models import Product, Review
 import json
 from django.http import JsonResponse
@@ -53,9 +53,6 @@ from .models import (
     PaymentForm,
     Store
 )
-
-MODEL_PATH = os.path.join(settings.BASE_DIR, 'app', 'model_data', 'model_cam_xuc.pkl')
-VECTOR_PATH = os.path.join(settings.BASE_DIR, 'app', 'model_data', 'vectorizer.pkl')
 
 def register(request):
     if request.user.is_authenticated:
@@ -141,7 +138,7 @@ def home(request):
     else:
         cartItems = 0
 
-    products = Product.objects.all()
+    products = Product.objects.order_by("-ai_rating", "-ai_rating_count")
     brands = Brand.objects.all()
     context= {'products': products, 'cartItems': cartItems, 'brands': brands}
     return render(request, 'app/home.html',context)
@@ -766,39 +763,39 @@ def absa_predict(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
-def add_review(request, product_id):
-    if request.method != "POST":
-        return JsonResponse({"status": "error"}, status=405)
+# def add_review(request, product_id):
+#     if request.method != "POST":
+#         return JsonResponse({"status": "error"}, status=405)
 
-    content = request.POST.get("content", "").strip()
-    honeypot = request.POST.get("honeypot", "")
+#     content = request.POST.get("content", "").strip()
+#     honeypot = request.POST.get("honeypot", "")
 
-    if honeypot or not content:
-        return JsonResponse({"status": "spam"})
+#     if honeypot or not content:
+#         return JsonResponse({"status": "spam"})
 
-    product = Product.objects.get(id=product_id)
+#     product = Product.objects.get(id=product_id)
 
-    # ===== AI CHẠY Ở ĐÂY =====
-    ai_result = predict_comment(content)
+#     # ===== AI CHẠY Ở ĐÂY =====
+#     ai_result = predict_comment(content)
 
-    # MẶC ĐỊNH TRUNG LẬP
-    sentiment = None
+#     # MẶC ĐỊNH TRUNG LẬP
+#     sentiment = None
 
-    for _, s in ai_result:
-        if s == "negative":
-            sentiment = 0
-            break
-        if s == "positive":
-            sentiment = 1
+#     for _, s in ai_result:
+#         if s == "negative":
+#             sentiment = 0
+#             break
+#         if s == "positive":
+#             sentiment = 1
 
-    Review.objects.create(
-        product=product,
-        user=request.user,
-        content=content,
-        sentiment=sentiment
-    )
+#     Review.objects.create(
+#         product=product,
+#         user=request.user,
+#         content=content,
+#         sentiment=sentiment
+#     )
 
-    return JsonResponse({"status": "success"})
+#     return JsonResponse({"status": "success"})
 
 
 @login_required
@@ -806,92 +803,251 @@ def product_detail(request, id):
     product = get_object_or_404(Product, id=id)
     product_reviews = product.reviews.select_related("user").all()
 
-    # ===== XỬ LÝ GỬI BÌNH LUẬN =====
-    if request.method == "POST":
-        content = request.POST.get("content", "").strip()
-        honeypot = request.POST.get("honeypot", "")
-
-        # anti-spam / empty
-        if honeypot or not content:
-            return JsonResponse({"status": "spam"})
-
-        # ===== AI PREDICT =====
-        ai_result = predict_comment(content)
-        # ví dụ: [('man_hinh','positive'), ('nhiet_do','negative')]
-
-        # ===== SENTIMENT TỔNG (để filter) =====
-        # ƯU TIÊN: negative > positive > neutral
-        sentiments = [s for _, s in ai_result]
-
-        if "negative" in sentiments:
-            sentiment = 0
-        elif "positive" in sentiments:
-            sentiment = 1
-        else:
-            sentiment = None
-
-        # ===== LƯU REVIEW =====
-        Review.objects.create(
-            product=product,
-            user=request.user,
-            content=content,
-            sentiment=sentiment,
-            ai_result=ai_result  # 🔥 GIỮ NGUYÊN LIST NHIỀU ASPECT
-        )
-
-        return JsonResponse({"status": "success"})
+    aspect_stats = aggregate_aspects(product_reviews)
+    ai_overall = compute_overall_from_aspects(aspect_stats)
 
     return render(request, "app/product_detail.html", {
         "product": product,
-        "product_reviews": product_reviews
+        "product_reviews": product_reviews,
+        "TURNSTILE_SITE_KEY": settings.TURNSTILE_SITE_KEY,
+        "aspect_stats": aspect_stats,
+        "ai_overall": ai_overall,
     })
+
+
+# --------------AI Model-----------------#
+def analyze_view(request):
+    text = request.GET.get("text", "").strip()
+    if not text:
+        return JsonResponse({"error": "Thiếu nội dung"}, status=400)
+
+    results = analyze_sentiment_detailed(text, threshold=0.3)
+    return JsonResponse({"text": text, "results": results})
+
+def absa_page(request):
+    return render(request, "absa.html")
+
+SPAM_URL_RE = re.compile(r"(https?://|www\.)", re.I)
+SPAM_PHONE_RE = re.compile(r"(\+?\d[\d\-\s]{8,}\d)")
+REPEAT_CHAR_RE = re.compile(r"(.)\1{6,}")  # 1 ký tự lặp >= 7
+
+def is_spam_text(text: str) -> str | None:
+    t = (text or "").strip()
+
+    if len(t) < 6:
+        return "Nội dung quá ngắn."
+    if len(t) > 500:
+        return "Nội dung quá dài."
+
+    if SPAM_URL_RE.search(t):
+        return "Không cho phép chèn link trong bình luận."
+    if SPAM_PHONE_RE.search(t):
+        return "Không cho phép chèn số điện thoại trong bình luận."
+    if REPEAT_CHAR_RE.search(t):
+        return "Nội dung có quá nhiều ký tự lặp."
+
+    # quá nhiều ký tự đặc biệt
+    non_alnum = sum(1 for c in t if not c.isalnum() and not c.isspace())
+    if non_alnum / max(len(t), 1) > 0.35:
+        return "Nội dung không hợp lệ."
+
+    return None
+
+
+def rate_limit_or_block(user_id: int, product_id: int, action: str, seconds: int) -> bool:
+    """
+    True = bị chặn
+    """
+    key = f"rl:review:{action}:{user_id}:{product_id}"
+    if cache.get(key):
+        return True
+    cache.set(key, 1, seconds)
+    return False
+
+
+def duplicate_block(user_id: int, product_id: int, content: str, seconds: int = 120) -> bool:
+    key = f"dup:review:{user_id}:{product_id}:{hash(content)}"
+    if cache.get(key):
+        return True
+    cache.set(key, 1, seconds)
+    return False
+
+
+def add_review(request, product_id):
+    if request.method != "POST":
+        return JsonResponse({"ok": False, "error": "Method not allowed"}, status=405)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({"ok": False, "error": "Bạn cần đăng nhập"}, status=401)
+
+    token = (request.POST.get("cf-turnstile-response") or "").strip()
+    ok, err = verify_turnstile(token, request.META.get("REMOTE_ADDR"))
+    if not token:
+        return JsonResponse({"ok": False, "error": "Thiếu Turnstile token"}, status=400)
+
+    # ok, err = verify_turnstile(token, request.META.get("REMOTE_ADDR"))
+    # if not ok:
+    #     return JsonResponse({"ok": False, "error": err}, status=400)
+
+    # ===== Honeypot (bot hay điền) =====
+    honeypot = (request.POST.get("honeypot") or "").strip()
+    if honeypot:
+        return JsonResponse({"ok": False, "error": "Spam detected"}, status=400)
+
+    content = (request.POST.get("content") or "").strip()
+    if not content:
+        return JsonResponse({"ok": False, "error": "Thiếu nội dung"}, status=400)
+
+    # ===== Rate limit: 1 comment / 15s / mỗi product =====
+    if rate_limit_or_block(request.user.id, product_id, action="add", seconds=15):
+        return JsonResponse({"ok": False, "error": "Bạn thao tác quá nhanh, thử lại sau vài giây."}, status=429)
+
+    # ===== Lọc nội dung spam =====
+    reason = is_spam_text(content)
+    if reason:
+        return JsonResponse({"ok": False, "error": reason}, status=400)
+
+    # ===== Chặn trùng lặp trong 2 phút =====
+    if duplicate_block(request.user.id, product_id, content, seconds=120):
+        return JsonResponse({"ok": False, "error": "Bạn vừa gửi bình luận này rồi."}, status=400)
+
+    product = get_object_or_404(Product, id=product_id)
+
+    # 1) tạo review trước (ai_result tạm rỗng)
+    review = Review.objects.create(
+        product=product,
+        user=request.user,
+        content=content,
+        ai_result=[],
+    )
+
+    # 2) gọi AI + lưu ai_result
+    try:
+        ai = analyze_sentiment_detailed(content, threshold=0.3)
+    except Exception:
+        ai = []
+
+    review.ai_result = ai
+
+    # 3) tính sentiment tổng quan từ ai_result
+    review.set_sentiment_from_ai()
+
+    # 4) save review
+    review.save(update_fields=["ai_result", "sentiment"])
+
+    # 5) cập nhật AI rating lưu vào Product
+    ai_overall, cnt = recompute_product_ai_rating(product)
+    product.ai_rating = ai_overall
+    product.ai_rating_count = cnt
+    product.save(update_fields=["ai_rating", "ai_rating_count"])
+
+    # 6) Tính lại breakdown để trả về UI (KHÔNG cần reload)
+    reviews = Review.objects.filter(product=product).select_related("user")
+    aspect_stats = aggregate_aspects(reviews)  # hàm bạn đã có
+
+    return JsonResponse({
+        "ok": True,
+        "review": {
+            "id": review.id,
+            "username": review.user.username,
+            "content": review.content,
+            "sentiment": review.sentiment,
+            "ai_result": review.ai_result,
+            "date_added": review.date_added.strftime("%d/%m/%Y %H:%M")
+        },
+        "ai_overall": product.ai_rating,
+        "review_count": product.ai_rating_count,
+        "aspect_stats": aspect_stats,
+    })
+
 
 @login_required
 @require_POST
 def delete_review(request, review_id):
     review = get_object_or_404(Review, id=review_id)
 
-    # chỉ cho phép chủ bình luận
-    if review.user != request.user:
-        return JsonResponse({"status": "forbidden"}, status=403)
+    if review.user_id != request.user.id:
+        return JsonResponse({"ok": False, "error": "Không có quyền"}, status=403)
 
+    product = review.product
     review.delete()
-    return JsonResponse({"status": "success"})
+
+    reviews = Review.objects.filter(product=product).select_related("user")
+    aspect_stats = aggregate_aspects(reviews)
+    ai_overall = compute_overall_from_aspects(aspect_stats)
+
+    return JsonResponse({
+        "ok": True,
+        "id": review_id,
+        "ai_overall": ai_overall,
+        "aspect_stats": aspect_stats,
+    })
 
 @login_required
 @require_POST
 def edit_review(request, review_id):
     review = get_object_or_404(Review, id=review_id)
 
-    if review.user != request.user:
-        return JsonResponse({"status": "forbidden"}, status=403)
+    token = (request.POST.get("cf-turnstile-response") or "").strip()
+    ok, err = verify_turnstile(token, request.META.get("REMOTE_ADDR"))
+    if not token:
+        return JsonResponse({"ok": False, "error": "Thiếu Turnstile token"}, status=400)
 
-    content = request.POST.get("content", "").strip()
+
+    if review.user_id != request.user.id:
+        return JsonResponse({"ok": False, "error": "Không có quyền"}, status=403)
+
+    content = (request.POST.get("content") or "").strip()
     if not content:
-        return JsonResponse({"status": "error"}, status=400)
+        return JsonResponse({"ok": False, "error": "Nội dung trống"}, status=400)
 
-    # 👉 CHẠY LẠI AI
-    ai_result = predict_comment(content)
+    product_id = review.product_id
 
-    # sentiment tổng
-    sentiments = [s for _, s in ai_result]
-    if "negative" in sentiments:
-        sentiment = 0
-    elif "positive" in sentiments:
-        sentiment = 1
-    else:
-        sentiment = None
+    # ===== Rate limit: 1 edit / 10s / mỗi product =====
+    if rate_limit_or_block(request.user.id, product_id, action="edit", seconds=10):
+        return JsonResponse({"ok": False, "error": "Bạn sửa quá nhanh, thử lại sau vài giây."}, status=429)
 
-    # cập nhật
+    # ===== Lọc nội dung spam =====
+    reason = is_spam_text(content)
+    if reason:
+        return JsonResponse({"ok": False, "error": reason}, status=400)
+
+    # ===== Chặn trùng lặp (sửa không đổi gì) =====
+    if content == (review.content or "").strip():
+        return JsonResponse({"ok": False, "error": "Nội dung không thay đổi."}, status=400)
+
+    # chạy lại AI cho nội dung mới
+    try:
+        ai_result = analyze_sentiment_detailed(content, threshold=0.3)
+    except Exception:
+        ai_result = []
+
     review.content = content
     review.ai_result = ai_result
-    review.sentiment = sentiment
-    review.save()
+    review.set_sentiment_from_ai()
+    review.save(update_fields=["content", "ai_result", "sentiment"])
+
+    # cập nhật AI rating lưu vào Product
+    product = review.product
+    ai_overall, cnt = recompute_product_ai_rating(product)
+    product.ai_rating = ai_overall
+    product.ai_rating_count = cnt
+    product.save(update_fields=["ai_rating", "ai_rating_count"])
+
+    # tính lại thống kê breakdown để trả về UI
+    reviews = Review.objects.filter(product=product).select_related("user")
+    aspect_stats = aggregate_aspects(reviews)
 
     return JsonResponse({
-        "status": "success",
-        "content": content,
-        "ai_result": ai_result
+        "ok": True,
+        "review": {
+            "id": review.id,
+            "content": review.content,
+            "sentiment": review.sentiment,
+            "ai_result": review.ai_result,
+        },
+        "ai_overall": product.ai_rating,
+        "aspect_stats": aspect_stats,
     })
 def store_list(request):
     stores = [

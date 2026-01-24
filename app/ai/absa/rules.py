@@ -577,14 +577,14 @@ def predict_comment(text):
         if asp not in aspect_info:
             pos = None
 
-            # 1️Ưu tiên vị trí implicit pattern
+            # 1️⃣ Ưu tiên vị trí implicit pattern
             for p in IMPLICIT_ASPECTS.get(asp, []):
                 idx = text_norm.find(p)
                 if idx != -1:
                     pos = idx
                     break
 
-            # 2 Nếu là entity map → lấy vị trí entity
+            # 2️⃣ Nếu là entity map → lấy vị trí entity
             if pos is None:
                 for entity, mapped_asp in ENTITY_MAP.items():
                     if mapped_asp == asp:
@@ -593,7 +593,7 @@ def predict_comment(text):
                             pos = idx
                             break
 
-            # 3️ Fallback cuối
+            # 3️⃣ Fallback cuối
             if pos is None:
                 pos = 0
 
@@ -605,7 +605,7 @@ def predict_comment(text):
 
     for asp, info in aspects_sorted:
         clause, contrast_pos = extract_clause(
-                text_norm,   #  BẮT BUỘC
+                text_norm,   # 🔥 BẮT BUỘC
                 asp,
                 info["source"],
                 info["pos"]

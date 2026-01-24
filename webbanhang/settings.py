@@ -70,6 +70,9 @@ TEMPLATES = [
                 # THÊM DÒNG NÀY ĐỂ ĐĂNG KÝ CART CONTEXT PROCESSOR:
                 'app.context_processors.cart_context',
                 'app.context_processors.brands_in_navbar',
+                # bot spam
+                'app.context_processors.turnstile_keys',
+
             ],
         },
     },
@@ -145,3 +148,11 @@ VNPAY_PAYMENT_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'  # get 
 VNPAY_API_URL = 'https://sandbox.vnpayment.vn/merchant_webapi/api/transaction'
 VNPAY_TMN_CODE = 'U3JJ7N03'  # Website ID in VNPAY System, get from config
 VNPAY_HASH_SECRET_KEY = 'ILTL00J7TDREQB4X0JSDV67L0UI2GVH0'  # Secret key for create checksum,get from config
+
+# AI
+AI_URL = "https://norbert-wintrier-nicol.ngrok-free.dev/analyze"
+
+# Bot block spam
+TURNSTILE_SITE_KEY = "0x4AAAAAACOmVOs6YBcoXl-r"
+TURNSTILE_SECRET_KEY = "0x4AAAAAACOmVDQrOXSJDz_XHvnX0Rs5kks"
+
