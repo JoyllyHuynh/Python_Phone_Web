@@ -2,6 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from django import forms
 from datetime import timedelta
+
+from django.utils import timezone
+
+
 class CustomerType(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name="Tên hạng")
     slug = models.SlugField(unique=True)
@@ -111,7 +115,8 @@ class Order(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.estimated_delivery_date:
-            self.estimated_delivery_date = self.date_ordered.date() + timedelta(days=7)
+            current_date = self.date_ordered if self.date_ordered else timezone.now()
+            self.estimated_delivery_date = current_date.date() + timedelta(days=7)
         super().save(*args, **kwargs)
     
 class OrderItem(models.Model):
@@ -121,7 +126,7 @@ class OrderItem(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
 
     @property
-    @property
+
     def get_total(self):
         if self.product:
             return float(self.product.price) * self.quantity

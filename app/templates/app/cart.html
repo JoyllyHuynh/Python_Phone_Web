@@ -245,4 +245,127 @@
 
     });
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- CÁC HÀM CƠ BẢN ---
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN').format(amount) + '₫';
+        }
+
+        // Hàm gọi API updateItem (Copy logic fetch từ main.js nếu bạn chưa có)
+        function updateUserOrder(productId, action){
+            var url = '/update_item/' // Đảm bảo URL này khớp với urls.py
+
+            fetch(url, {
+                method: 'POST',
+                headers:{
+                    'Content-Type':'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}', // Lấy token từ template
+                },
+                body:JSON.stringify({'productId':productId, 'action':action})
+            })
+            .then((response) => {
+               return response.json();
+            })
+            .then((data) => {
+                location.reload(); // Load lại trang sau khi xóa
+            });
+        }
+
+        // --- DOM ELEMENTS ---
+        const selectAllCheckbox = document.getElementById('select-all');
+        const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+        const selectedCountSpan = document.getElementById('selected-count');
+        const subtotalSpan = document.getElementById('subtotal-price');
+        const finalTotalSpan = document.getElementById('final-total');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const deleteButtons = document.querySelectorAll('.delete-cart-item');
+        const updateButtons = document.querySelectorAll('.update-cart'); // Nút cộng trừ
+
+        // --- 1. XỬ LÝ CẬP NHẬT GIÁ KHI CHECKBOX THAY ĐỔI ---
+        function updateSummary() {
+            let total = 0;
+            let count = 0;
+
+            itemCheckboxes.forEach(cb => {
+                if (cb.checked) {
+                    const row = cb.closest('.item-row');
+                    // Lưu ý: data-price cần là số float chuẩn (không dấu phẩy ngăn cách nghìn)
+                    // Ở HTML, item.get_total render ra float, nên ta parse trực tiếp
+                    const priceStr = row.getAttribute('data-price');
+                    const price = parseFloat(priceStr);
+
+                    total += price;
+                    count += 1;
+                }
+            });
+
+            selectedCountSpan.textContent = count + ' sản phẩm';
+            subtotalSpan.textContent = formatCurrency(total);
+            finalTotalSpan.textContent = formatCurrency(total);
+        }
+
+        // Event: Chọn tất cả
+        if(selectAllCheckbox){
+            selectAllCheckbox.addEventListener('change', function() {
+                itemCheckboxes.forEach(cb => {
+                    cb.checked = selectAllCheckbox.checked;
+                });
+                updateSummary();
+            });
+        }
+
+        // Event: Chọn từng cái
+        itemCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                if (!cb.checked) selectAllCheckbox.checked = false;
+                const allChecked = Array.from(itemCheckboxes).every(c => c.checked);
+                if (allChecked) selectAllCheckbox.checked = true;
+                updateSummary();
+            });
+        });
+
+        // --- 2. XỬ LÝ NÚT XÓA ---
+        deleteButtons.forEach(btn => {
+            btn.addEventListener('click', function(){
+                const productId = this.dataset.product;
+                // Gọi hàm update với action là 'delete'
+                updateUserOrder(productId, 'delete');
+            });
+        });
+
+        // Xử lý nút cộng trừ (nếu chưa có trong main.js)
+        updateButtons.forEach(btn => {
+            btn.addEventListener('click', function(){
+                const productId = this.dataset.product;
+                const action = this.dataset.action;
+                updateUserOrder(productId, action);
+            })
+        })
+
+        // --- 3. XỬ LÝ NÚT MUA HÀNG ---
+        checkoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const selectedIds = [];
+            itemCheckboxes.forEach(cb => {
+                if (cb.checked) {
+                    selectedIds.push(cb.value);
+                }
+            });
+
+            if (selectedIds.length === 0) {
+                alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán!');
+                return;
+            }
+
+            // Chuyển hướng kèm theo danh sách ID
+            // Ví dụ: /checkout/?items=1,5,9
+            const url = "{% url 'checkout' %}?items=" + selectedIds.join(',');
+            window.location.href = url;
+        });
+
+        // Chạy lần đầu để tính toán đúng giá trị mặc định
+        updateSummary();
+    });
+</script>
 {% endblock cart_content %}

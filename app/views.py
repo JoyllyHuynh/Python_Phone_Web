@@ -169,8 +169,16 @@ def checkout(request):
         order = {'get_cart_total': 0, 'get_cart_items': 0, 'id': 0}
         messages.warning(request, "Vui lòng đăng nhập để thanh toán.")
         return redirect('login')
+    selected_ids_str = request.GET.get('items')
 
     subtotal = order.get_cart_total if hasattr(order, 'get_cart_total') else 0
+    if selected_ids_str:
+        selected_ids = selected_ids_str.split(',')
+
+        items = items.filter(product_id__in=selected_ids)
+
+
+        subtotal = sum([item.get_total for item in items])
     shipping_fee = 0 if subtotal >= 2000000 else 30000
     if subtotal == 0: shipping_fee = 0
 
@@ -345,10 +353,13 @@ def updateItem(request):
     product = Product.objects.get(id = productId)
     order, created = Order.objects.get_or_create(customer=customer, complete=False)
     orderItem, created = OrderItem.objects.get_or_create(order=order, product=product)
+    orderItem = OrderItem.objects.filter(order=order, product=product).first()
     if action == 'add':
         orderItem.quantity += 1
     elif action == 'remove':
         orderItem.quantity -= 1
+    elif action == 'delete':
+        orderItem.quantity = 0
     orderItem.save()
     if orderItem.quantity <= 0:
         orderItem.delete()
