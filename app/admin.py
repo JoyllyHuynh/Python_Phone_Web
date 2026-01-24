@@ -146,3 +146,16 @@ class ReviewAdmin(admin.ModelAdmin):
 
 admin.site.register(Review, ReviewAdmin)
 admin.site.register(Payment_VNPay)
+class StoreAdmin(admin.ModelAdmin):
+    # Các cột sẽ hiển thị ra danh sách
+    list_display = ('id', 'name', 'phone', 'region', 'address', 'latitude', 'longitude')
+
+    # Thanh tìm kiếm: cho phép tìm theo tên và địa chỉ
+    search_fields = ('name', 'address')
+
+    # Bộ lọc bên phải: Lọc theo khu vực (Miền Bắc/Trung/Nam)
+    list_filter = ('region',)
+
+    # Sắp xếp mặc định theo ID
+    ordering = ('id',)
+

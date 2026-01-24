@@ -1,12 +1,13 @@
-{% endblock extra_css %}
 {% extends 'app/base.html' %}
 {% load static %}
 {% load humanize %}
 
 {% block extra_css %}
+{% endblock extra_css %}
+
 {% block main_content %}
 <h2>Lịch sử Đơn Hàng</h2>
-<table>
+<table class="table">
     <thead>
         <tr>
             <th>Mã Đơn Hàng</th>
@@ -23,13 +24,13 @@
         {% for order in orders %}
         <tr>
             <td>{{ order.id }}</td>
-            <td>{{ order.date_ordered }}</td>
+            <td>{{ order.date_ordered|date:"d/m/Y H:i" }}</td>
             <td>{{ order.complete|yesno:"Có,Không" }}</td>
             <td>{{ order.transaction_id }}</td>
             <td>{{ order.coupon_code|default:"N/A" }}</td>
-            <td>{{ order.discount_amount|floatformat:2 }}</td>
-            <td>{{ order.get_final_total|floatformat:2 }}</td>
-            <td>{{ order.estimated_delivery_date }}</td>
+            <td>{{ order.discount_amount|intcomma }} VNĐ</td>
+            <td>{{ order.get_final_total|intcomma }} VNĐ</td>-->
+            <td>{{ order.estimated_delivery_date|date:"d/m/Y" }}</td>
         </tr>
         {% empty %}
         <tr>
@@ -38,4 +39,4 @@
         {% endfor %}
     </tbody>
 </table>
-{% endblock %}
+{% endblock main_content %}

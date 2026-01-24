@@ -23,6 +23,8 @@ urlpatterns = [
     path('promotions/', views.promotion_list, name='promotion_list'),
     path('promotion-policy/', views.promotion_policy, name='promotion_policy'),
     path('product-search/', views.product_search, name='product_search'),
+    path('store_list/', views.store_list, name='store_list'),
+    path('order_history/', views.order_history, name='order_history'),
 
     # AI
     path("review/add/<int:product_id>/", views.add_review, name="add_review"),

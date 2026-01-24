@@ -160,13 +160,22 @@ def checkout(request):
         customer = request.user.customer
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
         items = order.orderitem_set.all()
+
     else:
         items = []
         order = {'get_cart_total': 0, 'get_cart_items': 0, 'id': 0}
         messages.warning(request, "Vui lòng đăng nhập để thanh toán.")
         return redirect('login')
 
+    selected_ids_str = request.GET.get('items')
     subtotal = order.get_cart_total if hasattr(order, 'get_cart_total') else 0
+    if selected_ids_str:
+        selected_ids = selected_ids_str.split(',')
+
+        items = items.filter(product_id__in=selected_ids)
+
+
+        subtotal = sum([item.get_total for item in items])
     shipping_fee = 0 if subtotal >= 2000000 else 30000
     if subtotal == 0: shipping_fee = 0
 
@@ -340,12 +349,17 @@ def updateItem(request):
     customer = request.user.customer
     product = Product.objects.get(id = productId)
     order, created = Order.objects.get_or_create(customer=customer, complete=False)
+
     orderItem, created = OrderItem.objects.get_or_create(order=order, product=product)
+    orderItem = OrderItem.objects.filter(order=order, product=product).first()
     if action == 'add':
         orderItem.quantity += 1
     elif action == 'remove':
         orderItem.quantity -= 1
+    elif action == 'delete':
+        orderItem.quantity = 0
     orderItem.save()
+
     if orderItem.quantity <= 0:
         orderItem.delete()
     return JsonResponse('added', safe=False)
@@ -717,14 +731,18 @@ def product_search(request):
         'sort': sort,
     }
     return render(request, 'app/product_search.html', context)
+# app/views.py
+
 def order_history(request):
-    # Lấy thông tin user và các đơn hàng của họ
-    customer = request.user.customer
-    orders = Order.objects.filter(customer=customer).order_by('-date_ordered')
-    context = {
-        'orders': orders,
-    }
-    return render(request, 'app/order_history.html', context)
+    # Kiểm tra nếu user đã đăng nhập
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        orders = Order.objects.filter(customer=customer).order_by('-date_ordered')
+        context = {'orders': orders}
+        return render(request, 'app/order_history.html', context)
+    else:
+        # Nếu chưa đăng nhập, chuyển hướng về trang đăng nhập
+        return redirect('login')
 
 
 @csrf_exempt
@@ -1038,3 +1056,16 @@ def edit_review(request, review_id):
         "ai_overall": product.ai_rating,
         "aspect_stats": aspect_stats,
     })
+def store_list(request):
+    stores = [
+        {
+            'name': 'Đại học Nông Lâm TP.HCM',
+            'address': 'VQCR+GP6, khu phố 6, Thủ Đức, TP. Hồ Chí Minh',
+            'phone': '0123456789',
+            'latitude': 10.8712764,
+            'longitude': 106.7917617,
+            # Link embed Google Maps cho địa chỉ này
+            'map_url': "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.2541344440056!2d106.7891867757366!3d10.87128165749005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3174d86698969f7b%3A0x9672b7efd0893fc4!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBOw7RuZyBMw6JtIFRQLiBI4buTIENow60gTWluaA!5e0!3m2!1svi!2s!4v1700000000000!5m2!1vi!2s"
+        }
+    ]
+    return render(request, 'app/store_list.html', {'stores': stores})

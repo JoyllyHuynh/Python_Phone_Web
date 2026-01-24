@@ -1,7 +1,11 @@
+from datetime import timedelta
+
 from django.db import models
 from django.contrib.auth.models import User, Group
 from django import forms
 from django.conf import settings
+from django.utils import timezone
+
 
 class CustomerType(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name="Tên hạng")
@@ -89,6 +93,8 @@ class Order(models.Model):
 
     coupon_code = models.CharField(max_length=50, blank=True, null=True)
     discount_amount = models.FloatField(default=0, blank=True, null=True)
+    estimated_delivery_date = models.DateField(blank=True, null=True)
+
 
     def __str__(self):
         return str(self.id)
@@ -112,7 +118,12 @@ class Order(models.Model):
         if self.discount_amount:
             total -= self.discount_amount
         return max(total, 0)
-    
+
+    def save(self, *args, **kwargs):
+        if not self.estimated_delivery_date:
+            current_date = self.date_ordered if self.date_ordered else timezone.now()
+            self.estimated_delivery_date = current_date.date() + timedelta(days=7)
+        super().save(*args, **kwargs)
 class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, blank=True, null=True)
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, blank=True, null=True)
@@ -121,7 +132,11 @@ class OrderItem(models.Model):
 
     @property
     def get_total(self):
-        return float(self.product.price) * self.quantity
+        # Kiểm tra: Nếu sản phẩm còn tồn tại thì mới tính tiền
+        if self.product:
+            return float(self.product.price) * self.quantity
+        # Nếu sản phẩm đã bị xóa, trả về 0
+        return 0
 
 class ShippingAddress(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, blank=True, null=True)
@@ -305,5 +320,22 @@ class PaymentForm(forms.Form):
     order_desc = forms.CharField(max_length=100)
     bank_code = forms.CharField(max_length=20, required=False)
     language = forms.CharField(max_length=2)
+class Store(models.Model):
+    name = models.CharField(max_length=200, verbose_name="Tên cửa hàng")
+    address = models.CharField(max_length=500, verbose_name="Địa chỉ")
+    phone = models.CharField(max_length=20, verbose_name="Số điện thoại")
 
+    # Để hiển thị trên map, cần toạ độ. Bạn có thể lấy trên google map (click phải vào địa điểm chọn 'What's here')
+    latitude = models.FloatField(verbose_name="Vĩ độ (Latitude)")
+    longitude = models.FloatField(verbose_name="Kinh độ (Longitude)")
+
+    # Khu vực để lọc (nếu muốn)
+    region = models.CharField(max_length=50, choices=[
+        ('MB', 'Miền Bắc'),
+        ('MT', 'Miền Trung'),
+        ('MN', 'Miền Nam')
+    ], default='MN', verbose_name="Khu vực")
+
+    def __str__(self):
+        return self.name
 
