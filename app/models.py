@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User, Group
 from django import forms
+from django.conf import settings
 
 class CustomerType(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name="Tên hạng")
@@ -60,6 +61,10 @@ class Product(models.Model):
             else:
                 url = ''
         return url
+    
+    ai_rating = models.FloatField(default=0, db_index=True)   # AI overall 0..5
+    ai_rating_count = models.IntegerField(default=0)          # số review dùng để tính
+
 
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='variants')
@@ -208,29 +213,77 @@ class Promotion(models.Model):
         return True
 
 class Review(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    SENTIMENT_CHOICES = (
+        (1, "Tích cực"),
+        (0, "Tiêu cực"),
+        (-1, "Trung lập"),
+    )
+
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
     content = models.TextField()
     rating = models.IntegerField(default=5, null=True, blank=True)
 
-    # 1 = positive, 0 = negative, None = neutral / unknown
-    sentiment = models.IntegerField(null=True, blank=True)
+    # sentiment tổng quan (dùng để lọc/hiển thị nhanh)
+    sentiment = models.SmallIntegerField(null=True, blank=True, choices=SENTIMENT_CHOICES)
+
+    # Kết quả ABSA: list dict, ví dụ:
+    # [{"aspect":"BATTERY","sentiment":"Negative","confidence":0.87}, ...]
+    ai_result = models.JSONField(null=True, blank=True)
 
     date_added = models.DateTimeField(auto_now_add=True)
 
-    ai_result = models.JSONField(null=True, blank=True)
-
     class Meta:
         ordering = ['-date_added']
+        indexes = [
+            models.Index(fields=["product", "-date_added"]),
+            models.Index(fields=["product", "sentiment"]),
+        ]
 
     def __str__(self):
         return f"{self.user.username} - {self.product.name}"
 
+    @staticmethod
+    def _score_from_ai(ai_result) -> int:
+        """
+        Tính sentiment tổng quan từ ai_result.
+        Quy ước:
+          Positive = +1
+          Negative = -1
+          Neutral  =  0
+        Nếu tổng > 0 => Tích cực
+        Nếu tổng < 0 => Tiêu cực
+        Nếu tổng = 0 hoặc không có => Trung lập
+        """
+        if not ai_result:
+            return -1
+
+        score = 0
+        for item in ai_result:
+            s = (item or {}).get("sentiment")
+            if s == "Positive":
+                score += 1
+            elif s == "Negative":
+                score -= 1
+            # Neutral/None không cộng
+
+        if score > 0:
+            return 1
+        if score < 0:
+            return 0
+        return -1
+
+    def set_sentiment_from_ai(self):
+        """Gọi sau khi đã có ai_result"""
+        self.sentiment = self._score_from_ai(self.ai_result)
+
     @property
-    def get_sentiment_display(self):
+    def sentiment_text(self):
+        # dùng cái này trong template cho tiện
         if self.sentiment == 1:
             return "Tích cực"
-        elif self.sentiment == 0:
+        if self.sentiment == 0:
             return "Tiêu cực"
         return "Trung lập"
 
@@ -252,4 +305,5 @@ class PaymentForm(forms.Form):
     order_desc = forms.CharField(max_length=100)
     bank_code = forms.CharField(max_length=20, required=False)
     language = forms.CharField(max_length=2)
+
 

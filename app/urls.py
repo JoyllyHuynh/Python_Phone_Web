@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.urls import path
 from app import views
-
 from django.contrib import admin
 
 
@@ -23,10 +22,12 @@ urlpatterns = [
     path('contact/', views.contact, name='contact'),
     path('promotions/', views.promotion_list, name='promotion_list'),
     path('promotion-policy/', views.promotion_policy, name='promotion_policy'),
-    path('edit-review/<int:id>/', views.edit_review, name='edit_review'),
-    path('delete-review/<int:id>/', views.delete_review, name='delete_review'),
     path('product-search/', views.product_search, name='product_search'),
 
+    # AI
+    path("review/add/<int:product_id>/", views.add_review, name="add_review"),
+    path("review/<int:review_id>/delete/", views.delete_review, name="delete_review"),
+    path("review/<int:review_id>/edit/", views.edit_review, name="edit_review"),
     #path('payment_return/', views.payment_return, name='payment_return'),
 
 
@@ -37,5 +38,7 @@ urlpatterns = [
     path('payment_return', views.payment_return, name='payment_return'),
     path('query', views.query, name='query'),
     path('refund', views.refund, name='refund'),
+    path("analyze/", views.analyze_view, name="analyze"),
+    path("absa/", views.absa_page, name="absa_page"),
    # path('admin/', admin.site.urls),
 ]

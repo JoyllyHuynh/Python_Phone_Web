@@ -348,3 +348,22 @@ body {
     width: 5%; /* Giảm kích thước vùng click */
 }
 
+.product-card { position: relative; overflow: hidden; }
+
+.hot-ribbon{
+  position: absolute;
+  top: 12px;
+  left: -40px;
+  transform: rotate(-45deg);
+  width: 140px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 6px 0;
+  color: #fff;
+  background: #ff3b3b;
+  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+  z-index: 9999;
+  pointer-events: none;
+}
+
